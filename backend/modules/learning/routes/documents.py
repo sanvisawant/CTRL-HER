@@ -23,8 +23,14 @@ from services.chunker import chunk_document
 
 router = APIRouter(prefix="/documents", tags=["Documents"])
 
-# In-memory document metadata database
-_documents_db: Dict[str, DocumentMetadata] = {}
+# Document metadata database: Supabase-synced registry with in-memory fallback (Step 7B-1)
+try:
+    from integrations.document_registry import get_registry, seed_prototype_documents
+    _documents_db = get_registry()
+except Exception:
+    _documents_db: Dict[str, DocumentMetadata] = {}
+    seed_prototype_documents = None
+
 
 # Pre-populate sample documents for India's Official Statistical System
 _sample_documents = [
@@ -201,8 +207,12 @@ _sample_chunks: Dict[str, List[DocumentChunk]] = {
     ]
 }
 
-for doc in _sample_documents:
-    _documents_db[doc.document_id] = doc
+if seed_prototype_documents is not None:
+    seed_prototype_documents(_sample_documents)
+else:
+    for doc in _sample_documents:
+        _documents_db[doc.document_id] = doc
+
 
 
 def format_file_size(size_in_bytes: int) -> str:

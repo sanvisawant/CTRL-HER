@@ -2,6 +2,10 @@
 StatSaksham AI — Identity Mapping Service
 Provides deterministic bidirectional mapping between canonical platform UUIDs
 and module-local identifiers (P1 UUID, P2/P3 learner ID, P4 user ID, P5 cadre ID).
+
+Step 7B-1: Supabase is now the PRIMARY source for identity mappings.
+The in-code DEMO_IDENTITIES list is retained as a FALLBACK for when Supabase
+is temporarily unavailable. Public API is unchanged.
 """
 import logging
 from typing import Optional, Dict, List
@@ -73,6 +77,10 @@ class IdentityMappingService:
     """
     Deterministic identity cross-reference manager.
     Enforces uniqueness, prevents ambiguous collisions, and never fabricates identities.
+
+    Step 7B-1: Loads from Supabase identity_mapping table on init.
+    Falls back to in-code DEMO_IDENTITIES if Supabase is unavailable.
+    Public API is unchanged.
     """
 
     def __init__(self, seed_demo_data: bool = True):
@@ -82,10 +90,56 @@ class IdentityMappingService:
         self._by_p3: Dict[str, CanonicalIdentity] = {}
         self._by_p4: Dict[str, CanonicalIdentity] = {}
         self._by_p5: Dict[str, CanonicalIdentity] = {}
+        self._source = "unloaded"
 
-        if seed_demo_data:
+        # 1. Try to load from Supabase (primary source)
+        supabase_loaded = self._load_from_supabase()
+
+        # 2. Fallback: always seed demo data if Supabase failed OR returned nothing
+        if seed_demo_data and (not supabase_loaded or len(self._by_canonical) == 0):
+            logger.info("[IdentityService] Applying in-code DEMO_IDENTITIES as fallback.")
             for item in DEMO_IDENTITIES:
-                self.register_identity(item)
+                self.register_identity(item, allow_update=True)
+            self._source = "fallback" if not supabase_loaded else "supabase+fallback"
+        elif supabase_loaded:
+            self._source = "supabase"
+
+        logger.info(f"[IdentityService] Loaded {len(self._by_canonical)} identities from source: {self._source}")
+
+    def _load_from_supabase(self) -> bool:
+        """
+        Load identity rows from Supabase.
+        Returns True if at least one row was loaded successfully.
+        """
+        try:
+            from integrations.supabase_persistence import get_all_identities
+            rows = get_all_identities()
+            if not rows:
+                logger.info("[IdentityService] Supabase identity_mapping is empty — will use fallback.")
+                return False
+            for row in rows:
+                try:
+                    identity = CanonicalIdentity(
+                        canonical_user_id=str(row["canonical_user_id"]),
+                        p1_user_id=str(row["p1_user_id"]) if row.get("p1_user_id") else None,
+                        p2_learner_id=row.get("p2_learner_id"),
+                        p3_learner_id=row.get("p3_learner_id"),
+                        p4_user_id=row.get("p4_user_id"),
+                        p5_cadre_id=row.get("p5_cadre_id"),
+                        full_name=row.get("full_name", ""),
+                        designation=row.get("designation"),
+                        department=row.get("department"),
+                        email=row.get("email"),
+                        role=row.get("role", "learner"),
+                    )
+                    self.register_identity(identity, allow_update=True)
+                except Exception as row_err:
+                    logger.warning(f"[IdentityService] Skipping malformed row {row.get('canonical_user_id')}: {row_err}")
+            logger.info(f"[IdentityService] Loaded {len(rows)} identities from Supabase.")
+            return True
+        except Exception as e:
+            logger.warning(f"[IdentityService] Supabase unavailable — falling back to demo data: {type(e).__name__}")
+            return False
 
     def register_identity(self, identity: CanonicalIdentity, allow_update: bool = False) -> CanonicalIdentity:
         """
