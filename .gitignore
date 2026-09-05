@@ -55,3 +55,9 @@ backend/data/chunks/*
 backend/data/embeddings/*
 !backend/data/embeddings/.gitkeep
 backend/data/tmp_test/
+backend/data/quizzes/*
+!backend/data/quizzes/.gitkeep
+backend/data/learner_progress/*
+!backend/data/learner_progress/.gitkeep
+backend/data/question_bank/*
+!backend/data/question_bank/.gitkeep

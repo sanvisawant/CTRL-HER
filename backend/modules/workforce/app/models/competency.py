@@ -13,6 +13,7 @@ class Competency(Base):
     description = Column(Text, nullable=True)
     baseline_required_level = Column(Float, default=4.0)
     is_emerging = Column(Boolean, default=False)
+    canonical_competency_id = Column(Integer, nullable=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships

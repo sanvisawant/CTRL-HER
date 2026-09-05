@@ -24,6 +24,7 @@ class User(Base):
     xp = Column(Integer, default=720)
     level = Column(Integer, default=7)
     streak_days = Column(Integer, default=6)
+    canonical_user_id = Column(String(50), nullable=True, index=True)
     last_active_date = Column(DateTime, default=datetime.utcnow)
     created_at = Column(DateTime, default=datetime.utcnow)
 

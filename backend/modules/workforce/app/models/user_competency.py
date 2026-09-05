@@ -22,6 +22,8 @@ class UserCompetency(Base):
     status = Column(String(20), default="moderate") # critical, moderate, proficient
     
     explanation = Column(Text, nullable=True) # Explainable AI rationale for gap
+    canonical_user_id = Column(String(50), nullable=True, index=True)
+    canonical_competency_id = Column(Integer, nullable=True, index=True)
     last_assessed_at = Column(DateTime, default=datetime.utcnow)
 
     # Relationships

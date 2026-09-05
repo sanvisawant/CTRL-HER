@@ -66,7 +66,8 @@ async def lifespan(app: FastAPI):
             if getattr(p4_settings, "AUTO_SEED_DATA", True):
                 with p4_session_local() as db:
                     p4_seed_database(db)
-                logger.info("P4 workforce database (SQLite) verified and seeded successfully.")
+                from app.core.database import db_backend
+                logger.info(f"P4 workforce database ({db_backend}) verified and initialized successfully.")
         except Exception as e:
             logger.warning(f"P4 database initialization notice: {e}")
 
