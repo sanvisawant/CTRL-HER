@@ -37,10 +37,11 @@ class QuestionBankRepository:
                     except Exception as item_err:
                         logger.warning(f"Could not parse question bank row {row.get('question_id')}: {item_err}")
                 logger.info(f"Loaded {len(self._cache)} question bank item(s) from Supabase.")
+                return
         except Exception as e:
             logger.warning(f"Failed to load question bank from Supabase: {e}")
 
-        # Supplement or fallback from disk
+        # Fallback from disk only if Supabase failed or empty
         for file_path in self.storage_dir.glob("*.json"):
             if file_path.stem in self._cache:
                 continue

@@ -320,6 +320,7 @@ def test_question_bank_persistence():
             conn.execute(text("DELETE FROM question_bank WHERE question_id = :qid"), {"qid": qid})
             conn.commit()
         repo._cache.pop(qid, None)
+        (repo.storage_dir / f"{qid}.json").unlink(missing_ok=True)
         print("    Cleaned up test question from Supabase.")
     except Exception as cleanup_err:
         print(f"    Notice during test question cleanup: {cleanup_err}")
