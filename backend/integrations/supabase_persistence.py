@@ -12,6 +12,7 @@ Design principles:
 import json
 import logging
 from typing import Optional, List, Dict, Any
+from datetime import datetime
 
 logger = logging.getLogger("statsaksham.supabase_persistence")
 
@@ -281,20 +282,35 @@ def update_document_status(document_id: str, status: str, **extra_fields) -> boo
 
 _DDL_LEARNER_PROGRESS = """
 CREATE TABLE IF NOT EXISTS learner_progress (
-    learner_id              VARCHAR(50) PRIMARY KEY,
+    id                      VARCHAR(120) PRIMARY KEY,
     canonical_user_id       UUID,
-    total_tracked_topics    INTEGER DEFAULT 0,
-    mastered_topics         INTEGER DEFAULT 0,
-    topics_needing_review   INTEGER DEFAULT 0,
-    improving_topics        INTEGER DEFAULT 0,
-    overall_accuracy        NUMERIC(5, 2) DEFAULT 0.0,
-    topics                  JSONB NOT NULL DEFAULT '{}'::jsonb,
+    learner_id              VARCHAR(50) NOT NULL,
+    topic                   VARCHAR(255) NOT NULL,
+    competency_id           INTEGER,
+    competency_name         VARCHAR(150),
+    attempts                INTEGER DEFAULT 0,
+    questions_attempted     INTEGER DEFAULT 0,
+    correct_answers         INTEGER DEFAULT 0,
+    incorrect_answers       INTEGER DEFAULT 0,
+    accuracy                NUMERIC(5, 2) DEFAULT 0.0,
+    recent_accuracy         NUMERIC(5, 2) DEFAULT 0.0,
+    mastery_score           NUMERIC(4, 2) DEFAULT 1.0,
+    mastery_state           VARCHAR(30) DEFAULT 'LEARNING',
+    trend                   VARCHAR(30) DEFAULT 'INSUFFICIENT_DATA',
+    first_attempt_at        TIMESTAMPTZ,
+    last_attempt_at         TIMESTAMPTZ,
+    history                 JSONB NOT NULL DEFAULT '[]'::jsonb,
+    metadata                JSONB NOT NULL DEFAULT '{}'::jsonb,
     created_at              TIMESTAMPTZ DEFAULT NOW(),
-    updated_at              TIMESTAMPTZ DEFAULT NOW()
+    updated_at              TIMESTAMPTZ DEFAULT NOW(),
+    CONSTRAINT uq_learner_progress_lid_topic UNIQUE (learner_id, topic)
 );
 """
 _DDL_LEARNER_PROGRESS_IDX = [
-    "CREATE INDEX IF NOT EXISTS idx_lp_canonical ON learner_progress (canonical_user_id);"
+    "CREATE INDEX IF NOT EXISTS idx_lp_canonical ON learner_progress (canonical_user_id);",
+    "CREATE INDEX IF NOT EXISTS idx_lp_competency ON learner_progress (competency_id);",
+    "CREATE INDEX IF NOT EXISTS idx_lp_learner ON learner_progress (learner_id);",
+    "CREATE INDEX IF NOT EXISTS idx_lp_mastery ON learner_progress (mastery_state);"
 ]
 
 _DDL_QUIZ_SESSIONS = """
@@ -399,42 +415,112 @@ def create_7b2_tables() -> bool:
 
 def upsert_learner_progress(profile_data: Dict[str, Any]) -> bool:
     """
-    Insert or update a learner_progress record in Supabase.
+    Persist learner progress profile to Supabase.
+    Inserts/updates each topic as a first-class record in learner_progress.
     """
     try:
         from sqlalchemy import text
+        from integrations.identity_mapping import identity_service
+        from integrations.competency_mapping import competency_service
+        import re
+
         engine = _get_engine()
-        topics_json = json.dumps(profile_data.get("topics", {}))
-        params = {
-            "learner_id": profile_data["learner_id"],
-            "canonical_user_id": profile_data.get("canonical_user_id"),
-            "total_tracked_topics": profile_data.get("total_tracked_topics", 0),
-            "mastered_topics": profile_data.get("mastered_topics", 0),
-            "topics_needing_review": profile_data.get("topics_needing_review", 0),
-            "improving_topics": profile_data.get("improving_topics", 0),
-            "overall_accuracy": profile_data.get("overall_accuracy", 0.0),
-            "topics": topics_json,
-        }
+        learner_id = profile_data["learner_id"]
+        canonical_uid = profile_data.get("canonical_user_id")
+        if not canonical_uid:
+            resolved = identity_service.resolve(learner_id)
+            canonical_uid = resolved.canonical_user_id if resolved else None
+
+        cid_prefix = str(canonical_uid)[:8] if canonical_uid else learner_id[:8]
+        topics = profile_data.get("topics", {})
+
+        if not topics:
+            return True
+
         sql = text("""
-            INSERT INTO learner_progress
-                (learner_id, canonical_user_id, total_tracked_topics, mastered_topics,
-                 topics_needing_review, improving_topics, overall_accuracy, topics, updated_at)
-            VALUES
-                (:learner_id, :canonical_user_id, :total_tracked_topics, :mastered_topics,
-                 :topics_needing_review, :improving_topics, :overall_accuracy, CAST(:topics AS jsonb), NOW())
-            ON CONFLICT (learner_id)
-            DO UPDATE SET
-                canonical_user_id     = COALESCE(EXCLUDED.canonical_user_id, learner_progress.canonical_user_id),
-                total_tracked_topics  = EXCLUDED.total_tracked_topics,
-                mastered_topics       = EXCLUDED.mastered_topics,
-                topics_needing_review = EXCLUDED.topics_needing_review,
-                improving_topics      = EXCLUDED.improving_topics,
-                overall_accuracy      = EXCLUDED.overall_accuracy,
-                topics                = EXCLUDED.topics,
-                updated_at            = NOW()
+            INSERT INTO learner_progress (
+                id, canonical_user_id, learner_id, topic, competency_id, competency_name,
+                attempts, questions_attempted, correct_answers, incorrect_answers,
+                accuracy, recent_accuracy, mastery_score, mastery_state, trend,
+                first_attempt_at, last_attempt_at, history, metadata, updated_at
+            )
+            VALUES (
+                :id, :canonical_user_id, :learner_id, :topic, :competency_id, :competency_name,
+                :attempts, :questions_attempted, :correct_answers, :incorrect_answers,
+                :accuracy, :recent_accuracy, :mastery_score, :mastery_state, :trend,
+                :first_attempt_at, :last_attempt_at, CAST(:history AS jsonb), CAST(:metadata AS jsonb), NOW()
+            )
+            ON CONFLICT (learner_id, topic) DO UPDATE SET
+                canonical_user_id   = COALESCE(EXCLUDED.canonical_user_id, learner_progress.canonical_user_id),
+                competency_id       = COALESCE(EXCLUDED.competency_id, learner_progress.competency_id),
+                competency_name     = COALESCE(EXCLUDED.competency_name, learner_progress.competency_name),
+                attempts            = EXCLUDED.attempts,
+                questions_attempted = EXCLUDED.questions_attempted,
+                correct_answers     = EXCLUDED.correct_answers,
+                incorrect_answers   = EXCLUDED.incorrect_answers,
+                accuracy            = EXCLUDED.accuracy,
+                recent_accuracy     = EXCLUDED.recent_accuracy,
+                mastery_score       = EXCLUDED.mastery_score,
+                mastery_state       = EXCLUDED.mastery_state,
+                trend               = EXCLUDED.trend,
+                first_attempt_at    = COALESCE(learner_progress.first_attempt_at, EXCLUDED.first_attempt_at),
+                last_attempt_at     = EXCLUDED.last_attempt_at,
+                history             = EXCLUDED.history,
+                metadata            = EXCLUDED.metadata,
+                updated_at          = NOW();
         """)
+
         with engine.connect() as conn:
-            conn.execute(sql, params)
+            for topic_name, tp in topics.items():
+                if hasattr(tp, "model_dump"):
+                    tp_dict = tp.model_dump()
+                elif isinstance(tp, dict):
+                    tp_dict = tp
+                else:
+                    tp_dict = {}
+
+                # Map topic to canonical competency
+                canon_comp, _, _ = competency_service.map_p3_topic_to_canonical(topic_name)
+                if not canon_comp:
+                    clean_prefix = topic_name.split()[0] if topic_name else ""
+                    if clean_prefix:
+                        canon_comp, _, _ = competency_service.map_p3_topic_to_canonical(clean_prefix)
+
+                comp_id = canon_comp.competency_id if canon_comp else None
+                comp_name = canon_comp.name if canon_comp else None
+
+                rec_acc = float(tp_dict.get("recent_accuracy", tp_dict.get("accuracy", 0.0)))
+                mastery_score = round(1.0 + (rec_acc / 100.0) * 4.0, 2)
+                mastery_score = min(5.0, max(1.0, mastery_score))
+
+                clean_slug = re.sub(r'[^a-zA-Z0-9_]+', '_', topic_name.lower()).strip('_')[:40]
+                det_id = f"lp_{cid_prefix}_{clean_slug}"
+
+                first_at = tp_dict.get("first_seen_at") or tp_dict.get("first_attempt_at")
+                last_at = tp_dict.get("last_practiced_at") or tp_dict.get("last_attempt_at")
+
+                params = {
+                    "id": det_id,
+                    "canonical_user_id": canonical_uid,
+                    "learner_id": learner_id,
+                    "topic": topic_name,
+                    "competency_id": comp_id,
+                    "competency_name": comp_name,
+                    "attempts": int(tp_dict.get("attempts", 0)),
+                    "questions_attempted": int(tp_dict.get("questions_attempted", 0)),
+                    "correct_answers": int(tp_dict.get("correct_answers", 0)),
+                    "incorrect_answers": int(tp_dict.get("incorrect_answers", 0)),
+                    "accuracy": float(tp_dict.get("accuracy", 0.0)),
+                    "recent_accuracy": rec_acc,
+                    "mastery_score": mastery_score,
+                    "mastery_state": str(tp_dict.get("status", tp_dict.get("mastery_state", "LEARNING"))),
+                    "trend": str(tp_dict.get("trend", "INSUFFICIENT_DATA")),
+                    "first_attempt_at": first_at,
+                    "last_attempt_at": last_at,
+                    "history": json.dumps(tp_dict.get("history", [])),
+                    "metadata": json.dumps({"source": "P3_PROGRESS_SERVICE"}),
+                }
+                conn.execute(sql, params)
             conn.commit()
         return True
     except Exception as e:
@@ -444,26 +530,128 @@ def upsert_learner_progress(profile_data: Dict[str, Any]) -> bool:
 
 def get_learner_progress_row(learner_id: str) -> Optional[Dict[str, Any]]:
     """
-    Retrieve learner_progress from Supabase by learner_id.
+    Retrieve learner_progress from Supabase by learner_id or canonical UUID.
+    Assembles individual topic progress rows into an aggregate profile dictionary.
     """
     try:
         from sqlalchemy import text
+        from integrations.identity_mapping import identity_service
         engine = _get_engine()
+
+        resolved = identity_service.resolve(learner_id)
+        canonical_uid = resolved.canonical_user_id if resolved else None
+
         sql = text("""
-            SELECT learner_id, canonical_user_id, total_tracked_topics, mastered_topics,
-                   topics_needing_review, improving_topics, overall_accuracy, topics,
+            SELECT id, canonical_user_id, learner_id, topic, competency_id, competency_name,
+                   attempts, questions_attempted, correct_answers, incorrect_answers,
+                   accuracy, recent_accuracy, mastery_score, mastery_state, trend,
+                   first_attempt_at, last_attempt_at, history, metadata,
                    created_at, updated_at
             FROM learner_progress
-            WHERE learner_id = :learner_id
+            WHERE learner_id = :learner_id 
+               OR (canonical_user_id IS NOT NULL AND canonical_user_id = :canonical_uid)
+            ORDER BY topic
         """)
+        params = {"learner_id": learner_id, "canonical_uid": canonical_uid}
         with engine.connect() as conn:
-            res = conn.execute(sql, {"learner_id": learner_id}).mappings().first()
-            if res:
-                return dict(res)
-            return None
+            rows = [dict(r) for r in conn.execute(sql, params).mappings().all()]
+            if not rows:
+                return None
+
+            topics = {}
+            mastered_count = 0
+            needing_review_count = 0
+            improving_count = 0
+            total_attempted = 0
+            total_correct = 0
+
+            for r in rows:
+                t_name = r["topic"]
+                hist = r.get("history")
+                if isinstance(hist, str):
+                    hist = json.loads(hist)
+                elif hist is None:
+                    hist = []
+
+                first_str = r["first_attempt_at"].isoformat() if r.get("first_attempt_at") else ""
+                last_str = r["last_attempt_at"].isoformat() if r.get("last_attempt_at") else ""
+
+                m_state = r["mastery_state"] or "LEARNING"
+                if m_state == "MASTERED":
+                    mastered_count += 1
+                elif m_state == "NEEDS_REVIEW":
+                    needing_review_count += 1
+                elif m_state == "IMPROVING":
+                    improving_count += 1
+
+                q_att = int(r.get("questions_attempted") or 0)
+                c_ans = int(r.get("correct_answers") or 0)
+                total_attempted += q_att
+                total_correct += c_ans
+
+                topics[t_name] = {
+                    "topic": t_name,
+                    "attempts": int(r.get("attempts") or 0),
+                    "questions_attempted": q_att,
+                    "correct_answers": c_ans,
+                    "incorrect_answers": int(r.get("incorrect_answers") or 0),
+                    "accuracy": float(r.get("accuracy") or 0.0),
+                    "recent_accuracy": float(r.get("recent_accuracy") or 0.0),
+                    "status": m_state,
+                    "trend": r.get("trend") or "INSUFFICIENT_DATA",
+                    "first_seen_at": first_str,
+                    "last_practiced_at": last_str,
+                    "history": hist
+                }
+
+            overall_acc = round((total_correct / total_attempted) * 100.0, 2) if total_attempted > 0 else 0.0
+            latest_updated = max((r["updated_at"] for r in rows if r.get("updated_at")), default=datetime.utcnow())
+            earliest_created = min((r["created_at"] for r in rows if r.get("created_at")), default=datetime.utcnow())
+
+            return {
+                "learner_id": learner_id,
+                "canonical_user_id": canonical_uid or rows[0].get("canonical_user_id"),
+                "total_tracked_topics": len(topics),
+                "mastered_topics": mastered_count,
+                "topics_needing_review": needing_review_count,
+                "improving_topics": improving_count,
+                "overall_accuracy": overall_acc,
+                "topics": topics,
+                "created_at": earliest_created,
+                "updated_at": latest_updated
+            }
     except Exception as e:
         logger.warning(f"[SUPABASE] get_learner_progress_row '{learner_id}' failed: {e}")
         return None
+
+
+def get_learner_topic_rows(learner_id: str) -> List[Dict[str, Any]]:
+    """
+    Retrieve all raw topic-level learner_progress rows from Supabase.
+    """
+    try:
+        from sqlalchemy import text
+        from integrations.identity_mapping import identity_service
+        engine = _get_engine()
+        resolved = identity_service.resolve(learner_id)
+        canonical_uid = resolved.canonical_user_id if resolved else None
+
+        sql = text("""
+            SELECT id, canonical_user_id, learner_id, topic, competency_id, competency_name,
+                   attempts, questions_attempted, correct_answers, incorrect_answers,
+                   accuracy, recent_accuracy, mastery_score, mastery_state, trend,
+                   first_attempt_at, last_attempt_at, history, metadata,
+                   created_at, updated_at
+            FROM learner_progress
+            WHERE learner_id = :learner_id 
+               OR (canonical_user_id IS NOT NULL AND canonical_user_id = :canonical_uid)
+            ORDER BY topic
+        """)
+        with engine.connect() as conn:
+            return [dict(r) for r in conn.execute(sql, {"learner_id": learner_id, "canonical_uid": canonical_uid}).mappings().all()]
+    except Exception as e:
+        logger.warning(f"[SUPABASE] get_learner_topic_rows '{learner_id}' failed: {e}")
+        return []
 
 
 # ---------------------------------------------------------------------------
