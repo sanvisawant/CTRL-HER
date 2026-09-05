@@ -302,6 +302,8 @@ class WorkflowService:
         topic_name = "General"
         if hasattr(result, "topic_breakdown") and result.topic_breakdown:
             topic_name = next(iter(result.topic_breakdown.keys()))
+        elif hasattr(result, "topic_performance") and result.topic_performance:
+            topic_name = result.topic_performance[0].topic
 
         # Map topic to canonical competency
         canon_comp, comp_status, _ = competency_service.map_p3_topic_to_canonical(topic_name)
@@ -312,6 +314,7 @@ class WorkflowService:
         # Normalized 1.0 to 5.0 score calculation
         score_calibrated = round(1.0 + (float(result.percentage) / 100.0) * 4.0, 2)
         score_calibrated = min(5.0, max(1.0, score_calibrated))
+        is_passed = bool(getattr(result, "passed", float(result.percentage) >= 60.0))
 
         # 1. Assessment Result Contract
         assessment_contract = AssessmentResultContract(
@@ -324,7 +327,7 @@ class WorkflowService:
             score=result.score,
             accuracy_pct=float(result.percentage),
             score_calibrated_1_to_5=score_calibrated,
-            passed=bool(result.passed),
+            passed=is_passed,
             source_module="P3_ASSESSMENT"
         )
 
