@@ -20,16 +20,47 @@ class QuizRepository:
         self._cache: Dict[str, QuizSession] = {}
 
     def save_quiz(self, session: QuizSession) -> None:
-        """Saves a quiz session into memory and persists it to disk."""
+        """Saves a quiz session into cache, Supabase (primary), and disk (fallback)."""
         self._cache[session.quiz_id] = session
+
+        # 1. Primary: Persist to Supabase
+        try:
+            from integrations.supabase_persistence import upsert_quiz_session
+            from integrations.identity_mapping import identity_service
+            canonical_id = identity_service.resolve_to_canonical_id(session.learner_id)
+            s_dict = session.model_dump()
+            s_dict["canonical_user_id"] = canonical_id
+            if session.result:
+                s_dict["score"] = session.result.score
+                s_dict["percentage"] = session.result.percentage
+            upsert_quiz_session(s_dict)
+        except Exception as e:
+            logger.warning(f"Failed to persist quiz '{session.quiz_id}' to Supabase: {e}")
+
+        # 2. Fallback mirror: persist to disk
         self._persist_to_disk(session)
         logger.info(f"QuizSession '{session.quiz_id}' saved ({len(session.questions_snapshot)} questions).")
 
     def get_quiz(self, quiz_id: str) -> Optional[QuizSession]:
-        """Retrieves a quiz session from memory cache or reads from disk."""
+        """Retrieves a quiz session from cache, Supabase (primary), or disk (fallback)."""
         if quiz_id in self._cache:
             return self._cache[quiz_id]
 
+        # 1. Primary: Load from Supabase
+        try:
+            from integrations.supabase_persistence import get_quiz_session_row
+            row = get_quiz_session_row(quiz_id)
+            if row:
+                for ts_key in ("created_at", "submitted_at"):
+                    if ts_key in row and hasattr(row[ts_key], "isoformat"):
+                        row[ts_key] = row[ts_key].isoformat()
+                session = QuizSession(**row)
+                self._cache[quiz_id] = session
+                return session
+        except Exception as e:
+            logger.warning(f"Failed to load quiz '{quiz_id}' from Supabase: {e}")
+
+        # 2. Fallback: Load from disk
         file_path = self.storage_dir / f"{quiz_id}.json"
         if file_path.exists():
             try:

@@ -19,11 +19,31 @@ class QuestionBankRepository:
         self.storage_dir = storage_dir or settings.QUESTION_BANK_DIR
         self.storage_dir.mkdir(parents=True, exist_ok=True)
         self._cache: Dict[str, QuestionBankItem] = {}
-        self._load_all_from_disk()
+        self._load_all()
 
-    def _load_all_from_disk(self) -> None:
-        """Populates cache with all existing questions on disk."""
+    def _load_all(self) -> None:
+        """Loads questions from Supabase (primary) and disk (fallback)."""
+        try:
+            from integrations.supabase_persistence import list_question_bank_rows
+            rows = list_question_bank_rows()
+            if rows:
+                for row in rows:
+                    for ts in ("created_at", "updated_at", "reviewed_at"):
+                        if ts in row and hasattr(row[ts], "isoformat"):
+                            row[ts] = row[ts].isoformat()
+                    try:
+                        item = QuestionBankItem(**row)
+                        self._cache[item.question_id] = item
+                    except Exception as item_err:
+                        logger.warning(f"Could not parse question bank row {row.get('question_id')}: {item_err}")
+                logger.info(f"Loaded {len(self._cache)} question bank item(s) from Supabase.")
+        except Exception as e:
+            logger.warning(f"Failed to load question bank from Supabase: {e}")
+
+        # Supplement or fallback from disk
         for file_path in self.storage_dir.glob("*.json"):
+            if file_path.stem in self._cache:
+                continue
             try:
                 with open(file_path, "r", encoding="utf-8") as f:
                     data = json.load(f)
@@ -33,16 +53,42 @@ class QuestionBankRepository:
                 logger.error(f"Failed to load question '{file_path.name}' from disk: {e}")
 
     def save(self, item: QuestionBankItem) -> None:
-        """Saves a QuestionBankItem to cache and persists it to disk."""
+        """Saves a QuestionBankItem to cache, Supabase (primary), and disk (fallback)."""
         self._cache[item.question_id] = item
+
+        # 1. Primary: Persist to Supabase
+        try:
+            from integrations.supabase_persistence import upsert_question_bank_item
+            item_dict = item.model_dump()
+            item_dict["document_id"] = item.source.document_id
+            upsert_question_bank_item(item_dict)
+        except Exception as e:
+            logger.warning(f"Failed to persist question bank item '{item.question_id}' to Supabase: {e}")
+
+        # 2. Fallback mirror: persist to disk
         self._persist_to_disk(item)
         logger.info(f"QuestionBankItem '{item.question_id}' saved with status '{item.status}'.")
 
     def get(self, question_id: str) -> Optional[QuestionBankItem]:
-        """Retrieves a question from memory cache or reads from disk."""
+        """Retrieves a question from memory cache, Supabase (primary), or disk (fallback)."""
         if question_id in self._cache:
             return self._cache[question_id]
 
+        # 1. Primary: Load from Supabase
+        try:
+            from integrations.supabase_persistence import get_question_bank_item_row
+            row = get_question_bank_item_row(question_id)
+            if row:
+                for ts in ("created_at", "updated_at", "reviewed_at"):
+                    if ts in row and hasattr(row[ts], "isoformat"):
+                        row[ts] = row[ts].isoformat()
+                item = QuestionBankItem(**row)
+                self._cache[question_id] = item
+                return item
+        except Exception as e:
+            logger.warning(f"Failed to load question '{question_id}' from Supabase: {e}")
+
+        # 2. Fallback: Load from disk
         file_path = self.storage_dir / f"{question_id}.json"
         if file_path.exists():
             try:
