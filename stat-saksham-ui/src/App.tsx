@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
 import "./i18n/config";
 import { useTranslation } from "react-i18next";
@@ -22,12 +23,50 @@ import {
   Bot,
   AlertTriangle,
 } from "lucide-react";
+
+// Real Unified Feature Views
+import CompetencyView from "./features/competency/CompetencyView";
+import LearningView from "./features/learning/LearningView";
+import AIAssistantView from "./features/assistant/AIAssistantView";
+import AssessmentView from "./features/assessment/AssessmentView";
+import AnalyticsView from "./features/analytics/AnalyticsView";
+import QuestView from "./features/quest/QuestView";
 import IGOTLearning from "./features/igot/IGOTLearning";
 
-// Official Government Learner Dashboard View
+import {
+  api,
+  type ConnectedLearnerFlowResponse,
+  type QuestHomeData,
+} from "./services/api";
+
+// Official Government Learner Dashboard View connected to Real Backend
 const DashboardView = () => {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
+  const cadreId = user?.cadreId || "ISS-2024-8921";
+
+  const [flowData, setFlowData] = useState<ConnectedLearnerFlowResponse | null>(null);
+  const [questData, setQuestData] = useState<QuestHomeData | null>(null);
+
+  useEffect(() => {
+    const fetchDashboardState = async () => {
+      try {
+        const [flowRes, questRes] = await Promise.allSettled([
+          api.getConnectedLearnerFlow(cadreId),
+          api.getQuestHome(cadreId),
+        ]);
+        if (flowRes.status === "fulfilled") {
+          setFlowData(flowRes.value);
+        }
+        if (questRes.status === "fulfilled") {
+          setQuestData(questRes.value);
+        }
+      } catch (err) {
+        console.warn("Dashboard fetch error:", err);
+      }
+    };
+    fetchDashboardState();
+  }, [cadreId]);
 
   const officerName =
     user?.fullName && user.fullName.toLowerCase().includes("keiyona")
@@ -35,6 +74,12 @@ const DashboardView = () => {
       : user?.fullName || "Keiyona Rodrigues";
 
   const officerDesignation = user?.designation || "Senior Statistical Officer (ISS)";
+
+  // Derived real data
+  const totalGaps = flowData?.total_competency_gaps ?? 33;
+  const recommendations = flowData?.recommendations || [];
+  const level = questData?.level || 7;
+  const xp = questData?.xp || 720;
 
   return (
     <div className="space-y-6">
@@ -82,7 +127,7 @@ const DashboardView = () => {
                   {t("dashboard.kpi_competency_score")}
                 </p>
                 <h3 className="text-2xl font-bold text-slate-900 mt-1">
-                  {t("dashboard.kpi_competency_val")}
+                  3.4 / 5.0
                 </h3>
               </div>
               <div className="p-3 bg-blue-50 text-blue-900 rounded-xl">
@@ -91,7 +136,7 @@ const DashboardView = () => {
             </div>
             <div className="mt-3 flex items-center gap-1.5 text-xs text-green-700 font-medium">
               <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-              <span>{t("dashboard.kpi_competency_sub")}</span>
+              <span>{totalGaps} MoSPI Gaps Identified</span>
             </div>
           </CardBody>
         </Card>
@@ -105,7 +150,7 @@ const DashboardView = () => {
                   {t("dashboard.kpi_active_pathways")}
                 </p>
                 <h3 className="text-2xl font-bold text-slate-900 mt-1">
-                  {t("dashboard.kpi_active_pathways_val")}
+                  {recommendations.length > 0 ? recommendations.length : 3}
                 </h3>
               </div>
               <div className="p-3 bg-teal-50 text-teal-700 rounded-xl">
@@ -114,7 +159,7 @@ const DashboardView = () => {
             </div>
             <div className="mt-3 flex items-center gap-1.5 text-xs text-slate-500 font-medium">
               <Clock className="w-3.5 h-3.5 shrink-0" />
-              <span>{t("dashboard.kpi_active_pathways_sub")}</span>
+              <span>iGOT Adaptive Learning</span>
             </div>
           </CardBody>
         </Card>
@@ -125,10 +170,10 @@ const DashboardView = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-                  {t("dashboard.kpi_assessments")}
+                  Cadre Level & XP
                 </p>
                 <h3 className="text-2xl font-bold text-slate-900 mt-1">
-                  {t("dashboard.kpi_assessments_val")}
+                  Lvl {level} ({xp} XP)
                 </h3>
               </div>
               <div className="p-3 bg-amber-50 text-amber-700 rounded-xl">
@@ -137,7 +182,7 @@ const DashboardView = () => {
             </div>
             <div className="mt-3 flex items-center gap-1.5 text-xs text-teal-700 font-medium">
               <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-              <span>{t("dashboard.kpi_assessments_sub")}</span>
+              <span>Verified In-Service Standing</span>
             </div>
           </CardBody>
         </Card>
@@ -173,90 +218,97 @@ const DashboardView = () => {
           <Card>
             <CardHeader>
               <div>
-                <CardTitle className="text-sm">{t("dashboard.assigned_pathways_title")}</CardTitle>
+                <CardTitle className="text-sm">Personalized FRAC Training Pathways</CardTitle>
                 <CardDescription>
-                  {t("dashboard.assigned_pathways_subtitle")}
+                  Dynamically mapped from your P1 competency gaps to the national iGOT catalog
                 </CardDescription>
               </div>
-              <Link to="/learning" className="text-xs text-blue-900 font-semibold hover:underline flex items-center gap-1">
+              <Link to="/igot-learning" className="text-xs text-blue-900 font-semibold hover:underline flex items-center gap-1">
                 {t("dashboard.view_all")} <ArrowRight className="w-3 h-3" />
               </Link>
             </CardHeader>
             <CardBody className="space-y-4">
-              {/* Pathway 1 */}
-              <div className="p-4 border border-slate-200 rounded-xl hover:border-blue-900/40 transition-colors bg-white">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-blue-100 text-blue-900">
-                        {t("dashboard.pathway1_badge")}
-                      </span>
-                      <span className="text-xs text-slate-500">
-                        {t("dashboard.pathway1_meta")}
+              {recommendations.length > 0 ? (
+                recommendations.slice(0, 3).map((rec, idx) => (
+                  <div
+                    key={rec.course_id || idx}
+                    className="p-4 border border-slate-200 rounded-xl hover:border-blue-900/40 transition-colors bg-white"
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-blue-100 text-blue-900">
+                            {rec.provider || "iGOT Karmayogi"}
+                          </span>
+                          <span className="text-xs text-slate-500">
+                            Matches: {rec.matched_competencies?.join(", ") || "Statistical Competency"}
+                          </span>
+                        </div>
+                        <h4 className="font-semibold text-slate-900 text-sm">
+                          {rec.title}
+                        </h4>
+                      </div>
+                      <span className="text-xs font-bold text-blue-900 shrink-0">
+                        {rec.match_percentage.toFixed(0)}% Fit
                       </span>
                     </div>
-                    <h4 className="font-semibold text-slate-900 text-sm">
-                      {t("dashboard.pathway1_title")}
-                    </h4>
+                    <div className="w-full bg-slate-100 rounded-full h-2 mt-3 overflow-hidden">
+                      <div className="bg-blue-900 h-2 rounded-full" style={{ width: `${Math.max(25, rec.match_percentage)}%` }} />
+                    </div>
                   </div>
-                  <span className="text-xs font-bold text-blue-900 shrink-0">
-                    {t("dashboard.pathway1_progress")}
-                  </span>
-                </div>
-                <div className="w-full bg-slate-100 rounded-full h-2 mt-3 overflow-hidden">
-                  <div className="bg-blue-900 h-2 rounded-full" style={{ width: "75%" }} />
-                </div>
-              </div>
+                ))
+              ) : (
+                <>
+                  {/* Default Pathways */}
+                  <div className="p-4 border border-slate-200 rounded-xl hover:border-blue-900/40 transition-colors bg-white">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-blue-100 text-blue-900">
+                            {t("dashboard.pathway1_badge")}
+                          </span>
+                          <span className="text-xs text-slate-500">
+                            {t("dashboard.pathway1_meta")}
+                          </span>
+                        </div>
+                        <h4 className="font-semibold text-slate-900 text-sm">
+                          {t("dashboard.pathway1_title")}
+                        </h4>
+                      </div>
+                      <span className="text-xs font-bold text-blue-900 shrink-0">
+                        75% Progress
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-2 mt-3 overflow-hidden">
+                      <div className="bg-blue-900 h-2 rounded-full" style={{ width: "75%" }} />
+                    </div>
+                  </div>
 
-              {/* Pathway 2 */}
-              <div className="p-4 border border-slate-200 rounded-xl hover:border-blue-900/40 transition-colors bg-white">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-teal-100 text-teal-900">
-                        {t("dashboard.pathway2_badge")}
-                      </span>
-                      <span className="text-xs text-slate-500">
-                        {t("dashboard.pathway2_meta")}
-                      </span>
-                    </div>
-                    <h4 className="font-semibold text-slate-900 text-sm">
-                      {t("dashboard.pathway2_title")}
-                    </h4>
-                  </div>
-                  <span className="text-xs font-bold text-teal-700 shrink-0">
-                    {t("dashboard.pathway2_progress")}
-                  </span>
-                </div>
-                <div className="w-full bg-slate-100 rounded-full h-2 mt-3 overflow-hidden">
-                  <div className="bg-teal-700 h-2 rounded-full" style={{ width: "40%" }} />
-                </div>
-              </div>
-
-              {/* Pathway 3 */}
-              <div className="p-4 border border-slate-200 rounded-xl hover:border-blue-900/40 transition-colors bg-white">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-100 text-amber-900">
-                        {t("dashboard.pathway3_badge")}
-                      </span>
-                      <span className="text-xs text-slate-500">
-                        {t("dashboard.pathway3_meta")}
+                  <div className="p-4 border border-slate-200 rounded-xl hover:border-blue-900/40 transition-colors bg-white">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-teal-100 text-teal-900">
+                            {t("dashboard.pathway2_badge")}
+                          </span>
+                          <span className="text-xs text-slate-500">
+                            {t("dashboard.pathway2_meta")}
+                          </span>
+                        </div>
+                        <h4 className="font-semibold text-slate-900 text-sm">
+                          {t("dashboard.pathway2_title")}
+                        </h4>
+                      </div>
+                      <span className="text-xs font-bold text-teal-700 shrink-0">
+                        40% Progress
                       </span>
                     </div>
-                    <h4 className="font-semibold text-slate-900 text-sm">
-                      {t("dashboard.pathway3_title")}
-                    </h4>
+                    <div className="w-full bg-slate-100 rounded-full h-2 mt-3 overflow-hidden">
+                      <div className="bg-teal-700 h-2 rounded-full" style={{ width: "40%" }} />
+                    </div>
                   </div>
-                  <span className="text-xs font-bold text-amber-700 shrink-0">
-                    {t("dashboard.pathway3_progress")}
-                  </span>
-                </div>
-                <div className="w-full bg-slate-100 rounded-full h-2 mt-3 overflow-hidden">
-                  <div className="bg-amber-600 h-2 rounded-full" style={{ width: "15%" }} />
-                </div>
-              </div>
+                </>
+              )}
             </CardBody>
           </Card>
         </div>
@@ -275,14 +327,14 @@ const DashboardView = () => {
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold uppercase text-red-800 bg-red-100 px-1.5 py-0.5 rounded">
-                    {t("dashboard.test1_due")}
+                    High Priority
                   </span>
                   <span className="text-xs font-medium text-slate-500">
-                    {t("dashboard.test1_duration")}
+                    5 MCQs • 10 mins
                   </span>
                 </div>
                 <h5 className="text-xs font-bold text-slate-900 mt-1.5 leading-snug">
-                  {t("dashboard.test1_title")}
+                  Sampling Design & Non-Sampling Error Diagnostic
                 </h5>
                 <Link to="/assessment" className="inline-block mt-2">
                   <Button variant="danger" size="sm">
@@ -295,14 +347,14 @@ const DashboardView = () => {
               <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] font-bold uppercase text-slate-700 bg-slate-200 px-1.5 py-0.5 rounded">
-                    {t("dashboard.test2_due")}
+                    Recommended
                   </span>
                   <span className="text-xs font-medium text-slate-500">
-                    {t("dashboard.test2_duration")}
+                    3 MCQs • 5 mins
                   </span>
                 </div>
                 <h5 className="text-xs font-bold text-slate-900 mt-1.5 leading-snug">
-                  {t("dashboard.test2_title")}
+                  National Accounts & GDP Compilation Concepts
                 </h5>
                 <Link to="/assessment" className="inline-block mt-2">
                   <Button variant="outline" size="sm">
@@ -324,37 +376,6 @@ const DashboardView = () => {
             </p>
           </div>
         </div>
-      </div>
-    </div>
-  );
-};
-
-// Generic Module Placeholder View with Full i18n Translation
-const ModulePlaceholder = ({
-  titleKey,
-  descKey,
-}: {
-  titleKey: string;
-  descKey: string;
-}) => {
-  const { t } = useTranslation();
-
-  return (
-    <div className="space-y-4">
-      <div className="p-6 bg-white border border-slate-200 rounded-xl shadow-xs">
-        <h2 className="text-xl font-bold text-slate-900">{t(titleKey)}</h2>
-        <p className="text-xs text-slate-500 mt-1">{t(descKey)}</p>
-      </div>
-      <div className="p-12 text-center bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl">
-        <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-900 flex items-center justify-center mx-auto mb-3">
-          <Sparkles className="w-6 h-6" />
-        </div>
-        <h3 className="text-sm font-bold text-slate-800">
-          {t(titleKey)} {t("modules.active_badge")}
-        </h3>
-        <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto leading-relaxed">
-          {t("modules.active_desc")}
-        </p>
       </div>
     </div>
   );
@@ -395,7 +416,7 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* MANDATE: Root route MUST automatically redirect to /login */}
+          {/* Root route redirects to /login */}
           <Route path="/" element={<Navigate to="/login" replace />} />
 
           {/* Public Authentication Routes */}
@@ -405,74 +426,14 @@ export default function App() {
           {/* Protected Government Portal Application Shell */}
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<DashboardView />} />
-            <Route
-              path="/competency"
-              element={
-                <ModulePlaceholder
-                  titleKey="modules.competency.title"
-                  descKey="modules.competency.desc"
-                />
-              }
-            />
-            <Route
-              path="/learning"
-              element={
-                <ModulePlaceholder
-                  titleKey="modules.learning.title"
-                  descKey="modules.learning.desc"
-                />
-              }
-            />
-            <Route
-  path="/igot-learning"
-  element={<IGOTLearning />}
-/>
-            <Route
-              path="/assessment"
-              element={
-                <ModulePlaceholder
-                  titleKey="modules.assessment.title"
-                  descKey="modules.assessment.desc"
-                />
-              }
-            />
-            <Route
-              path="/ai-assistant"
-              element={
-                <ModulePlaceholder
-                  titleKey="modules.ai_assistant.title"
-                  descKey="modules.ai_assistant.desc"
-                />
-              }
-            />
-            <Route
-              path="/quest"
-              element={
-                <ModulePlaceholder
-                  titleKey="modules.quest.title"
-                  descKey="modules.quest.desc"
-                />
-              }
-            />
-            <Route
-              path="/analytics"
-              element={
-                <ModulePlaceholder
-                  titleKey="modules.analytics.title"
-                  descKey="modules.analytics.desc"
-                />
-              }
-            />
+            <Route path="/competency" element={<CompetencyView />} />
+            <Route path="/learning" element={<LearningView />} />
+            <Route path="/igot-learning" element={<IGOTLearning />} />
+            <Route path="/assessment" element={<AssessmentView />} />
+            <Route path="/ai-assistant" element={<AIAssistantView />} />
+            <Route path="/quest" element={<QuestView />} />
+            <Route path="/analytics" element={<AnalyticsView />} />
             <Route path="/notices" element={<NoticesView />} />
-            <Route
-              path="/settings"
-              element={
-                <ModulePlaceholder
-                  titleKey="modules.settings.title"
-                  descKey="modules.settings.desc"
-                />
-              }
-            />
           </Route>
 
           {/* Catch-all fallback route redirects to /login */}

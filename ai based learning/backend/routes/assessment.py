@@ -340,6 +340,13 @@ def submit_quiz_answers(quiz_id: str, submission: QuizSubmissionRequest):
     except Exception as e:
         logger.error(f"Failed to update learner progress for '{session.learner_id}': {e}")
 
+    # Cross-Module Integration: Emit AssessmentResultContract and update P4 & P1
+    try:
+        from integrations.workflow_service import workflow_service
+        workflow_service.on_quiz_submitted(result=result, learner_id=session.learner_id, document_id=session.document_id)
+    except Exception as e:
+        logger.warning(f"Notice during cross-module assessment event dispatch: {e}")
+
     return result
 
 
