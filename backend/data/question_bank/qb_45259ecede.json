@@ -1,0 +1,42 @@
+{
+  "question_id": "qb_45259ecede",
+  "question": "What is the primary sampling unit (FSU) in rural NSS surveys?",
+  "options": [
+    {
+      "id": "A",
+      "text": "Census villages"
+    },
+    {
+      "id": "B",
+      "text": "Urban blocks"
+    },
+    {
+      "id": "C",
+      "text": "District headquarters"
+    },
+    {
+      "id": "D",
+      "text": "Agricultural fields"
+    }
+  ],
+  "correct_answer": "A",
+  "explanation": "Updated explanation verified by NSSO trainer.",
+  "difficulty": "easy",
+  "topic": "Sampling Units",
+  "source": {
+    "document_id": "doc_aa2e4b59",
+    "document": "NSS_Sampling_Manual_Official.pdf",
+    "chunk_ids": [
+      "chunk_001"
+    ],
+    "locations": [
+      "Page 1"
+    ]
+  },
+  "status": "APPROVED",
+  "origin": "GENERATED",
+  "created_at": "2026-09-04T04:27:23.575376",
+  "updated_at": "2026-09-04T04:27:23.596459",
+  "reviewed_at": "2026-09-04T04:27:23.596459",
+  "reviewed_by": null
+}

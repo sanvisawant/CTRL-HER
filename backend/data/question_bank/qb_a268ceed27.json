@@ -1,0 +1,42 @@
+{
+  "question_id": "qb_a268ceed27",
+  "question": "What is the secondary stage unit in urban surveys?",
+  "options": [
+    {
+      "id": "A",
+      "text": "Households"
+    },
+    {
+      "id": "B",
+      "text": "Villages"
+    },
+    {
+      "id": "C",
+      "text": "States"
+    },
+    {
+      "id": "D",
+      "text": "Countries"
+    }
+  ],
+  "correct_answer": "A",
+  "explanation": "Households are selected within urban blocks.",
+  "difficulty": "easy",
+  "topic": "Sampling Units",
+  "source": {
+    "document_id": "doc_aa2e4b59",
+    "document": "NSS_Sampling_Manual_Official.pdf",
+    "chunk_ids": [
+      "chunk_002"
+    ],
+    "locations": [
+      "Page 2"
+    ]
+  },
+  "status": "REJECTED",
+  "origin": "GENERATED",
+  "created_at": "2026-09-04T04:27:23.601115",
+  "updated_at": "2026-09-04T04:27:23.606989",
+  "reviewed_at": "2026-09-04T04:27:23.606989",
+  "reviewed_by": null
+}

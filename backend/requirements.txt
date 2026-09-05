@@ -1,0 +1,32 @@
+# StatSaksham AI — Consolidated Backend Dependencies (SIH26101)
+
+# Core Framework & ASGI Server
+fastapi>=0.110.0
+uvicorn[standard]>=0.28.0
+pydantic>=2.6.0
+pydantic-settings>=2.2.0
+python-dotenv>=1.0.1
+python-multipart>=0.0.9
+httpx>=0.27.0
+
+# Database & ORM (Supabase PostgreSQL + P4 SQLite)
+sqlalchemy>=2.0.28
+psycopg2-binary>=2.9.9
+
+# Data Processing & Numerical Computing
+pandas>=2.2.0
+numpy>=1.26.0
+
+# AI, Vector Store & Embeddings
+google-genai>=0.1.1
+sentence-transformers>=3.0.0
+faiss-cpu>=1.7.0
+
+# In-Service Document Extraction
+pymupdf>=1.23.0
+python-pptx>=0.6.23
+python-docx>=1.1.0
+
+# Testing
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
