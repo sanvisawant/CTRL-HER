@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   api,
   type LearningAssistantResponse,
 } from "../../services/api";
 import { Card, CardHeader, CardTitle, CardDescription, CardBody } from "../../components/common/Card";
 import { Button } from "../../components/common/Button";
+import { DakshaLogo } from "../../components/common/DakshaLogo";
 import {
   Bot,
   Send,
@@ -12,6 +13,7 @@ import {
   ShieldCheck,
   FileText,
   HelpCircle,
+  AlertCircle,
 } from "lucide-react";
 
 interface ChatMessage {
@@ -34,12 +36,17 @@ export const AIAssistantView: React.FC = () => {
     {
       id: "welcome",
       sender: "assistant",
-      text: "Namaskar Officer! I am your MoSPI In-Service Learning Assistant, grounded strictly in official ministry survey manuals, sampling handbooks, and statistical methodologies. How may I assist your professional capacity building today?",
+      text: "Namaskar Officer! I am DakshaAI, your MoSPI in-service knowledge copilot. Every answer is grounded directly in official ministry survey manuals, sampling handbooks, and statistical guidelines with transparent provenance citations. How may I assist your work today?",
       timestamp: "Just now",
     },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages, loading]);
 
   const sendMessage = async (questionText: string) => {
     const q = questionText.trim();
@@ -71,7 +78,7 @@ export const AIAssistantView: React.FC = () => {
       const errorMsg: ChatMessage = {
         id: `err-${Date.now()}`,
         sender: "assistant",
-        text: "I could not retrieve an answer from the grounded vector index at this time. Please verify that the backend FAISS index is loaded.",
+        text: "I could not retrieve an answer from the grounded vector index at this time. Please ensure the backend vector store and FAISS indices are active.",
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
       setMessages((prev) => [...prev, errorMsg]);
@@ -86,101 +93,137 @@ export const AIAssistantView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-800/40 border border-blue-400/30 text-blue-200 text-xs font-semibold">
-            <Bot className="w-3.5 h-3.5" />
-            <span>P3 Grounded RAG AI Assistant</span>
+    <div className="space-y-4 animate-fade-in">
+      {/* Header Banner (Compact & Dignified) */}
+      <div className="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 rounded-xl p-4 sm:p-5 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 border border-blue-800/40">
+        <div className="space-y-1">
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-blue-800/50 border border-blue-400/30 text-blue-200 text-[11px] font-semibold">
+            <Bot className="w-3.5 h-3.5 text-blue-300" />
+            <span>Grounded In-Service Learning Assistant</span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            MoSPI Institutional Knowledge Assistant
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight">
+            DakshaAI • MoSPI Knowledge Copilot
           </h1>
-          <p className="text-slate-300 text-xs sm:text-sm max-w-2xl">
-            Strictly grounded answers with transparent citations and document provenance derived from the MoSPI knowledge base.
+          <p className="text-slate-300 text-xs max-w-2xl leading-relaxed">
+            Strictly grounded statistical responses derived directly from official NSS manuals, CPI rebasing methodologies, and PLFS procedural guidelines.
           </p>
         </div>
-        <div className="inline-flex items-center gap-2 bg-blue-950/60 border border-blue-700/40 px-3 py-1.5 rounded-xl text-xs text-blue-200">
-          <ShieldCheck className="w-4 h-4 text-amber-400" />
-          <span>Hallucination Guard Active</span>
+        <div className="inline-flex items-center gap-2 bg-blue-950/70 border border-blue-700/50 px-3 py-1.5 rounded-lg text-xs text-blue-200 shrink-0">
+          <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <span className="font-semibold text-emerald-300">Grounded Guard Active</span>
         </div>
       </div>
 
       {/* Main Chat Interface */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
         {/* Left 3 Cols: Message Feed */}
-        <div className="lg:col-span-3 space-y-4">
-          <Card className="h-[560px] flex flex-col justify-between">
-            <CardHeader className="py-3 px-5 border-b border-slate-100">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-blue-900 text-white flex items-center justify-center">
-                  <Bot className="w-4 h-4" />
+        <div className="lg:col-span-3 space-y-3">
+          <Card className="h-[580px] flex flex-col justify-between shadow-xs">
+            <CardHeader className="py-2.5 px-4 border-b border-slate-100 bg-slate-50/50">
+              <div className="flex items-center justify-between w-full">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-blue-900 text-white flex items-center justify-center shadow-xs">
+                    <DakshaLogo size={20} theme="dark" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xs font-bold text-blue-950">In-Service Consultation Session</CardTitle>
+                    <CardDescription className="text-[10px]">
+                      Dense 384-dimensional Sentence-Transformers + FAISS semantic retrieval
+                    </CardDescription>
+                  </div>
                 </div>
-                <div>
-                  <CardTitle className="text-sm">In-Service Consultation Session</CardTitle>
-                  <CardDescription className="text-[11px]">
-                    Grounded with Sentence-Transformers + FAISS semantic vector retrieval
-                  </CardDescription>
-                </div>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Live RAG
+                </span>
               </div>
             </CardHeader>
 
             {/* Messages Body */}
-            <CardBody className="p-5 flex-1 overflow-y-auto space-y-4 bg-slate-50/50">
+            <CardBody className="p-4 flex-1 overflow-y-auto space-y-3.5 bg-slate-50/40">
               {messages.map((m) => {
                 const isUser = m.sender === "user";
+                const isInsufficientContext =
+                  !isUser &&
+                  (m.data?.confidence === "LOW" ||
+                    m.text.toLowerCase().includes("insufficient context") ||
+                    m.text.toLowerCase().includes("not found"));
+
                 return (
                   <div
                     key={m.id}
                     className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}
                   >
                     <div
-                      className={`max-w-[85%] rounded-2xl p-4 text-xs leading-relaxed shadow-xs ${
+                      className={`max-w-[88%] rounded-2xl p-3.5 text-xs leading-relaxed transition-all ${
                         isUser
-                          ? "bg-blue-900 text-white rounded-br-none"
-                          : "bg-white border border-slate-200 text-slate-900 rounded-bl-none"
+                          ? "bg-blue-900 text-white rounded-br-xs shadow-xs"
+                          : "bg-white border border-slate-200 text-slate-800 rounded-tl-xs shadow-xs"
                       }`}
                     >
-                      <p className="whitespace-pre-wrap">{m.text}</p>
-
-                      {/* AI Citations & Confidence */}
-                      {m.data && (
-                        <div className="mt-3 pt-2.5 border-t border-slate-100 text-[11px] text-slate-500 space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="font-semibold text-slate-700 flex items-center gap-1">
-                              <ShieldCheck className="w-3.5 h-3.5 text-teal-600" /> Grounded RAG
-                            </span>
+                      {/* Assistant Header inside bubble */}
+                      {!isUser && (
+                        <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
+                          <div className="flex items-center gap-2">
+                            <DakshaLogo size={16} />
+                            <span className="font-extrabold text-[11px] text-blue-950">DakshaAI</span>
+                          </div>
+                          {m.data?.confidence && (
                             <span
-                              className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                              className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                                 m.data.confidence === "HIGH"
-                                  ? "bg-teal-100 text-teal-800"
+                                  ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
                                   : m.data.confidence === "MEDIUM"
-                                  ? "bg-amber-100 text-amber-800"
-                                  : "bg-slate-100 text-slate-700"
+                                  ? "bg-amber-100 text-amber-800 border border-amber-200"
+                                  : "bg-slate-100 text-slate-700 border border-slate-200"
                               }`}
                             >
-                              Confidence: {m.data.confidence}
+                              {m.data.confidence} Confidence
                             </span>
-                          </div>
-
-                          {m.data.sources && m.data.sources.length > 0 && (
-                            <div className="space-y-1">
-                              <span className="font-semibold text-slate-600 block">Sources & Citations:</span>
-                              {m.data.sources.map((src, idx) => (
-                                <div
-                                  key={idx}
-                                  className="p-1.5 rounded bg-slate-50 border border-slate-200 flex items-center gap-2 text-[10px] text-slate-700"
-                                >
-                                  <FileText className="w-3 h-3 text-blue-900 shrink-0" />
-                                  <span className="font-medium truncate">{src.document}</span>
-                                  {src.location && (
-                                    <span className="text-slate-400 shrink-0">({src.location})</span>
-                                  )}
-                                </div>
-                              ))}
-                            </div>
                           )}
+                        </div>
+                      )}
+
+                      {/* Message Content */}
+                      {isInsufficientContext ? (
+                        <div className="space-y-2">
+                          <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2 text-amber-900">
+                            <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
+                            <p className="text-xs">
+                              {m.text}
+                            </p>
+                          </div>
+                          <p className="text-[11px] text-slate-500 italic">
+                            Tip: Inquiries must correspond to indexed MoSPI manuals (e.g. Sampling multipliers, NSS field schedules, CPI rebasing indices).
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="whitespace-pre-wrap">{m.text}</p>
+                      )}
+
+                      {/* Grounded Provenance Citations */}
+                      {m.data?.sources && m.data.sources.length > 0 && (
+                        <div className="mt-3 pt-2.5 border-t border-slate-100 space-y-1.5">
+                          <span className="font-bold text-[10px] uppercase tracking-wider text-slate-500 block">
+                            Document Provenance & Verified Citations:
+                          </span>
+                          <div className="grid grid-cols-1 gap-1.5">
+                            {m.data.sources.map((src, idx) => (
+                              <div
+                                key={idx}
+                                className="p-2 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between gap-2 text-[11px] text-slate-700 hover:bg-blue-50/50 hover:border-blue-200 transition-colors"
+                              >
+                                <div className="flex items-center gap-2 truncate">
+                                  <FileText className="w-3.5 h-3.5 text-blue-900 shrink-0" />
+                                  <span className="font-semibold truncate">{src.document}</span>
+                                </div>
+                                {src.location && (
+                                  <span className="text-[10px] font-mono text-slate-400 bg-white px-1.5 py-0.5 rounded border border-slate-200 shrink-0">
+                                    {src.location}
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
                     </div>
@@ -191,12 +234,28 @@ export const AIAssistantView: React.FC = () => {
                 );
               })}
 
+              {/* Multi-stage thinking animation */}
               {loading && (
-                <div className="flex items-center gap-2 text-xs text-slate-500 bg-white p-3 rounded-xl border border-slate-200 w-fit">
-                  <Sparkles className="w-4 h-4 text-blue-900 animate-spin" />
-                  <span>Searching MoSPI FAISS vector index & formulating grounded response...</span>
+                <div className="flex items-center gap-3 bg-white border border-slate-200 p-3 rounded-2xl rounded-tl-xs shadow-xs w-fit animate-fade-in">
+                  <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 text-blue-900 animate-spin" />
+                  </div>
+                  <div className="space-y-0.5">
+                    <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                      <span>Analyzing query against MoSPI vector index</span>
+                      <span className="inline-flex gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-900 animate-pulse" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-900 animate-pulse delay-150" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-900 animate-pulse delay-300" />
+                      </span>
+                    </p>
+                    <p className="text-[10px] text-slate-500">
+                      Cross-referencing statistical manuals and computing similarity scores...
+                    </p>
+                  </div>
                 </div>
               )}
+              <div ref={messagesEndRef} />
             </CardBody>
 
             {/* Input Bar */}
@@ -206,14 +265,14 @@ export const AIAssistantView: React.FC = () => {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask a technical or methodology question regarding MoSPI operations..."
+                  placeholder="Ask a question on MoSPI methodology, survey manuals, or CPI calculation..."
                   disabled={loading}
-                  className="flex-1 px-4 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-900 focus:bg-white transition-all text-slate-900"
+                  className="flex-1 px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-900 focus:bg-white transition-all text-slate-900"
                 />
                 <Button
                   type="submit"
                   variant="primary"
-                  size="md"
+                  size="sm"
                   disabled={loading || !input.trim()}
                   rightIcon={<Send className="w-3.5 h-3.5" />}
                 >
@@ -225,21 +284,21 @@ export const AIAssistantView: React.FC = () => {
         </div>
 
         {/* Right 1 Col: Quick Prompts & Knowledge Guidelines */}
-        <div className="space-y-4">
-          <Card>
-            <CardHeader className="py-3 px-4">
+        <div className="space-y-3.5">
+          <Card className="shadow-xs">
+            <CardHeader className="py-2.5 px-3.5 border-b border-slate-100">
               <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Recommended Queries
               </CardTitle>
             </CardHeader>
-            <CardBody className="p-4 pt-0 space-y-2">
+            <CardBody className="p-3 space-y-2">
               {SAMPLE_PROMPTS.map((prompt, i) => (
                 <button
                   key={i}
                   type="button"
                   onClick={() => sendMessage(prompt)}
                   disabled={loading}
-                  className="w-full text-left p-2.5 rounded-lg border border-slate-200 text-[11px] text-slate-700 hover:border-blue-900 hover:bg-blue-50/50 transition-all leading-snug flex items-start gap-2"
+                  className="w-full text-left p-2.5 rounded-lg border border-slate-200 text-[11px] text-slate-700 hover:border-blue-900 hover:bg-blue-50/50 transition-all leading-snug flex items-start gap-2 cursor-pointer"
                 >
                   <HelpCircle className="w-3.5 h-3.5 text-blue-900 shrink-0 mt-0.5" />
                   <span>{prompt}</span>
@@ -248,13 +307,13 @@ export const AIAssistantView: React.FC = () => {
             </CardBody>
           </Card>
 
-          <div className="p-4 bg-blue-900 rounded-xl text-white space-y-2 text-xs">
+          <div className="p-3.5 bg-blue-950 border border-blue-800 rounded-xl text-white space-y-2 text-xs shadow-xs">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-amber-400" />
-              <h4 className="font-bold">Institutional AI Boundary</h4>
+              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+              <h4 className="font-bold text-xs">Official Boundary Standard</h4>
             </div>
             <p className="text-slate-300 leading-relaxed text-[11px]">
-              This model does not extrapolate beyond the official ministry manuals provided in the training corpus. If an inquiry exceeds the indexed domain, it will indicate insufficient context.
+              DakshaAI adheres strictly to verified MoSPI training documents. Answers are derived verbatim or via dense semantic synthesis without creative hallucination.
             </p>
           </div>
         </div>
@@ -264,3 +323,4 @@ export const AIAssistantView: React.FC = () => {
 };
 
 export default AIAssistantView;
+

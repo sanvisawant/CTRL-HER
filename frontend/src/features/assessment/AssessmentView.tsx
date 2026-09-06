@@ -11,7 +11,6 @@ import { Card, CardHeader, CardTitle, CardDescription, CardBody } from "../../co
 import { Button } from "../../components/common/Button";
 import {
   Target,
-  FileCheck2,
   CheckCircle2,
   XCircle,
   HelpCircle,
@@ -118,18 +117,18 @@ export const AssessmentView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-800/40 border border-blue-400/30 text-blue-200 text-xs font-semibold">
-            <FileCheck2 className="w-3.5 h-3.5" />
-            <span>P3 Grounded Assessment Engine & P4 Gamification</span>
+    <div className="space-y-4 animate-fade-in">
+      {/* Header Banner (Compact & Dignified) */}
+      <div className="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 rounded-xl p-4 sm:p-5 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 border border-blue-800/40">
+        <div className="space-y-1">
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-blue-800/50 border border-blue-400/30 text-blue-200 text-[11px] font-semibold">
+            <Target className="w-3.5 h-3.5 text-blue-300" />
+            <span>P3 Diagnostic Assessment Engine</span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight">
             MoSPI Competency Diagnostic & In-Service Evaluation
           </h1>
-          <p className="text-slate-300 text-xs sm:text-sm max-w-2xl">
+          <p className="text-slate-300 text-xs max-w-2xl leading-relaxed">
             Strictly grounded MCQs derived from official ministry manuals. Submissions automatically calibrate your competency profile and award gamified XP.
           </p>
         </div>
@@ -138,8 +137,8 @@ export const AssessmentView: React.FC = () => {
             variant="outline"
             size="sm"
             onClick={resetQuiz}
-            leftIcon={<RotateCcw className="w-4 h-4" />}
-            className="border-white/30 text-white hover:bg-white/10"
+            leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
+            className="border-white/30 text-white hover:bg-white/10 shrink-0"
           >
             Cancel Quiz
           </Button>

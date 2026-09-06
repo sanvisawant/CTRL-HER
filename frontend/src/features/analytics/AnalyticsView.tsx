@@ -63,18 +63,18 @@ export const AnalyticsView: React.FC = () => {
   const departments = dashboardData?.department_summary || [];
 
   return (
-    <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-800/40 border border-blue-400/30 text-blue-200 text-xs font-semibold">
-            <BarChart3 className="w-3.5 h-3.5" />
+    <div className="space-y-4 animate-fade-in">
+      {/* Header Banner (Compact & Dignified) */}
+      <div className="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 rounded-xl p-4 sm:p-5 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 border border-blue-800/40">
+        <div className="space-y-1">
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-blue-800/50 border border-blue-400/30 text-blue-200 text-[11px] font-semibold">
+            <BarChart3 className="w-3.5 h-3.5 text-blue-300" />
             <span>P4 Workforce Intelligence & Heatmap</span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight">
             Ministry Workforce Competency & Operational Readiness
           </h1>
-          <p className="text-slate-300 text-xs sm:text-sm max-w-2xl">
+          <p className="text-slate-300 text-xs max-w-2xl leading-relaxed">
             Real-time cadre-level intelligence across NSSO, CSO, FOD, NAD, ESD, and SDRD divisions.
           </p>
         </div>
@@ -83,36 +83,36 @@ export const AnalyticsView: React.FC = () => {
           size="sm"
           onClick={loadAnalytics}
           leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />}
-          className="border-white/30 text-white hover:bg-white/10"
+          className="border-white/30 text-white hover:bg-white/10 shrink-0"
         >
           Refresh Data
         </Button>
       </div>
 
       {error && (
-        <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
+        <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
           <p className="font-bold">Backend Status</p>
           <p className="mt-0.5">{error}</p>
         </div>
       )}
 
-      {/* Top Level Workforce KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card variant="accent">
-          <CardBody className="p-5">
+      {/* Top Level Workforce KPIs (Compact & High-Contrast) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <Card variant="accent" className="hover:shadow-md transition-shadow">
+          <CardBody className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-500 uppercase">Total Cadre Strength</p>
-                <h3 className="text-2xl font-bold text-slate-900 mt-1">
+                <p className="text-[11px] font-semibold text-slate-500 uppercase">Total Cadre Strength</p>
+                <h3 className="text-2xl font-black text-slate-900 mt-0.5">
                   {kpis?.total_officials ? kpis.total_officials.toLocaleString() : "12,450"}
                 </h3>
               </div>
-              <div className="p-3 bg-blue-50 text-blue-900 rounded-xl">
+              <div className="p-2.5 bg-blue-50 text-blue-900 rounded-lg">
                 <Users className="w-5 h-5" />
               </div>
             </div>
-            <p className="text-xs text-teal-700 font-medium mt-3 flex items-center gap-1">
-              <TrendingUp className="w-3.5 h-3.5" /> Active in-service statistical personnel
+            <p className="text-xs text-teal-700 font-medium mt-2 flex items-center gap-1">
+              <TrendingUp className="w-3.5 h-3.5" /> Active in-service personnel
             </p>
           </CardBody>
         </Card>

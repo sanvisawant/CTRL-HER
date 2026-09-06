@@ -93,18 +93,18 @@ export const QuestView: React.FC = () => {
   const xpPct = Math.min(100, (xp / xpNext) * 100);
 
   return (
-    <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-800/40 border border-blue-400/30 text-blue-200 text-xs font-semibold">
-            <Compass className="w-3.5 h-3.5" />
+    <div className="space-y-4 animate-fade-in">
+      {/* Header Banner (Compact & Dignified) */}
+      <div className="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 rounded-xl p-4 sm:p-5 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 border border-blue-800/40">
+        <div className="space-y-1">
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-blue-800/50 border border-blue-400/30 text-blue-200 text-[11px] font-semibold">
+            <Compass className="w-3.5 h-3.5 text-blue-300" />
             <span>P4 Competency Quest & Gamified Mastery</span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight">
             Statistical Gamification & Daily Micro-Missions
           </h1>
-          <p className="text-slate-300 text-xs sm:text-sm max-w-2xl">
+          <p className="text-slate-300 text-xs max-w-2xl leading-relaxed">
             Reinforce core survey methodology and data auditing habits through real-world micro-challenges and earn official cadre milestones.
           </p>
         </div>
@@ -113,14 +113,14 @@ export const QuestView: React.FC = () => {
           size="sm"
           onClick={loadQuestData}
           leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />}
-          className="border-white/30 text-white hover:bg-white/10"
+          className="border-white/30 text-white hover:bg-white/10 shrink-0"
         >
           Sync XP
         </Button>
       </div>
 
       {error && (
-        <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-start gap-2">
+        <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-start gap-2">
           <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
           <div>
             <p className="font-bold">Backend Sync Notice</p>
@@ -130,20 +130,20 @@ export const QuestView: React.FC = () => {
       )}
 
       {/* Gamification Status Bar (Level, XP, Streak) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         {/* Level Card */}
-        <Card variant="accent">
-          <CardBody className="p-5 flex items-center justify-between">
+        <Card variant="accent" className="hover:shadow-md transition-shadow">
+          <CardBody className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-slate-500 uppercase">Officer Rank Level</p>
-              <h3 className="text-2xl font-bold text-slate-900 mt-1">
+              <p className="text-[11px] font-semibold text-slate-500 uppercase">Officer Rank Level</p>
+              <h3 className="text-2xl font-black text-slate-900 mt-0.5">
                 Level {level}
               </h3>
               <p className="text-xs text-blue-900 font-semibold mt-1 flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5 text-teal-600" /> Senior Analyst (ISS)
               </p>
             </div>
-            <div className="p-3.5 bg-blue-100 text-blue-900 rounded-2xl">
+            <div className="p-3 bg-blue-100 text-blue-900 rounded-xl">
               <Trophy className="w-6 h-6" />
             </div>
           </CardBody>

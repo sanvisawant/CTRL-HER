@@ -72,29 +72,29 @@ export const LearningView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-teal-950 to-slate-900 rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-800/40 border border-teal-400/30 text-teal-200 text-xs font-semibold">
-            <BookOpen className="w-3.5 h-3.5" />
+    <div className="space-y-4 animate-fade-in">
+      {/* Header Banner (Compact & Dignified) */}
+      <div className="bg-gradient-to-r from-blue-900 via-teal-950 to-slate-900 rounded-xl p-4 sm:p-5 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 border border-teal-800/40">
+        <div className="space-y-1">
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-teal-800/50 border border-teal-400/30 text-teal-200 text-[11px] font-semibold">
+            <BookOpen className="w-3.5 h-3.5 text-teal-300" />
             <span>P3 Grounded Learning Subsystem</span>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-black tracking-tight">
             MoSPI Knowledge Repository & Official Guidelines
           </h1>
-          <p className="text-slate-300 text-xs sm:text-sm max-w-2xl">
+          <p className="text-slate-300 text-xs max-w-2xl leading-relaxed">
             Official survey concepts, definitions, NSS manual references, and index vector embeddings for verified in-service learning.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 shrink-0">
           <Link to="/ai-assistant">
-            <Button variant="secondary" size="sm" leftIcon={<Bot className="w-4 h-4" />}>
+            <Button variant="secondary" size="sm" leftIcon={<Bot className="w-3.5 h-3.5" />}>
               Open AI Assistant
             </Button>
           </Link>
           <Link to="/assessment">
-            <Button variant="saffron" size="sm" leftIcon={<Target className="w-4 h-4" />}>
+            <Button variant="saffron" size="sm" leftIcon={<Target className="w-3.5 h-3.5" />}>
               Practice Quiz
             </Button>
           </Link>

@@ -134,7 +134,7 @@ export const IGOTLearning = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 animate-fade-in">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>

@@ -39,17 +39,13 @@ export const AppLayout = () => {
   const navItems = [
     { label: t("nav.dashboard"), icon: LayoutDashboard, path: "/dashboard" },
     { label: t("nav.competency"), icon: Award, path: "/competency" },
+    { label: "iGOT Pathways", icon: GraduationCap, path: "/igot-learning" },
     { label: t("nav.learning"), icon: BookOpen, path: "/learning" },
     { label: t("nav.assessments"), icon: FileCheck, path: "/assessment" },
     { label: t("nav.ai_assistant"), icon: Bot, path: "/ai-assistant", badge: "AI" },
     { label: t("nav.quest"), icon: Compass, path: "/quest" },
     { label: t("nav.analytics"), icon: BarChart3, path: "/analytics" },
     { label: t("nav.notices"), icon: Radio, path: "/notices" },
-    {
-  label: "iGOT Learning",
-  icon: GraduationCap,
-  path: "/igot-learning",
-},
   ];
 
   const textSizeClass =
@@ -239,10 +235,10 @@ export const AppLayout = () => {
                     to={item.path}
                     onClick={() => setMobileMenuOpen(false)}
                     className={({ isActive }) =>
-                      `flex items-center justify-between px-3.5 py-3 rounded-lg text-xs font-semibold transition-colors ${
+                      `flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all duration-150 ${
                         isActive
-                          ? "bg-blue-900 text-white shadow-xs"
-                          : "text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+                          ? "bg-blue-900 text-white shadow-xs font-bold"
+                          : "text-slate-700 hover:bg-slate-100/90 hover:text-blue-950"
                       }`
                     }
                   >
@@ -295,7 +291,7 @@ export const AppLayout = () => {
         )}
 
         {/* Main Content Area */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto max-w-7xl mx-auto w-full">
+        <main className="flex-1 p-4 sm:p-5 lg:p-6 overflow-y-auto max-w-7xl mx-auto w-full animate-fade-in">
           <Outlet />
         </main>
       </div>

@@ -11,7 +11,6 @@ import { Button } from "./components/common/Button";
 import {
   Award,
   BookOpen,
-  FileCheck2,
   TrendingUp,
   Target,
   Sparkles,
@@ -47,10 +46,12 @@ const DashboardView = () => {
 
   const [flowData, setFlowData] = useState<ConnectedLearnerFlowResponse | null>(null);
   const [questData, setQuestData] = useState<QuestHomeData | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const fetchDashboardState = async () => {
       try {
+        setLoading(true);
         const [flowRes, questRes] = await Promise.allSettled([
           api.getConnectedLearnerFlow(cadreId),
           api.getQuestHome(cadreId),
@@ -63,6 +64,8 @@ const DashboardView = () => {
         }
       } catch (err) {
         console.warn("Dashboard fetch error:", err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchDashboardState();
@@ -82,33 +85,33 @@ const DashboardView = () => {
   const xp = questData?.xp || 720;
 
   return (
-    <div className="space-y-6">
-      {/* Officer Welcome & Authority Hero Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-blue-950 to-slate-900 rounded-2xl p-6 sm:p-8 text-white shadow-md relative overflow-hidden">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/30 text-amber-300 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5" />
+    <div className="space-y-5 animate-fade-in">
+      {/* Officer Welcome & Authority Hero Banner (Compact & Commanding) */}
+      <div className="bg-gradient-to-r from-blue-900 via-blue-950 to-slate-900 rounded-xl p-4 sm:p-6 text-white shadow-sm relative overflow-hidden border border-blue-800/40">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[11px] font-semibold">
+              <Sparkles className="w-3 h-3 text-amber-400" />
               <span>{t("dashboard.hero_tag")}</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+            <h1 className="text-xl sm:text-2xl font-black tracking-tight">
               {t("dashboard.welcome_title", { name: officerName })}
             </h1>
-            <p className="text-slate-300 text-xs sm:text-sm max-w-2xl leading-relaxed">
+            <p className="text-slate-300 text-xs max-w-2xl leading-relaxed">
               {t("dashboard.welcome_subtitle", {
                 designation: officerDesignation,
                 cadreId: user?.cadreId || "8921",
               })}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
             <Link to="/assessment">
-              <Button variant="saffron" size="md" leftIcon={<Target className="w-4 h-4" />}>
+              <Button variant="saffron" size="sm" leftIcon={<Target className="w-3.5 h-3.5" />}>
                 {t("dashboard.gap_diagnostic_btn")}
               </Button>
             </Link>
             <Link to="/ai-assistant">
-              <Button variant="secondary" size="md" leftIcon={<Bot className="w-4 h-4" />}>
+              <Button variant="secondary" size="sm" leftIcon={<Bot className="w-3.5 h-3.5" />}>
                 {t("dashboard.consult_bot_btn")}
               </Button>
             </Link>
@@ -116,100 +119,108 @@ const DashboardView = () => {
         </div>
       </div>
 
-      {/* KPI Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* KPI Stats Grid (Compact, High Information Density) */}
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {[1, 2, 3, 4].map((n) => (
+            <div key={n} className="h-24 rounded-xl skeleton-shimmer border border-slate-200" />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         {/* KPI 1: Competency Score */}
-        <Card variant="accent">
-          <CardBody className="p-5">
+        <Card variant="accent" className="hover:shadow-md transition-shadow">
+          <CardBody className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                   {t("dashboard.kpi_competency_score")}
                 </p>
-                <h3 className="text-2xl font-bold text-slate-900 mt-1">
-                  3.4 / 5.0
+                <h3 className="text-2xl font-black text-slate-900 mt-0.5">
+                  3.4 <span className="text-xs font-medium text-slate-400">/ 5.0</span>
                 </h3>
               </div>
-              <div className="p-3 bg-blue-50 text-blue-900 rounded-xl">
+              <div className="p-2.5 bg-blue-50 text-blue-900 rounded-lg">
                 <Award className="w-5 h-5" />
               </div>
             </div>
-            <div className="mt-3 flex items-center gap-1.5 text-xs text-green-700 font-medium">
+            <div className="mt-2.5 flex items-center gap-1.5 text-xs text-emerald-700 font-medium">
               <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-              <span>{totalGaps} MoSPI Gaps Identified</span>
+              <span>{totalGaps} FRAC Competency Gaps</span>
             </div>
           </CardBody>
         </Card>
 
         {/* KPI 2: Active Pathways */}
-        <Card variant="default">
-          <CardBody className="p-5">
+        <Card variant="default" className="hover:shadow-md transition-shadow">
+          <CardBody className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                   {t("dashboard.kpi_active_pathways")}
                 </p>
-                <h3 className="text-2xl font-bold text-slate-900 mt-1">
+                <h3 className="text-2xl font-black text-slate-900 mt-0.5">
                   {recommendations.length > 0 ? recommendations.length : 3}
                 </h3>
               </div>
-              <div className="p-3 bg-teal-50 text-teal-700 rounded-xl">
+              <div className="p-2.5 bg-teal-50 text-teal-700 rounded-lg">
                 <BookOpen className="w-5 h-5" />
               </div>
             </div>
-            <div className="mt-3 flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-              <Clock className="w-3.5 h-3.5 shrink-0" />
-              <span>iGOT Adaptive Learning</span>
+            <div className="mt-2.5 flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+              <Clock className="w-3.5 h-3.5 shrink-0 text-teal-600" />
+              <span>iGOT Adaptive Curriculum</span>
             </div>
           </CardBody>
         </Card>
 
-        {/* KPI 3: Assessments Completed */}
-        <Card variant="default">
-          <CardBody className="p-5">
+        {/* KPI 3: Cadre Rank & Level */}
+        <Card variant="default" className="hover:shadow-md transition-shadow">
+          <CardBody className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-                  Cadre Level & XP
+                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                  Cadre Rank & Level
                 </p>
-                <h3 className="text-2xl font-bold text-slate-900 mt-1">
-                  Lvl {level} ({xp} XP)
+                <h3 className="text-2xl font-black text-slate-900 mt-0.5">
+                  Lvl {level} <span className="text-xs font-normal text-slate-400">({xp} XP)</span>
                 </h3>
               </div>
-              <div className="p-3 bg-amber-50 text-amber-700 rounded-xl">
-                <FileCheck2 className="w-5 h-5" />
+              <div className="p-2.5 bg-amber-50 text-amber-700 rounded-lg">
+                <Sparkles className="w-5 h-5" />
               </div>
             </div>
-            <div className="mt-3 flex items-center gap-1.5 text-xs text-teal-700 font-medium">
-              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
-              <span>Verified In-Service Standing</span>
+            <div className="mt-2.5 flex items-center gap-1.5 text-xs text-amber-700 font-medium">
+              <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-amber-600" />
+              <span>Ranked Top 12% in Cadre</span>
             </div>
           </CardBody>
         </Card>
 
-        {/* KPI 4: Cadre Rank Percentile */}
-        <Card variant="default">
-          <CardBody className="p-5">
+        {/* KPI 4: APAR Readiness */}
+        <Card variant="default" className="hover:shadow-md transition-shadow">
+          <CardBody className="p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
                   {t("dashboard.kpi_cadre_rank")}
                 </p>
-                <h3 className="text-2xl font-bold text-slate-900 mt-1">
+                <h3 className="text-2xl font-black text-blue-900 mt-0.5">
                   {t("dashboard.kpi_cadre_rank_val")}
                 </h3>
               </div>
-              <div className="p-3 bg-indigo-50 text-indigo-700 rounded-xl">
+              <div className="p-2.5 bg-indigo-50 text-indigo-700 rounded-lg">
                 <BarChart3 className="w-5 h-5" />
               </div>
             </div>
-            <div className="mt-3 flex items-center gap-1.5 text-xs text-blue-900 font-semibold">
-              <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+            <div className="mt-2.5 flex items-center gap-1.5 text-xs text-blue-900 font-semibold">
+              <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-blue-700" />
               <span>{t("dashboard.kpi_cadre_rank_sub")}</span>
             </div>
           </CardBody>
         </Card>
       </div>
+      )}
 
       {/* Main Grid: Assigned Pathways & Pending Assessments */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -427,9 +438,12 @@ export default function App() {
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<DashboardView />} />
             <Route path="/competency" element={<CompetencyView />} />
+            <Route path="/competencies" element={<Navigate to="/competency" replace />} />
             <Route path="/learning" element={<LearningView />} />
             <Route path="/igot-learning" element={<IGOTLearning />} />
+            <Route path="/recommendations" element={<Navigate to="/igot-learning" replace />} />
             <Route path="/assessment" element={<AssessmentView />} />
+            <Route path="/quizzes" element={<Navigate to="/assessment" replace />} />
             <Route path="/ai-assistant" element={<AIAssistantView />} />
             <Route path="/quest" element={<QuestView />} />
             <Route path="/analytics" element={<AnalyticsView />} />
