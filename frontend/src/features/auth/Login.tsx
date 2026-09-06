@@ -13,6 +13,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { Button } from "../../components/common/Button";
+import { DakshaLogo } from "../../components/common/DakshaLogo";
 import { useAuth } from "../../context/AuthContext";
 
 interface LoginFormInputs {
@@ -147,11 +148,26 @@ export const Login = () => {
               </div>
             </div>
 
-            {/* Platform Branding: Website Name only */}
-            <div>
-              <h1 className="text-3xl lg:text-4xl font-bold tracking-tight text-white">
-                {t("brand")}
-              </h1>
+            {/* Platform Branding */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3.5">
+                <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 p-2 flex items-center justify-center backdrop-blur-xs shadow-lg shrink-0">
+                  <DakshaLogo size={40} theme="dark" />
+                </div>
+                <div>
+                  <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-white">
+                    {t("brand")}
+                  </h1>
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-semibold tracking-wide text-sky-300">
+                  {t("tagline")}
+                </p>
+                <p className="text-xs text-slate-300 leading-relaxed max-w-sm mt-2">
+                  National statistical capacity building, competency diagnostics, adaptive learning pathways, and career progression for ISS/SSS cadres.
+                </p>
+              </div>
             </div>
           </div>
         </div>

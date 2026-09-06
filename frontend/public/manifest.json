@@ -1,0 +1,16 @@
+{
+  "name": "DAKSHA — AI-Powered Competency & Learning Platform",
+  "short_name": "DAKSHA",
+  "description": "AI-Powered Competency & Learning Platform for Ministry of Statistics & Programme Implementation (MoSPI) / SIH26101",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#1e3a8a",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

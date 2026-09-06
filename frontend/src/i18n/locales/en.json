@@ -1,6 +1,6 @@
 {
-  "brand": "StatSaksham AI",
-  "tagline": "MoSPI Capacity Building & Competency Platform for ISS/SSS Cadres",
+  "brand": "DAKSHA",
+  "tagline": "AI-Powered Competency & Learning Platform",
   "ministry": "Ministry of Statistics & Programme Implementation",
   "gov_india": "Government of India",
   "nav": {
@@ -8,7 +8,7 @@
     "competency": "My Competency",
     "learning": "Learning Pathways",
     "assessments": "Assessments & Quizzes",
-    "ai_assistant": "AI Assistant (SakshamBot)",
+    "ai_assistant": "AI Learning Assistant (DakshaAI)",
     "quest": "Competency Quest",
     "analytics": "Cadre Analytics",
     "notices": "Portal Notices",
@@ -82,9 +82,9 @@
   "dashboard": {
     "welcome_title": "Welcome, {{name}}",
     "welcome_subtitle": "{{designation}} (Cadre #8921) • Field Operations Division, New Delhi. Baseline Competency Index: Level 3.8 / 5.0.",
-    "hero_tag": "FRAC Cadre Competency Dashboard • MoSPI",
+    "hero_tag": "DAKSHA • FRAC Cadre Competency Dashboard • MoSPI",
     "gap_diagnostic_btn": "Take Gap Diagnostic",
-    "consult_bot_btn": "Consult SakshamBot",
+    "consult_bot_btn": "Consult DakshaAI",
     "kpi_competency_score": "Competency Score",
     "kpi_competency_val": "78.4%",
     "kpi_competency_sub": "+6.2% from last cycle",
@@ -123,11 +123,11 @@
     "start_test": "Start Test Now",
     "review_syllabus": "Review Syllabus",
     "apar_title": "Annual Cadre Appraisal Linkage",
-    "apar_desc": "StatSaksham competency credits are officially mapped to the Annual Performance Appraisal Report (APAR) for ISS officers."
+    "apar_desc": "DAKSHA competency credits are officially mapped to the Annual Performance Appraisal Report (APAR) for ISS officers."
   },
   "modules": {
     "active_badge": "Module Active",
-    "active_desc": "Connected to StatSaksham AI engine. Data streams and FRAC competency pathways are fully operational.",
+    "active_desc": "Connected to DAKSHA AI engine. Data streams and FRAC competency pathways are fully operational.",
     "competency": {
       "title": "My Competency Matrix & Gap Diagnostics",
       "desc": "FRAC framework competency mapping, skill scores, and benchmark comparisons across statistical cadres."
@@ -141,7 +141,7 @@
       "desc": "Adaptive scenario-based assessments, situational quizzes, and digital credential generation."
     },
     "ai_assistant": {
-      "title": "SakshamBot - Government AI Statistical Copilot",
+      "title": "DakshaAI - Government Statistical Learning Copilot",
       "desc": "Instant circular querying, statistical methodology assistance, and personalized study tutor."
     },
     "quest": {

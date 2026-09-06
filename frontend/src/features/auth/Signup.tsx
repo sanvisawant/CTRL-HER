@@ -18,6 +18,7 @@ import {
   Shield,
 } from "lucide-react";
 import { Button } from "../../components/common/Button";
+import { DakshaLogo } from "../../components/common/DakshaLogo";
 import { useAuth } from "../../context/AuthContext";
 
 interface SignupFormInputs {
@@ -142,15 +143,20 @@ export const Signup = () => {
             </div>
 
             {/* Platform Branding */}
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold mb-3">
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold mb-2">
                 <Sparkles className="w-3.5 h-3.5 text-blue-400" />
                 <span>{t("auth.officer_onboarding")}</span>
               </div>
-              <h1 className="text-3xl lg:text-4xl font-bold tracking-tight text-white">
-                {t("brand")}
-              </h1>
-              <p className="text-sm text-slate-300 mt-2.5 font-normal leading-relaxed max-w-md">
+              <div className="flex items-center gap-3.5">
+                <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/20 p-1.5 flex items-center justify-center backdrop-blur-xs shadow-md shrink-0">
+                  <DakshaLogo size={36} theme="dark" />
+                </div>
+                <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-white">
+                  {t("brand")}
+                </h1>
+              </div>
+              <p className="text-sm font-semibold tracking-wide text-sky-300">
                 {t("tagline")}
               </p>
             </div>

@@ -1,9 +1,9 @@
-# StatSaksham AI — National Statistical Capacity Building Platform
+# DAKSHA — AI-Powered Competency & Learning Platform
 
 **Ministry of Statistics and Programme Implementation (MoSPI)**  
 **Smart India Hackathon 2026 — Problem Statement: SIH26101**
 
-StatSaksham AI is an enterprise-grade, in-service capacity building platform tailored for Indian Statistical Service (ISS) officers and statistical personnel across MoSPI divisions (NSSO, CSO, FOD, NAD, ESD, SDRD).
+DAKSHA is an enterprise-grade, in-service AI-powered competency and learning platform tailored for Indian Statistical Service (ISS) officers and statistical personnel across MoSPI divisions (NSSO, CSO, FOD, NAD, ESD, SDRD).
 
 ---
 

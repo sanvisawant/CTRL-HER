@@ -21,6 +21,7 @@ import {
   Radio,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { DakshaLogo } from "../common/DakshaLogo";
 
 export const AppLayout = () => {
   const { t, i18n } = useTranslation();
@@ -95,16 +96,20 @@ export const AppLayout = () => {
                 </svg>
               </div>
 
-              <div>
-                <div className="flex items-center gap-2">
-                  <Link to="/dashboard" className="font-bold text-lg text-blue-900 tracking-tight">
-                    {t("brand")}
-                  </Link>
+              {/* DAKSHA Brand Logo & Monogram */}
+              <Link to="/dashboard" className="flex items-center gap-2.5 group">
+                <DakshaLogo size={32} />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-extrabold text-lg text-blue-950 tracking-tight group-hover:text-blue-700 transition-colors">
+                      {t("brand")}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-500 hidden md:block leading-none">
+                    {t("ministry")} • {t("gov_india")}
+                  </p>
                 </div>
-                <p className="text-[11px] text-slate-500 hidden md:block leading-none">
-                  {t("ministry")} • {t("gov_india")}
-                </p>
-              </div>
+              </Link>
             </div>
           </div>
 
@@ -262,7 +267,7 @@ export const AppLayout = () => {
             <button
               type="button"
               onClick={() => {
-                alert("MoSPI Cadre Helpdesk: 1800-11-MoSPI (Toll Free) | helpdesk-statsaksham@nic.in");
+                alert("MoSPI Cadre Helpdesk: 1800-11-MoSPI (Toll Free) | helpdesk-daksha@nic.in");
               }}
               className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors cursor-pointer"
             >
