@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -19,6 +19,8 @@ import {
   ArrowRight,
   RotateCcw,
   FolderArchive,
+  ChevronDown,
+  Search,
 } from "lucide-react";
 import { ErrorState } from "../../components/common/ErrorState";
 import { EmptyState } from "../../components/common/EmptyState";
@@ -33,6 +35,9 @@ export const AssessmentView: React.FC = () => {
   const [selectedDocId, setSelectedDocId] = useState<string>("");
   const [questionCount, setQuestionCount] = useState<number>(3);
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
+  const [docDropdownOpen, setDocDropdownOpen] = useState<boolean>(false);
+  const [docSearchQuery, setDocSearchQuery] = useState<string>("");
+  const docDropdownRef = useRef<HTMLDivElement>(null);
 
   // Quiz State
   const [activeQuiz, setActiveQuiz] = useState<QuizResponse | null>(null);
@@ -61,6 +66,26 @@ export const AssessmentView: React.FC = () => {
       }
     };
     fetchDocs();
+  }, []);
+
+  // Close dropdown on outside click or Escape key
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (docDropdownRef.current && !docDropdownRef.current.contains(event.target as Node)) {
+        setDocDropdownOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setDocDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   const handleStartQuiz = async () => {
@@ -130,7 +155,7 @@ export const AssessmentView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4 animate-fade-in">
+    <div className="space-y-4 animate-fade-in pb-32">
       {/* Header Banner (Compact & Dignified) */}
       <div className="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 rounded-xl p-4 sm:p-5 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 border border-blue-800/40">
         <div className="space-y-1">
@@ -180,27 +205,91 @@ export const AssessmentView: React.FC = () => {
           </CardHeader>
           <CardBody className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Document Selection */}
-              <div className="space-y-1.5">
+              {/* Document Selection with downward opening menu */}
+              <div className="space-y-1.5 relative" ref={docDropdownRef}>
                 <label className="text-xs font-bold text-slate-700">{t("assessment.select_document", "Source Manual / Guideline")}</label>
-                <select
-                  value={selectedDocId}
-                  onChange={(e) => setSelectedDocId(e.target.value)}
+                <button
+                  type="button"
                   disabled={docsLoading || documents.length === 0}
-                  className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-900 disabled:opacity-60"
+                  onClick={() => setDocDropdownOpen((prev) => !prev)}
+                  className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-900 disabled:opacity-60 flex items-center justify-between text-left cursor-pointer hover:bg-slate-100/70 transition-colors"
+                  aria-haspopup="listbox"
+                  aria-expanded={docDropdownOpen}
                 >
-                  {docsLoading ? (
-                    <option value="">{t("common.loading", "Loading MoSPI publications...")}</option>
-                  ) : documents.length > 0 ? (
-                    documents.map((doc) => (
-                      <option key={doc.document_id} value={doc.document_id}>
-                        {doc.filename}
-                      </option>
-                    ))
-                  ) : (
-                    <option value="">No reference publications found</option>
-                  )}
-                </select>
+                  <span className="truncate mr-2 font-medium">
+                    {docsLoading
+                      ? t("common.loading", "Loading MoSPI publications...")
+                      : documents.find((d) => d.document_id === selectedDocId)?.filename ||
+                        (documents.length > 0 ? "Select reference publication..." : "No reference publications found")}
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-slate-500 shrink-0 transition-transform duration-200 ${
+                      docDropdownOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                {/* Downward opening dropdown menu */}
+                {docDropdownOpen && (
+                  <div
+                    className="absolute top-full left-0 right-0 mt-1.5 z-50 bg-white border border-slate-200 rounded-lg shadow-xl overflow-hidden animate-fade-in"
+                  >
+                    {documents.length > 5 && (
+                      <div className="p-2 border-b border-slate-100 bg-slate-50/80 sticky top-0 z-10">
+                        <div className="relative">
+                          <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
+                          <input
+                            type="text"
+                            value={docSearchQuery}
+                            onChange={(e) => setDocSearchQuery(e.target.value)}
+                            placeholder="Filter documents..."
+                            className="w-full text-xs pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-900"
+                            autoFocus
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="max-h-60 overflow-y-auto divide-y divide-slate-100">
+                      {documents
+                        .filter((doc) =>
+                          doc.filename.toLowerCase().includes(docSearchQuery.toLowerCase())
+                        )
+                        .map((doc) => {
+                          const isSelected = doc.document_id === selectedDocId;
+                          return (
+                            <div
+                              key={doc.document_id}
+                              onClick={() => {
+                                setSelectedDocId(doc.document_id);
+                                setDocDropdownOpen(false);
+                                setDocSearchQuery("");
+                              }}
+                              className={`px-3 py-2 text-xs flex items-center justify-between cursor-pointer transition-colors ${
+                                isSelected
+                                  ? "bg-blue-50 text-blue-950 font-bold"
+                                  : "text-slate-700 hover:bg-slate-50 hover:text-slate-950"
+                              }`}
+                              title={doc.filename}
+                            >
+                              <span className="truncate mr-2">{doc.filename}</span>
+                              {isSelected && (
+                                <CheckCircle2 className="w-3.5 h-3.5 text-blue-900 shrink-0" />
+                              )}
+                            </div>
+                          );
+                        })}
+                      {documents.filter((doc) =>
+                        doc.filename.toLowerCase().includes(docSearchQuery.toLowerCase())
+                      ).length === 0 && (
+                        <div className="px-3 py-3 text-xs text-slate-400 text-center">
+                          No matching publications found
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Question Count */}

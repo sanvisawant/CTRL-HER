@@ -20,7 +20,7 @@
     "helpdesk": "राष्ट्रीय सहायता केंद्र"
   },
   "officer": {
-    "name": "केयोना रोड्रिग्स",
+    "name": "सान्वी सावंत",
     "designation": "वरिष्ठ सांख्यिकी अधिकारी (ISS)",
     "cadre_id": "ISS-२०२४-८९२१",
     "division": "MoSPI क्षेत्र संचालन प्रभाग",
@@ -35,7 +35,7 @@
     "signup_title": "अधिकारी एवं संवर्ग पंजीकरण",
     "signup_subtitle": "राष्ट्रीय सांख्यिकी कार्यबल क्षमता ढांचे में अपना पंजीकरण करें",
     "email_label": "आधिकारिक ईमेल पता",
-    "email_placeholder": "siya.sharma@gov.in",
+    "email_placeholder": "sanvi.sawant@gov.in",
     "email_hint": "कृपया अपने अधिकृत @gov.in या @nic.in सरकारी ईमेल का उपयोग करें",
     "email_error": "कृपया एक वैध सरकारी ईमेल दर्ज करें (@gov.in / @nic.in)",
     "password_label": "पासवर्ड",
@@ -48,7 +48,7 @@
     "role_trainer": "विषय विशेषज्ञ / मुख्य प्रशिक्षक",
     "role_admin": "नोडल अधिकारी / मंत्रालय प्रशासक",
     "full_name_label": "पूरा नाम (सेवा रिकॉर्ड के अनुसार)",
-    "full_name_placeholder": "केयोना रोड्रिग्स",
+    "full_name_placeholder": "सान्वी सावंत",
     "designation_label": "वर्तमान पदनाम / पद",
     "designation_placeholder": "वरिष्ठ सांख्यिकी अधिकारी (SSO)",
     "cadre_id_label": "संवर्ग कोड / कर्मचारी पहचान संख्या",
@@ -80,7 +80,17 @@
     "trust_badge_3": "मिशन कर्मयोगी FRAC अनुरूप",
     "trust_badge_4": "GIGW ३.० एवं WCAG २.१ सुलभ",
     "mission_karmayogi": "मिशन कर्मयोगी अनुरूप",
-    "officer_onboarding": "अधिकारी ऑनबोर्डिंग गेटवे"
+    "officer_onboarding": "अधिकारी ऑनबोर्डिंग गेटवे",
+    "panel_headline_line1": "दक्षता निर्माण",
+    "panel_headline_line2": "सटीक एवं सुदृढ़ सांख्यिकी हेतु",
+    "panel_subtext": "भारत के सांख्यिकी कार्यबल के कौशल, ज्ञान और डिजिटल क्षमताओं का सशक्तिकरण।",
+    "panel_signup_notice": "MoSPI एवं संबद्ध संवर्ग कार्मिकों हेतु आधिकारिक पंजीकरण। सभी अधिकारी प्रमाण-पत्रों का सेवा अभिलेखों से सत्यापन किया जाता है।",
+    "panel_principles_label": "संस्थागत ढांचा",
+    "panel_principle_1": "साक्ष्य-आधारित निर्णय",
+    "panel_principle_2": "निरंतर क्षमता संवर्धन",
+    "panel_principle_3": "उत्कृष्ट सुशासन",
+    "panel_footer_portal": "MoSPI आधिकारिक संवर्ग पोर्टल",
+    "panel_footer_security": "२५६-बिट एन्क्रिप्टेड सत्र"
   },
   "dashboard": {
     "welcome_title": "स्वागत है, {{name}}",

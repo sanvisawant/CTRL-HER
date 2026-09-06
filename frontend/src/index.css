@@ -183,8 +183,85 @@ button, input, select, textarea {
   }
 }
 
+
+
 .progression-beam {
   animation: progressionBeam 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 
+/* ── Statistical Intelligence Visualization Animations ──────────────────────
+   Used in AuthBrandPanel.tsx left-side panel.
+   All animations respect prefers-reduced-motion (disabled via TSX when detected).
+──────────────────────────────────────────────────────────────────────────── */
 
+/* Data node opacity pulse — 3 staggered variants */
+@keyframes statNodePulse {
+  0%, 100% { opacity: 0.45; }
+  50%       { opacity: 0.85; }
+}
+
+.stat-node   { animation: statNodePulse 5s ease-in-out infinite; }
+.stat-node-1 { animation-delay: 0s;   animation-duration: 5s; }
+.stat-node-2 { animation-delay: 1.6s; animation-duration: 6.5s; }
+.stat-node-3 { animation-delay: 3.2s; animation-duration: 4.5s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stat-node { animation: none; opacity: 0.40; }
+}
+
+/* Bar chart subtle breathe */
+@keyframes statBarBreathe {
+  0%, 100% { opacity: 0.06; }
+  50%       { opacity: 0.12; }
+}
+
+.stat-bar   { animation: statBarBreathe 8s ease-in-out infinite; }
+.stat-bar-1 { animation-delay: 0s; }
+.stat-bar-2 { animation-delay: 2.5s; }
+.stat-bar-3 { animation-delay: 5s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stat-bar { animation: none; }
+}
+
+/* Slow line chart draw and recede */
+@keyframes statLineDraw {
+  0%   { stroke-dashoffset: 1200; opacity: 0; }
+  10%  { opacity: 1; }
+  50%  { stroke-dashoffset: 0;    opacity: 1; }
+  90%  { opacity: 1; }
+  100% { stroke-dashoffset: -1200; opacity: 0; }
+}
+
+.stat-line-draw {
+  animation: statLineDraw 16s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Tricolor accent streams — subtle opacity shift */
+@keyframes tricolorShift {
+  0%, 100% { opacity: 0.16; }
+  50%       { opacity: 0.26; }
+}
+
+.tricolor-stream-1 { animation: tricolorShift 9s ease-in-out infinite; }
+.tricolor-stream-2 { animation: tricolorShift 9s ease-in-out infinite 3s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .tricolor-stream-1,
+  .tricolor-stream-2 { animation: none; }
+}
+
+/* Data pulse rings — expand and fade outward */
+@keyframes statPulseRing {
+  0%   { opacity: 0.28; transform: scale(1); }
+  100% { opacity: 0;    transform: scale(2.8); }
+}
+
+.stat-pulse   { animation: statPulseRing 3.5s ease-out infinite; transform-origin: center; transform-box: fill-box; }
+.stat-pulse-1 { animation-delay: 0s; }
+.stat-pulse-2 { animation-delay: 1.2s; }
+.stat-pulse-3 { animation-delay: 2.4s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .stat-pulse { animation: none; opacity: 0; }
+}

@@ -30,9 +30,9 @@ interface CadreOfficialRecord {
 const REGISTERED_CADRE_ROSTER: CadreOfficialRecord[] = [
   {
     id: "usr_01",
-    name: "Siya Sharma",
+    name: "Sanvi Sawant",
     cadre_id: "ISS-2024-8921",
-    email: "siya.sharma@gov.in",
+    email: "sanvi.sawant@gov.in",
     division: "FOD (Field Operations)",
     designation: "Senior Statistical Officer (SSO)",
     role: "learner",

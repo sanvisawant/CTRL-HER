@@ -289,7 +289,7 @@ export const CompetencyView: React.FC = () => {
   }, [gapData, selectedDomain, selectedSeverity, sortBy, confidenceMap]);
 
   // Meta details for header
-  const officialName = user?.fullName || profile?.full_name || gapData?.full_name || "Keiyona Rodrigues";
+  const officialName = user?.fullName || profile?.full_name || gapData?.full_name || "Sanvi Sawant";
   const officialRole = user?.designation || profile?.designation || gapData?.job_role || "Senior Statistical Officer (ISS)";
   const statusSummary = digitalTwin?.status_summary || (
     (gapData?.high_priority_count || 0) > 0

@@ -36,9 +36,11 @@ export const AppLayout = () => {
   const navigate = useNavigate();
   const { user, getInitials, switchPersona } = useAuth();
 
-  const [textSize, setTextSize] = useState<"normal" | "large" | "largest">("normal");
-  const [isHighContrast, setIsHighContrast] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [textSize, setTextSize] = useState<"normal" | "large" | "largest">("normal");
+
+  const textSizeClass =
+    textSize === "largest" ? "text-base" : textSize === "large" ? "text-sm" : "text-xs";
 
   const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
@@ -78,23 +80,17 @@ export const AppLayout = () => {
 
   const navItems = getNavItems();
 
-  const textSizeClass =
-    textSize === "largest" ? "text-lg" : textSize === "large" ? "text-base" : "text-sm";
 
   // Compute officer name in current language if match or fallback to user's registered name
   const officerName =
-    user?.fullName && user.fullName.toLowerCase().includes("siya")
-      ? (i18n.language === "hi" ? "सिया शर्मा" : i18n.language === "mr" ? "केयोना रॉड्रिग्ज" : user.fullName)
-      : user?.fullName || "Siya Sharma";
+    user?.fullName && (user.fullName.toLowerCase().includes("sanvi") || user.fullName.toLowerCase().includes("siya") || user.fullName.toLowerCase().includes("keiyona"))
+      ? (i18n.language === "hi" ? "सान्वी सावंत" : i18n.language === "mr" ? "सान्वी सावंत" : user.fullName)
+      : user?.fullName || "Sanvi Sawant";
 
   const officerDesignation = user?.designation || t("officer.designation");
 
   return (
-    <div
-      className={`h-screen flex flex-col overflow-hidden bg-slate-100 ${
-        isHighContrast ? "high-contrast" : ""
-      }`}
-    >
+    <div className="h-screen flex flex-col overflow-hidden bg-slate-100">
       {/* Indian National Tricolor Portal Top Bar */}
       <div className="gov-tricolor-bar" />
 
@@ -151,8 +147,9 @@ export const AppLayout = () => {
               />
             </div>
 
-            {/* Font Sizing */}
-            <div className="hidden sm:inline-flex rounded-md border border-slate-200 bg-slate-50 p-0.5">
+
+            {/* Text Size Accessibility Controls */}
+            <div className="hidden sm:flex items-center rounded-lg border border-slate-200 bg-slate-50 p-0.5">
               <button
                 type="button"
                 onClick={() => setTextSize("normal")}
@@ -161,7 +158,7 @@ export const AppLayout = () => {
                     ? "bg-blue-900 text-white"
                     : "text-slate-700 hover:bg-slate-200"
                 }`}
-                title={t("common.text_normal")}
+                title={t("common.text_normal", "Default text size")}
               >
                 A-
               </button>
@@ -173,7 +170,7 @@ export const AppLayout = () => {
                     ? "bg-blue-900 text-white"
                     : "text-slate-700 hover:bg-slate-200"
                 }`}
-                title={t("common.text_large")}
+                title={t("common.text_large", "Large text size")}
               >
                 A
               </button>
@@ -185,24 +182,13 @@ export const AppLayout = () => {
                     ? "bg-blue-900 text-white"
                     : "text-slate-700 hover:bg-slate-200"
                 }`}
-                title={t("common.text_largest")}
+                title={t("common.text_largest", "Largest text size")}
               >
                 A+
               </button>
             </div>
 
-            {/* High Contrast Toggle */}
-            <button
-              type="button"
-              onClick={() => setIsHighContrast(!isHighContrast)}
-              className={`hidden sm:inline-block px-2 py-1 text-xs font-semibold rounded border transition-colors ${
-                isHighContrast
-                  ? "bg-yellow-400 text-black border-yellow-500"
-                  : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
-              }`}
-            >
-              {isHighContrast ? "Normal" : t("common.high_contrast")}
-            </button>
+
 
             {/* Dynamic i18n Language Dropdown */}
             <div className="flex items-center gap-1 border border-slate-200 rounded-lg px-2 py-1 bg-slate-50">

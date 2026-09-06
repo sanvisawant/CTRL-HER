@@ -12,10 +12,10 @@ export interface OfficerUser {
 
 export const CONTROLLED_PERSONAS: Record<"learner" | "trainer" | "admin", OfficerUser> = {
   learner: {
-    fullName: " Siya Sharma",
+    fullName: "Sanvi Sawant",
     designation: "Senior Statistical Officer (ISS)",
     cadreId: "ISS-2024-8921",
-    email: "siya.sharma@gov.in",
+    email: "sanvi.sawant@gov.in",
     role: "learner",
     division: "MoSPI Field Operations Division",
   },
@@ -57,6 +57,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed.fullName && parsed.role) {
+          if (
+            parsed.fullName.toLowerCase().includes("keiyona") ||
+            parsed.fullName.toLowerCase().includes("siya")
+          ) {
+            parsed.fullName = "Sanvi Sawant";
+            parsed.email = "sanvi.sawant@gov.in";
+          }
           return { ...DEFAULT_USER, ...parsed };
         }
       }
@@ -94,7 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const getInitials = () => {
-    if (!user?.fullName) return "KR";
+    if (!user?.fullName) return "SS";
     const parts = user.fullName.trim().split(/\s+/);
     if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();

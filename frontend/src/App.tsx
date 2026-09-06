@@ -85,9 +85,9 @@ const DashboardView = () => {
   }, [cadreId]);
 
   const officerName =
-    user?.fullName && user.fullName.toLowerCase().includes("Siya")
-      ? (i18n.language === "hi" ? "सिया शर्मा" : i18n.language === "mr" ? "केयोना रॉड्रिग्ज" : user.fullName)
-      : user?.fullName || "Siya Sharma";
+    user?.fullName && (user.fullName.toLowerCase().includes("sanvi") || user.fullName.toLowerCase().includes("siya") || user.fullName.toLowerCase().includes("keiyona"))
+      ? (i18n.language === "hi" ? "सान्वी सावंत" : i18n.language === "mr" ? "सान्वी सावंत" : user.fullName)
+      : user?.fullName || "Sanvi Sawant";
 
   const officerDesignation = user?.designation || "Senior Statistical Officer (ISS)";
 

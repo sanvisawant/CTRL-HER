@@ -34,7 +34,6 @@ export const Login = () => {
   const [captchaError, setCaptchaError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [fontSize, setFontSize] = useState<"normal" | "large" | "largest">("normal");
-  const [isHighContrast, setIsHighContrast] = useState(false);
 
   const {
     register,
@@ -44,7 +43,7 @@ export const Login = () => {
     formState: { errors },
   } = useForm<LoginFormInputs>({
     defaultValues: {
-      email: user?.email || "siya.sharma@gov.in",
+      email: user?.email || "sanvi.sawant@gov.in",
       password: "",
       role: (user?.role as "learner" | "trainer" | "admin") || "learner",
       captcha: "",
@@ -91,9 +90,9 @@ export const Login = () => {
     setCaptchaError("");
     setIsLoading(true);
 
-    let nameToUse = user?.fullName || " Siya Sharma";
-    if (data.email.toLowerCase().includes("siya")) {
-      nameToUse = "siya Sharma";
+    let nameToUse = user?.fullName || "Sanvi Sawant";
+    if (data.email.toLowerCase().includes("sanvi") || data.email.toLowerCase().includes("siya") || data.email.toLowerCase().includes("keiyona")) {
+      nameToUse = "Sanvi Sawant";
     }
 
     loginUser({
@@ -112,24 +111,20 @@ export const Login = () => {
     fontSize === "largest" ? "text-lg" : fontSize === "large" ? "text-base" : "text-sm";
 
   return (
-    <div
-      className={`min-h-screen flex flex-col bg-slate-100 ${
-        isHighContrast ? "high-contrast" : ""
-      }`}
-    >
+    <div className="h-screen max-h-screen flex flex-col bg-slate-100 overflow-hidden">
       {/* Official Indian Tricolor National Bar */}
-      <div className="gov-tricolor-bar" />
+      <div className="gov-tricolor-bar shrink-0" />
 
       {/* Main Split Portal Container */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-4px)]">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-0 h-full overflow-hidden">
         {/* Animated DAKSHA Brand Panel */}
         <AuthBrandPanel mode="login" />
 
         {/* RIGHT PANEL: Direct, Streamlined Form Gateway (7 cols) */}
-        <main className="lg:col-span-7 bg-white flex flex-col justify-between p-6 sm:p-10 lg:p-14 overflow-y-auto animate-fade-in">
+        <main className="lg:col-span-7 bg-white flex flex-col justify-between p-4 sm:p-6 lg:px-12 lg:py-5 h-full overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] animate-fade-in">
           <div>
             {/* Top Bar: Accessibility & Multilingual Switcher */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-5 mb-5 border-b border-slate-200">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-2.5 mb-3 border-b border-slate-200">
               {/* Accessibility Controls */}
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:inline">
@@ -173,19 +168,6 @@ export const Login = () => {
                     A+
                   </button>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => setIsHighContrast(!isHighContrast)}
-                  className={`px-2.5 py-1 text-xs font-semibold rounded-md border transition-colors ${
-                    isHighContrast
-                      ? "bg-yellow-400 text-black border-yellow-500"
-                      : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
-                  }`}
-                  title={t("common.high_contrast")}
-                >
-                  {isHighContrast ? "Normal" : "High Contrast"}
-                </button>
               </div>
 
               {/* Multilingual Selector */}
@@ -230,32 +212,32 @@ export const Login = () => {
             </div>
 
             {/* Clean Statutory Warning Banner */}
-            <div className="mb-5 p-3 rounded-lg bg-amber-50/80 border border-amber-200 flex items-center gap-2.5">
-              <AlertCircle className="w-4 h-4 text-amber-700 shrink-0" />
-              <p className="text-xs text-amber-900 leading-tight font-medium">
+            <div className="mb-3 p-2 rounded-lg bg-amber-50/80 border border-amber-200 flex items-center gap-2">
+              <AlertCircle className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+              <p className="text-[11px] text-amber-900 leading-tight font-medium">
                 {t("auth.sec_warning")}
               </p>
             </div>
 
             {/* Navigation Switch Tabs: Sign In / Officer Registration */}
-            <div className="flex border-b border-slate-200 mb-6 gap-2">
+            <div className="flex border-b border-slate-200 mb-3.5 gap-2">
               <button
                 type="button"
-                className="py-2.5 px-4 font-bold text-sm border-b-2 border-blue-900 text-blue-900 flex items-center gap-2 transition-all"
+                className="py-1.5 px-3 font-bold text-xs sm:text-sm border-b-2 border-blue-900 text-blue-900 flex items-center gap-1.5 transition-all"
               >
-                <UserCheck className="w-4 h-4 text-blue-900" />
+                <UserCheck className="w-3.5 h-3.5 text-blue-900" />
                 <span>{t("auth.signin_tab")}</span>
               </button>
               <Link
                 to="/signup"
-                className="py-2.5 px-4 font-medium text-sm border-b-2 border-transparent text-slate-500 hover:text-blue-900 hover:border-slate-300 flex items-center gap-2 transition-all"
+                className="py-1.5 px-3 font-medium text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-blue-900 hover:border-slate-300 flex items-center gap-1.5 transition-all"
               >
                 <span>{t("auth.signup_tab")}</span>
               </Link>
             </div>
 
             {/* Main Login Form */}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-2.5">
               {/* Role Selection */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">
@@ -431,19 +413,19 @@ export const Login = () => {
               <Button
                 type="submit"
                 variant="primary"
-                size="lg"
+                size="md"
                 fullWidth
                 isLoading={isLoading}
                 disabled={isLoading}
-                leftIcon={isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
-                className="mt-3 text-sm font-semibold tracking-wide shadow-sm hover:shadow-md active:scale-[0.99] transition-all"
+                leftIcon={isLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Lock className="w-3.5 h-3.5" />}
+                className="mt-2 text-xs sm:text-sm font-semibold tracking-wide shadow-sm hover:shadow-md active:scale-[0.99] transition-all py-2"
               >
                 {isLoading ? t("auth.signing_in") : t("auth.login_button")}
               </Button>
             </form>
 
             {/* Switch to Registration */}
-            <div className="mt-6 pt-4 border-t border-slate-200 text-center">
+            <div className="mt-3 pt-2.5 border-t border-slate-200 text-center">
               <p className={`${fontSizeClass} text-slate-600`}>
                 {t("auth.no_account")}{" "}
                 <Link
@@ -457,9 +439,9 @@ export const Login = () => {
           </div>
 
           {/* Clean Portal Footer */}
-          <div className="mt-8 pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+          <div className="mt-3 pt-2 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500">
             <p>{t("common.copyright")}</p>
-            <div className="flex items-center gap-3 text-xs">
+            <div className="flex items-center gap-3 text-[11px]">
               <a href="#privacy" className="hover:text-blue-900 hover:underline">
                 {t("common.privacy_policy")}
               </a>

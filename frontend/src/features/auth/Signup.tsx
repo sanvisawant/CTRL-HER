@@ -41,7 +41,6 @@ export const Signup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [fontSize, setFontSize] = useState<"normal" | "large" | "largest">("normal");
-  const [isHighContrast, setIsHighContrast] = useState(false);
 
   const {
     register,
@@ -51,11 +50,11 @@ export const Signup = () => {
     formState: { errors },
   } = useForm<SignupFormInputs>({
     defaultValues: {
-      fullName: " Siya Sharma",
+      fullName: "Sanvi Sawant",
       cadreId: "ISS-2024-8921",
       designation: "Senior Statistical Officer (SSO)",
       role: "learner",
-      email: "siya.sharma@gov.in",
+      email: "sanvi.sawant@gov.in",
       phone: "",
       password: "",
       confirmPassword: "",
@@ -106,24 +105,20 @@ export const Signup = () => {
     fontSize === "largest" ? "text-lg" : fontSize === "large" ? "text-base" : "text-sm";
 
   return (
-    <div
-      className={`min-h-screen flex flex-col bg-slate-100 ${
-        isHighContrast ? "high-contrast" : ""
-      }`}
-    >
+    <div className="h-screen max-h-screen flex flex-col bg-slate-100 overflow-hidden">
       {/* Official Indian Tricolor National Bar */}
-      <div className="gov-tricolor-bar" />
+      <div className="gov-tricolor-bar shrink-0" />
 
       {/* Main Split Portal Container */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-4px)]">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-0 h-full overflow-hidden">
         {/* Animated DAKSHA Brand Panel */}
         <AuthBrandPanel mode="signup" />
 
         {/* RIGHT PANEL: Direct, Streamlined Signup Form (7 cols) */}
-        <main className="lg:col-span-7 bg-white flex flex-col justify-between p-6 sm:p-10 lg:p-14 overflow-y-auto animate-fade-in">
-          <div>
+        <main className="lg:col-span-7 bg-white flex flex-col justify-between p-4 sm:p-6 lg:px-12 lg:py-5 h-full overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] animate-fade-in">
+          <div className="flex flex-col">
             {/* Top Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-3 pb-5 mb-5 border-b border-slate-200">
+            <div className="flex flex-wrap items-center justify-between gap-3 pb-2.5 mb-3 border-b border-slate-200">
               {/* Accessibility */}
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:inline">
@@ -167,19 +162,6 @@ export const Signup = () => {
                     A+
                   </button>
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => setIsHighContrast(!isHighContrast)}
-                  className={`px-2.5 py-1 text-xs font-semibold rounded-md border transition-colors ${
-                    isHighContrast
-                      ? "bg-yellow-400 text-black border-yellow-500"
-                      : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
-                  }`}
-                  title={t("common.high_contrast")}
-                >
-                  {isHighContrast ? "Normal" : "High Contrast"}
-                </button>
               </div>
 
               {/* Multilingual Selector */}
@@ -224,7 +206,7 @@ export const Signup = () => {
             </div>
 
             {/* Clean Statutory Notice Banner */}
-            <div className="mb-5 p-3 rounded-lg bg-amber-50/80 border border-amber-200 flex items-center gap-2.5">
+            <div className="mb-3 p-2.5 rounded-lg bg-amber-50/80 border border-amber-200 flex items-center gap-2.5 shadow-xs">
               <AlertCircle className="w-4 h-4 text-amber-700 shrink-0" />
               <p className="text-xs text-amber-900 leading-tight font-medium">
                 {t("auth.sec_warning")}
@@ -232,16 +214,16 @@ export const Signup = () => {
             </div>
 
             {/* Navigation Tabs */}
-            <div className="flex border-b border-slate-200 mb-6 gap-2">
+            <div className="flex border-b border-slate-200 mb-3.5 gap-2">
               <Link
                 to="/login"
-                className="py-2.5 px-4 font-medium text-sm border-b-2 border-transparent text-slate-500 hover:text-blue-900 hover:border-slate-300 flex items-center gap-2 transition-all"
+                className="py-1.5 px-3.5 font-medium text-xs sm:text-sm border-b-2 border-transparent text-slate-500 hover:text-blue-900 hover:border-slate-300 flex items-center gap-1.5 transition-all"
               >
                 <span>{t("auth.signin_tab")}</span>
               </Link>
               <button
                 type="button"
-                className="py-2.5 px-4 font-bold text-sm border-b-2 border-blue-900 text-blue-900 flex items-center gap-2 transition-all"
+                className="py-1.5 px-3.5 font-bold text-xs sm:text-sm border-b-2 border-blue-900 text-blue-900 flex items-center gap-1.5 transition-all"
               >
                 <UserCheck className="w-4 h-4 text-blue-900" />
                 <span>{t("auth.signup_tab")}</span>
@@ -249,16 +231,16 @@ export const Signup = () => {
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-3 sm:space-y-3.5">
               {/* Row 1: Role & Full Name */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-3.5">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     {t("auth.role_label")} <span className="text-red-600">*</span>
                   </label>
                   <select
                     {...register("role", { required: true })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-800 font-medium focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs sm:text-sm text-slate-800 font-medium focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all cursor-pointer shadow-2xs"
                   >
                     <option value="learner">{t("auth.role_learner")}</option>
                     <option value="trainer">{t("auth.role_trainer")}</option>
@@ -267,7 +249,7 @@ export const Signup = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     {t("auth.full_name_label")} <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
@@ -280,13 +262,13 @@ export const Signup = () => {
                       })}
                       type="text"
                       placeholder={t("auth.full_name_placeholder")}
-                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all ${
+                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all shadow-2xs ${
                         errors.fullName ? "border-red-500 bg-red-50/20 ring-1 ring-red-500" : "border-slate-300 hover:border-slate-400"
                       }`}
                     />
                   </div>
                   {errors.fullName && (
-                    <p className="text-xs text-red-600 mt-1 font-medium">
+                    <p className="text-[11px] text-red-600 mt-1 font-medium">
                       {errors.fullName.message}
                     </p>
                   )}
@@ -294,9 +276,9 @@ export const Signup = () => {
               </div>
 
               {/* Row 2: Designation & Cadre ID */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-3.5">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     {t("auth.designation_label")} <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
@@ -309,20 +291,20 @@ export const Signup = () => {
                       })}
                       type="text"
                       placeholder={t("auth.designation_placeholder")}
-                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all ${
+                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all shadow-2xs ${
                         errors.designation ? "border-red-500 bg-red-50/20 ring-1 ring-red-500" : "border-slate-300 hover:border-slate-400"
                       }`}
                     />
                   </div>
                   {errors.designation && (
-                    <p className="text-xs text-red-600 mt-1 font-medium">
+                    <p className="text-[11px] text-red-600 mt-1 font-medium">
                       {errors.designation.message}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     {t("auth.cadre_id_label")} <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
@@ -335,13 +317,13 @@ export const Signup = () => {
                       })}
                       type="text"
                       placeholder={t("auth.cadre_id_placeholder")}
-                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 font-mono placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all ${
+                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-xs sm:text-sm text-slate-800 font-mono placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all shadow-2xs ${
                         errors.cadreId ? "border-red-500 bg-red-50/20 ring-1 ring-red-500" : "border-slate-300 hover:border-slate-400"
                       }`}
                     />
                   </div>
                   {errors.cadreId && (
-                    <p className="text-xs text-red-600 mt-1 font-medium">
+                    <p className="text-[11px] text-red-600 mt-1 font-medium">
                       {errors.cadreId.message}
                     </p>
                   )}
@@ -349,9 +331,9 @@ export const Signup = () => {
               </div>
 
               {/* Row 3: Official Email & Mobile */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-3.5">
                 <div>
-                  <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center justify-between mb-1">
                     <label className="block text-xs font-semibold text-slate-700">
                       {t("auth.email_label")} <span className="text-red-600">*</span>
                     </label>
@@ -386,20 +368,20 @@ export const Signup = () => {
                       })}
                       type="email"
                       placeholder={t("auth.email_placeholder")}
-                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all ${
+                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all shadow-2xs ${
                         errors.email ? "border-red-500 bg-red-50/20 ring-1 ring-red-500" : "border-slate-300 hover:border-slate-400"
                       }`}
                     />
                   </div>
                   {errors.email && (
-                    <p className="text-xs text-red-600 mt-1 font-medium">
+                    <p className="text-[11px] text-red-600 mt-1 font-medium">
                       {errors.email.message}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     {t("auth.phone_label")} <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
@@ -417,13 +399,13 @@ export const Signup = () => {
                       type="tel"
                       maxLength={10}
                       placeholder={t("auth.phone_placeholder")}
-                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all ${
+                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all shadow-2xs ${
                         errors.phone ? "border-red-500 bg-red-50/20 ring-1 ring-red-500" : "border-slate-300 hover:border-slate-400"
                       }`}
                     />
                   </div>
                   {errors.phone && (
-                    <p className="text-xs text-red-600 mt-1 font-medium">
+                    <p className="text-[11px] text-red-600 mt-1 font-medium">
                       {errors.phone.message}
                     </p>
                   )}
@@ -431,9 +413,9 @@ export const Signup = () => {
               </div>
 
               {/* Row 4: Password & Confirm Password */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-3.5">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     {t("auth.password_label")} <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
@@ -450,7 +432,7 @@ export const Signup = () => {
                       })}
                       type={showPassword ? "text" : "password"}
                       placeholder={t("auth.password_placeholder")}
-                      className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all ${
+                      className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 border rounded-lg text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all shadow-2xs ${
                         errors.password ? "border-red-500 bg-red-50/20 ring-1 ring-red-500" : "border-slate-300 hover:border-slate-400"
                       }`}
                     />
@@ -468,14 +450,14 @@ export const Signup = () => {
                     </button>
                   </div>
                   {errors.password && (
-                    <p className="text-xs text-red-600 mt-1 font-medium">
+                    <p className="text-[11px] text-red-600 mt-1 font-medium">
                       {errors.password.message}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
                     {t("auth.confirm_password_label")} <span className="text-red-600">*</span>
                   </label>
                   <div className="relative">
@@ -490,7 +472,7 @@ export const Signup = () => {
                       })}
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder={t("auth.confirm_password_placeholder")}
-                      className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all ${
+                      className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 border rounded-lg text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all shadow-2xs ${
                         errors.confirmPassword ? "border-red-500 bg-red-50/20 ring-1 ring-red-500" : "border-slate-300 hover:border-slate-400"
                       }`}
                     />
@@ -508,7 +490,7 @@ export const Signup = () => {
                     </button>
                   </div>
                   {errors.confirmPassword && (
-                    <p className="text-xs text-red-600 mt-1 font-medium">
+                    <p className="text-[11px] text-red-600 mt-1 font-medium">
                       {errors.confirmPassword.message}
                     </p>
                   )}
@@ -516,21 +498,21 @@ export const Signup = () => {
               </div>
 
               {/* Declaration Checkbox */}
-              <div className="pt-2">
+              <div className="pt-1.5 sm:pt-2">
                 <label className="flex items-start gap-2.5 cursor-pointer select-none">
                   <input
                     {...register("termsAgreed", {
                       required: t("auth.terms_error"),
                     })}
                     type="checkbox"
-                    className="w-4 h-4 mt-0.5 text-blue-900 border-slate-300 rounded focus:ring-blue-900 cursor-pointer"
+                    className="w-4 h-4 mt-0.5 text-blue-900 border-slate-300 rounded focus:ring-blue-900 cursor-pointer shrink-0"
                   />
                   <span className="text-xs text-slate-600 leading-snug">
                     {t("auth.terms_agree")}
                   </span>
                 </label>
                 {errors.termsAgreed && (
-                  <p className="text-xs text-red-600 mt-1 font-medium">
+                  <p className="text-[11px] text-red-600 mt-1 font-medium">
                     {errors.termsAgreed.message}
                   </p>
                 )}
@@ -545,14 +527,14 @@ export const Signup = () => {
                 isLoading={isLoading}
                 disabled={isLoading}
                 leftIcon={isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <UserCheck className="w-4 h-4" />}
-                className="mt-3 text-sm font-semibold tracking-wide shadow-sm hover:shadow-md active:scale-[0.99] transition-all"
+                className="mt-3 sm:mt-3.5 text-sm sm:text-base font-semibold tracking-wide shadow-sm hover:shadow-md active:scale-[0.99] transition-all py-2.5 sm:py-3 cursor-pointer"
               >
                 {isLoading ? t("auth.registering") : t("auth.signup_button")}
               </Button>
             </form>
 
             {/* Switch to Login */}
-            <div className="mt-6 pt-4 border-t border-slate-200 text-center">
+            <div className="mt-3.5 sm:mt-4 pt-2.5 border-t border-slate-200 text-center">
               <p className={`${fontSizeClass} text-slate-600`}>
                 {t("auth.has_account")}{" "}
                 <Link
@@ -566,7 +548,7 @@ export const Signup = () => {
           </div>
 
           {/* Clean Portal Footer */}
-          <div className="mt-8 pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+          <div className="mt-3 pt-2.5 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
             <p>{t("common.copyright")}</p>
             <div className="flex items-center gap-3 text-xs">
               <a href="#privacy" className="hover:text-blue-900 hover:underline">
