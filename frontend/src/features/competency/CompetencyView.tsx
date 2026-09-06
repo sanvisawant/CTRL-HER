@@ -98,9 +98,9 @@ export const CompetencyView: React.FC = () => {
           </h1>
           <p className="text-slate-300 text-xs max-w-2xl leading-relaxed">
             {t("competency.subtitle", {
-              name: user?.fullName || "Keiyona Rodrigues",
+              name: user?.fullName || " Siya Sharma",
               cadreId,
-              defaultValue: `Official benchmark evaluation for ${user?.fullName || "Keiyona Rodrigues"} (Cadre: ${cadreId}) anchored on canonical MoSPI statistical competencies.`
+              defaultValue: `Official benchmark evaluation for ${user?.fullName || " Siya Sharma"} (Cadre: ${cadreId}) anchored on canonical MoSPI statistical competencies.`
             })}
           </p>
         </div>

@@ -12,10 +12,10 @@ export interface OfficerUser {
 
 export const CONTROLLED_PERSONAS: Record<"learner" | "trainer" | "admin", OfficerUser> = {
   learner: {
-    fullName: "Keiyona Rodrigues",
+    fullName: " Siya Sharma",
     designation: "Senior Statistical Officer (ISS)",
     cadreId: "ISS-2024-8921",
-    email: "keiyona.rodrigues@gov.in",
+    email: "siya.sharma@gov.in",
     role: "learner",
     division: "MoSPI Field Operations Division",
   },

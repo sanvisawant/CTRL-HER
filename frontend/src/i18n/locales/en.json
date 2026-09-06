@@ -20,7 +20,7 @@
     "helpdesk": "National Helpdesk"
   },
   "officer": {
-    "name": "Keiyona Rodrigues",
+    "name": "Siya Sharma",
     "designation": "Senior Statistical Officer (ISS)",
     "cadre_id": "ISS-2024-8921",
     "division": "MoSPI Field Operations Division",
@@ -35,7 +35,7 @@
     "signup_title": "Officer & Cadre Registration",
     "signup_subtitle": "Enroll into the National Statistical Workforce Competency Framework",
     "email_label": "Official Email Address",
-    "email_placeholder": "keiyona.rodrigues@gov.in",
+    "email_placeholder": "siya.sharma@gov.in",
     "email_hint": "Please enter authorized @gov.in or @nic.in government email",
     "email_error": "Please enter a valid government email (@gov.in / @nic.in)",
     "password_label": "Password",
@@ -48,7 +48,7 @@
     "role_trainer": "Subject Matter Specialist / Master Trainer",
     "role_admin": "Nodal Officer / Ministry Administrator",
     "full_name_label": "Full Name (as per Service Record)",
-    "full_name_placeholder": "Keiyona Rodrigues",
+    "full_name_placeholder": "Siya Sharma",
     "designation_label": "Current Designation / Rank",
     "designation_placeholder": "Senior Statistical Officer (SSO)",
     "cadre_id_label": "Cadre ID / Employee Code",

@@ -83,9 +83,9 @@ export const AppLayout = () => {
 
   // Compute officer name in current language if match or fallback to user's registered name
   const officerName =
-    user?.fullName && user.fullName.toLowerCase().includes("keiyona")
-      ? (i18n.language === "hi" ? "केयोना रोड्रिग्स" : i18n.language === "mr" ? "केयोना रॉड्रिग्ज" : user.fullName)
-      : user?.fullName || "Keiyona Rodrigues";
+    user?.fullName && user.fullName.toLowerCase().includes("siya")
+      ? (i18n.language === "hi" ? "सिया शर्मा" : i18n.language === "mr" ? "केयोना रॉड्रिग्ज" : user.fullName)
+      : user?.fullName || "Siya Sharma";
 
   const officerDesignation = user?.designation || t("officer.designation");
 

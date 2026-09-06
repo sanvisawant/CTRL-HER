@@ -30,9 +30,9 @@ interface CadreOfficialRecord {
 const REGISTERED_CADRE_ROSTER: CadreOfficialRecord[] = [
   {
     id: "usr_01",
-    name: "Keiyona Rodrigues",
+    name: "Siya Sharma",
     cadre_id: "ISS-2024-8921",
-    email: "keiyona.rodrigues@gov.in",
+    email: "siya.sharma@gov.in",
     division: "FOD (Field Operations)",
     designation: "Senior Statistical Officer (SSO)",
     role: "learner",

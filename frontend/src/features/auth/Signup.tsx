@@ -51,11 +51,11 @@ export const Signup = () => {
     formState: { errors },
   } = useForm<SignupFormInputs>({
     defaultValues: {
-      fullName: "Keiyona Rodrigues",
+      fullName: " Siya Sharma",
       cadreId: "ISS-2024-8921",
       designation: "Senior Statistical Officer (SSO)",
       role: "learner",
-      email: "keiyona.rodrigues@gov.in",
+      email: "siya.sharma@gov.in",
       phone: "",
       password: "",
       confirmPassword: "",

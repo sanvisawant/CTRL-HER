@@ -44,7 +44,7 @@ export const Login = () => {
     formState: { errors },
   } = useForm<LoginFormInputs>({
     defaultValues: {
-      email: user?.email || "keiyona.rodrigues@gov.in",
+      email: user?.email || "siya.sharma@gov.in",
       password: "",
       role: (user?.role as "learner" | "trainer" | "admin") || "learner",
       captcha: "",
@@ -91,9 +91,9 @@ export const Login = () => {
     setCaptchaError("");
     setIsLoading(true);
 
-    let nameToUse = user?.fullName || "Keiyona Rodrigues";
-    if (data.email.toLowerCase().includes("keiyona")) {
-      nameToUse = "Keiyona Rodrigues";
+    let nameToUse = user?.fullName || " Siya Sharma";
+    if (data.email.toLowerCase().includes("siya")) {
+      nameToUse = "siya Sharma";
     }
 
     loginUser({
