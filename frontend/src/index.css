@@ -152,3 +152,39 @@ button, input, select, textarea {
   background: #94A3B8;
 }
 
+/* Authentication Brand Visual Animations */
+@keyframes brandGlow {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(14, 165, 233, 0.2), 0 0 30px rgba(30, 58, 138, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(14, 165, 233, 0.45), 0 0 45px rgba(37, 99, 235, 0.4);
+  }
+}
+
+.brand-glow {
+  animation: brandGlow 4s ease-in-out infinite;
+}
+
+@keyframes progressionBeam {
+  0% {
+    top: 0%;
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+.progression-beam {
+  animation: progressionBeam 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+

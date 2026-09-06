@@ -13,7 +13,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { Button } from "../../components/common/Button";
-import { DakshaLogo } from "../../components/common/DakshaLogo";
+import { AuthBrandPanel } from "./AuthBrandPanel";
 import { useAuth } from "../../context/AuthContext";
 
 interface LoginFormInputs {
@@ -122,58 +122,11 @@ export const Login = () => {
 
       {/* Main Split Portal Container */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-4px)]">
-        {/* LEFT PANEL: Ministry of... and Website Name ONLY */}
-        <div className="lg:col-span-5 gov-security-grid p-8 lg:p-14 text-white flex flex-col justify-center relative overflow-hidden border-r border-slate-800">
-          <div className="relative z-10 space-y-8 max-w-md">
-            {/* National Emblem & Ministry */}
-            <div className="flex items-center gap-4 pb-6 border-b border-slate-800/80">
-              <div className="w-14 h-14 rounded-xl bg-white/10 border border-white/20 p-2 flex items-center justify-center backdrop-blur-xs shadow-inner shrink-0">
-                <svg
-                  viewBox="0 0 24 24"
-                  className="w-10 h-10 text-amber-400 fill-current"
-                  aria-hidden="true"
-                >
-                  <path d="M12 2L15 8H9L12 2Z" />
-                  <path d="M5 9C5 9 6 12 7 13C8 14 10 14 10 14L8 16L9 18L12 17L15 18L16 16L14 14C14 14 16 14 17 13C18 12 19 9 19 9H5Z" />
-                  <path d="M8 19H16V21C16 21.5 15.5 22 15 22H9C8.5 22 8 21.5 8 21V19Z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-widest font-bold text-amber-400">
-                  {t("gov_india")}
-                </p>
-                <p className="text-xs font-semibold text-slate-200 leading-tight mt-0.5">
-                  {t("ministry")}
-                </p>
-              </div>
-            </div>
-
-            {/* Platform Branding */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3.5">
-                <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 p-2 flex items-center justify-center backdrop-blur-xs shadow-lg shrink-0">
-                  <DakshaLogo size={40} theme="dark" />
-                </div>
-                <div>
-                  <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-white">
-                    {t("brand")}
-                  </h1>
-                </div>
-              </div>
-              <div>
-                <p className="text-sm font-semibold tracking-wide text-sky-300">
-                  {t("tagline")}
-                </p>
-                <p className="text-xs text-slate-300 leading-relaxed max-w-sm mt-2">
-                  National statistical capacity building, competency diagnostics, adaptive learning pathways, and career progression for ISS/SSS cadres.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Animated DAKSHA Brand Panel */}
+        <AuthBrandPanel mode="login" />
 
         {/* RIGHT PANEL: Direct, Streamlined Form Gateway (7 cols) */}
-        <div className="lg:col-span-7 bg-white flex flex-col justify-between p-6 sm:p-10 lg:p-14 overflow-y-auto">
+        <main className="lg:col-span-7 bg-white flex flex-col justify-between p-6 sm:p-10 lg:p-14 overflow-y-auto animate-fade-in">
           <div>
             {/* Top Bar: Accessibility & Multilingual Switcher */}
             <div className="flex flex-wrap items-center justify-between gap-3 pb-5 mb-5 border-b border-slate-200">
@@ -285,17 +238,17 @@ export const Login = () => {
             </div>
 
             {/* Navigation Switch Tabs: Sign In / Officer Registration */}
-            <div className="flex border-b border-slate-200 mb-6">
+            <div className="flex border-b border-slate-200 mb-6 gap-2">
               <button
                 type="button"
-                className="py-2.5 px-4 font-semibold text-sm border-b-2 border-blue-900 text-blue-900 flex items-center gap-2"
+                className="py-2.5 px-4 font-bold text-sm border-b-2 border-blue-900 text-blue-900 flex items-center gap-2 transition-all"
               >
-                <UserCheck className="w-4 h-4" />
+                <UserCheck className="w-4 h-4 text-blue-900" />
                 <span>{t("auth.signin_tab")}</span>
               </button>
               <Link
                 to="/signup"
-                className="py-2.5 px-4 font-medium text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition-colors"
+                className="py-2.5 px-4 font-medium text-sm border-b-2 border-transparent text-slate-500 hover:text-blue-900 hover:border-slate-300 flex items-center gap-2 transition-all"
               >
                 <span>{t("auth.signup_tab")}</span>
               </Link>
@@ -310,7 +263,7 @@ export const Login = () => {
                 </label>
                 <select
                   {...register("role", { required: true })}
-                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-800 font-medium focus:ring-2 focus:ring-blue-900 focus:bg-white focus:outline-none cursor-pointer"
+                  className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-800 font-medium focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all cursor-pointer"
                 >
                   <option value="learner">{t("auth.role_learner")}</option>
                   <option value="trainer">{t("auth.role_trainer")}</option>
@@ -328,14 +281,14 @@ export const Login = () => {
                     <button
                       type="button"
                       onClick={() => handleDomainAppend("@gov.in")}
-                      className="text-[11px] px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-blue-900 font-mono font-medium border border-slate-200"
+                      className="text-[11px] px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-blue-900 font-mono font-medium border border-slate-200 transition-colors"
                     >
                       @gov.in
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDomainAppend("@nic.in")}
-                      className="text-[11px] px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-blue-900 font-mono font-medium border border-slate-200"
+                      className="text-[11px] px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-blue-900 font-mono font-medium border border-slate-200 transition-colors"
                     >
                       @nic.in
                     </button>
@@ -355,8 +308,8 @@ export const Login = () => {
                     })}
                     type="email"
                     placeholder={t("auth.email_placeholder")}
-                    className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-900 focus:bg-white focus:outline-none transition-colors ${
-                      errors.email ? "border-red-500 bg-red-50/20" : "border-slate-300"
+                    className={`w-full pl-10 pr-4 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all ${
+                      errors.email ? "border-red-500 bg-red-50/20 ring-1 ring-red-500" : "border-slate-300 hover:border-slate-400"
                     }`}
                   />
                 </div>
@@ -394,14 +347,14 @@ export const Login = () => {
                     })}
                     type={showPassword ? "text" : "password"}
                     placeholder={t("auth.password_placeholder")}
-                    className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-900 focus:bg-white focus:outline-none transition-colors ${
-                      errors.password ? "border-red-500 bg-red-50/20" : "border-slate-300"
+                    className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all ${
+                      errors.password ? "border-red-500 bg-red-50/20 ring-1 ring-red-500" : "border-slate-300 hover:border-slate-400"
                     }`}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-blue-900 focus:outline-none focus:text-blue-900 cursor-pointer transition-colors"
                     aria-label={showPassword ? "Hide password" : "Show password"}
                   >
                     {showPassword ? (
@@ -425,7 +378,7 @@ export const Login = () => {
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-center">
                   <div className="sm:col-span-6 flex items-center gap-2">
-                    <div className="flex-1 bg-slate-800 text-amber-400 font-mono text-lg font-bold tracking-widest px-4 py-2 rounded-lg text-center select-none shadow-inner border border-slate-700">
+                    <div className="flex-1 bg-slate-900 text-amber-400 font-mono text-lg font-bold tracking-widest px-4 py-2 rounded-lg text-center select-none shadow-inner border border-slate-800">
                       {captchaCode}
                     </div>
                     <button
@@ -445,10 +398,10 @@ export const Login = () => {
                       type="text"
                       placeholder={t("auth.captcha_placeholder")}
                       maxLength={6}
-                      className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 font-mono tracking-wider uppercase placeholder-slate-400 focus:ring-2 focus:ring-blue-900 focus:bg-white focus:outline-none ${
+                      className={`w-full px-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 font-mono tracking-wider uppercase placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all ${
                         captchaError || errors.captcha
-                          ? "border-red-500 bg-red-50/20"
-                          : "border-slate-300"
+                          ? "border-red-500 bg-red-50/20 ring-1 ring-red-500"
+                          : "border-slate-300 hover:border-slate-400"
                       }`}
                     />
                   </div>
@@ -481,8 +434,9 @@ export const Login = () => {
                 size="lg"
                 fullWidth
                 isLoading={isLoading}
-                leftIcon={<Lock className="w-4 h-4" />}
-                className="mt-2 text-sm"
+                disabled={isLoading}
+                leftIcon={isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Lock className="w-4 h-4" />}
+                className="mt-3 text-sm font-semibold tracking-wide shadow-sm hover:shadow-md active:scale-[0.99] transition-all"
               >
                 {isLoading ? t("auth.signing_in") : t("auth.login_button")}
               </Button>
@@ -515,7 +469,7 @@ export const Login = () => {
               </a>
             </div>
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );

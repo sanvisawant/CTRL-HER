@@ -14,11 +14,10 @@ import {
   Briefcase,
   AlertCircle,
   Globe,
-  Sparkles,
-  Shield,
+  RefreshCw,
 } from "lucide-react";
 import { Button } from "../../components/common/Button";
-import { DakshaLogo } from "../../components/common/DakshaLogo";
+import { AuthBrandPanel } from "./AuthBrandPanel";
 import { useAuth } from "../../context/AuthContext";
 
 interface SignupFormInputs {
@@ -117,69 +116,11 @@ export const Signup = () => {
 
       {/* Main Split Portal Container */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-[calc(100vh-4px)]">
-        {/* LEFT PANEL: Minimalist Institutional Crest & Branding (5 cols) */}
-        <div className="lg:col-span-5 gov-security-grid p-8 lg:p-14 text-white flex flex-col justify-between relative overflow-hidden border-r border-slate-800">
-          <div className="relative z-10 space-y-8 my-auto">
-            <div className="flex items-center gap-4 pb-6 border-b border-slate-800/80">
-              <div className="w-14 h-14 rounded-xl bg-white/10 border border-white/20 p-2 flex items-center justify-center backdrop-blur-xs shadow-inner shrink-0">
-                <svg
-                  viewBox="0 0 24 24"
-                  className="w-10 h-10 text-amber-400 fill-current"
-                  aria-hidden="true"
-                >
-                  <path d="M12 2L15 8H9L12 2Z" />
-                  <path d="M5 9C5 9 6 12 7 13C8 14 10 14 10 14L8 16L9 18L12 17L15 18L16 16L14 14C14 14 16 14 17 13C18 12 19 9 19 9H5Z" />
-                  <path d="M8 19H16V21C16 21.5 15.5 22 15 22H9C8.5 22 8 21.5 8 21V19Z" />
-                </svg>
-              </div>
-              <div>
-                <p className="text-xs uppercase tracking-widest font-bold text-amber-400">
-                  {t("gov_india")}
-                </p>
-                <p className="text-xs font-semibold text-slate-200 leading-tight mt-0.5">
-                  {t("ministry")}
-                </p>
-              </div>
-            </div>
-
-            {/* Platform Branding */}
-            <div className="space-y-3">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-300 text-xs font-semibold mb-2">
-                <Sparkles className="w-3.5 h-3.5 text-blue-400" />
-                <span>{t("auth.officer_onboarding")}</span>
-              </div>
-              <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-xl bg-white/10 border border-white/20 p-1.5 flex items-center justify-center backdrop-blur-xs shadow-md shrink-0">
-                  <DakshaLogo size={36} theme="dark" />
-                </div>
-                <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-white">
-                  {t("brand")}
-                </h1>
-              </div>
-              <p className="text-sm font-semibold tracking-wide text-sky-300">
-                {t("tagline")}
-              </p>
-            </div>
-
-            <div className="pt-2 text-xs text-slate-400 leading-relaxed border-l-2 border-amber-400/80 pl-3">
-              Official registration for MoSPI and affiliated cadre personnel. All submissions are verified against service records.
-            </div>
-          </div>
-
-          <div className="relative z-10 pt-6 border-t border-slate-800/80 mt-8 flex items-center justify-between text-[11px] text-slate-400">
-            <span className="flex items-center gap-1.5">
-              <Shield className="w-3.5 h-3.5 text-teal-400" />
-              {t("auth.trust_badge_1")}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Lock className="w-3.5 h-3.5 text-blue-400" />
-              {t("auth.trust_badge_2")}
-            </span>
-          </div>
-        </div>
+        {/* Animated DAKSHA Brand Panel */}
+        <AuthBrandPanel mode="signup" />
 
         {/* RIGHT PANEL: Direct, Streamlined Signup Form (7 cols) */}
-        <div className="lg:col-span-7 bg-white flex flex-col justify-between p-6 sm:p-10 lg:p-14 overflow-y-auto">
+        <main className="lg:col-span-7 bg-white flex flex-col justify-between p-6 sm:p-10 lg:p-14 overflow-y-auto animate-fade-in">
           <div>
             {/* Top Bar */}
             <div className="flex flex-wrap items-center justify-between gap-3 pb-5 mb-5 border-b border-slate-200">
@@ -291,18 +232,18 @@ export const Signup = () => {
             </div>
 
             {/* Navigation Tabs */}
-            <div className="flex border-b border-slate-200 mb-6">
+            <div className="flex border-b border-slate-200 mb-6 gap-2">
               <Link
                 to="/login"
-                className="py-2.5 px-4 font-medium text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center gap-2 transition-colors"
+                className="py-2.5 px-4 font-medium text-sm border-b-2 border-transparent text-slate-500 hover:text-blue-900 hover:border-slate-300 flex items-center gap-2 transition-all"
               >
                 <span>{t("auth.signin_tab")}</span>
               </Link>
               <button
                 type="button"
-                className="py-2.5 px-4 font-semibold text-sm border-b-2 border-blue-900 text-blue-900 flex items-center gap-2"
+                className="py-2.5 px-4 font-bold text-sm border-b-2 border-blue-900 text-blue-900 flex items-center gap-2 transition-all"
               >
-                <UserCheck className="w-4 h-4" />
+                <UserCheck className="w-4 h-4 text-blue-900" />
                 <span>{t("auth.signup_tab")}</span>
               </button>
             </div>
@@ -317,7 +258,7 @@ export const Signup = () => {
                   </label>
                   <select
                     {...register("role", { required: true })}
-                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-800 font-medium focus:ring-2 focus:ring-blue-900 focus:bg-white focus:outline-none cursor-pointer"
+                    className="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-lg text-sm text-slate-800 font-medium focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all cursor-pointer"
                   >
                     <option value="learner">{t("auth.role_learner")}</option>
                     <option value="trainer">{t("auth.role_trainer")}</option>
@@ -339,8 +280,8 @@ export const Signup = () => {
                       })}
                       type="text"
                       placeholder={t("auth.full_name_placeholder")}
-                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-900 focus:bg-white focus:outline-none ${
-                        errors.fullName ? "border-red-500 bg-red-50/20" : "border-slate-300"
+                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all ${
+                        errors.fullName ? "border-red-500 bg-red-50/20 ring-1 ring-red-500" : "border-slate-300 hover:border-slate-400"
                       }`}
                     />
                   </div>
@@ -368,8 +309,8 @@ export const Signup = () => {
                       })}
                       type="text"
                       placeholder={t("auth.designation_placeholder")}
-                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-900 focus:bg-white focus:outline-none ${
-                        errors.designation ? "border-red-500 bg-red-50/20" : "border-slate-300"
+                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all ${
+                        errors.designation ? "border-red-500 bg-red-50/20 ring-1 ring-red-500" : "border-slate-300 hover:border-slate-400"
                       }`}
                     />
                   </div>
@@ -394,8 +335,8 @@ export const Signup = () => {
                       })}
                       type="text"
                       placeholder={t("auth.cadre_id_placeholder")}
-                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 font-mono placeholder-slate-400 focus:ring-2 focus:ring-blue-900 focus:bg-white focus:outline-none ${
-                        errors.cadreId ? "border-red-500 bg-red-50/20" : "border-slate-300"
+                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 font-mono placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all ${
+                        errors.cadreId ? "border-red-500 bg-red-50/20 ring-1 ring-red-500" : "border-slate-300 hover:border-slate-400"
                       }`}
                     />
                   </div>
@@ -418,14 +359,14 @@ export const Signup = () => {
                       <button
                         type="button"
                         onClick={() => handleDomainAppend("@gov.in")}
-                        className="text-[11px] px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-blue-900 font-mono font-medium border border-slate-200"
+                        className="text-[11px] px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-blue-900 font-mono font-medium border border-slate-200 transition-colors"
                       >
                         @gov.in
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDomainAppend("@nic.in")}
-                        className="text-[11px] px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-blue-900 font-mono font-medium border border-slate-200"
+                        className="text-[11px] px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-blue-900 font-mono font-medium border border-slate-200 transition-colors"
                       >
                         @nic.in
                       </button>
@@ -445,8 +386,8 @@ export const Signup = () => {
                       })}
                       type="email"
                       placeholder={t("auth.email_placeholder")}
-                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-900 focus:bg-white focus:outline-none ${
-                        errors.email ? "border-red-500 bg-red-50/20" : "border-slate-300"
+                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all ${
+                        errors.email ? "border-red-500 bg-red-50/20 ring-1 ring-red-500" : "border-slate-300 hover:border-slate-400"
                       }`}
                     />
                   </div>
@@ -476,8 +417,8 @@ export const Signup = () => {
                       type="tel"
                       maxLength={10}
                       placeholder={t("auth.phone_placeholder")}
-                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-900 focus:bg-white focus:outline-none ${
-                        errors.phone ? "border-red-500 bg-red-50/20" : "border-slate-300"
+                      className={`w-full pl-10 pr-3.5 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all ${
+                        errors.phone ? "border-red-500 bg-red-50/20 ring-1 ring-red-500" : "border-slate-300 hover:border-slate-400"
                       }`}
                     />
                   </div>
@@ -509,14 +450,15 @@ export const Signup = () => {
                       })}
                       type={showPassword ? "text" : "password"}
                       placeholder={t("auth.password_placeholder")}
-                      className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-900 focus:bg-white focus:outline-none ${
-                        errors.password ? "border-red-500 bg-red-50/20" : "border-slate-300"
+                      className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all ${
+                        errors.password ? "border-red-500 bg-red-50/20 ring-1 ring-red-500" : "border-slate-300 hover:border-slate-400"
                       }`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-blue-900 focus:outline-none focus:text-blue-900 cursor-pointer transition-colors"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
                     >
                       {showPassword ? (
                         <EyeOff className="w-4 h-4" />
@@ -548,14 +490,15 @@ export const Signup = () => {
                       })}
                       type={showConfirmPassword ? "text" : "password"}
                       placeholder={t("auth.confirm_password_placeholder")}
-                      className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-900 focus:bg-white focus:outline-none ${
-                        errors.confirmPassword ? "border-red-500 bg-red-50/20" : "border-slate-300"
+                      className={`w-full pl-10 pr-10 py-2.5 bg-slate-50 border rounded-lg text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-800 focus:border-blue-800 focus:bg-white focus:outline-none transition-all ${
+                        errors.confirmPassword ? "border-red-500 bg-red-50/20 ring-1 ring-red-500" : "border-slate-300 hover:border-slate-400"
                       }`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-blue-900 focus:outline-none focus:text-blue-900 cursor-pointer transition-colors"
+                      aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
                     >
                       {showConfirmPassword ? (
                         <EyeOff className="w-4 h-4" />
@@ -600,8 +543,9 @@ export const Signup = () => {
                 size="lg"
                 fullWidth
                 isLoading={isLoading}
-                leftIcon={<UserCheck className="w-4 h-4" />}
-                className="mt-2 text-sm"
+                disabled={isLoading}
+                leftIcon={isLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <UserCheck className="w-4 h-4" />}
+                className="mt-3 text-sm font-semibold tracking-wide shadow-sm hover:shadow-md active:scale-[0.99] transition-all"
               >
                 {isLoading ? t("auth.registering") : t("auth.signup_button")}
               </Button>
@@ -634,7 +578,7 @@ export const Signup = () => {
               </a>
             </div>
           </div>
-        </div>
+        </main>
       </div>
     </div>
   );
