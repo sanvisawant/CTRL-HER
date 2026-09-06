@@ -14,6 +14,7 @@ import {
   FileText,
   HelpCircle,
   AlertCircle,
+  RotateCcw,
 } from "lucide-react";
 
 interface ChatMessage {
@@ -22,6 +23,8 @@ interface ChatMessage {
   text: string;
   timestamp: string;
   data?: LearningAssistantResponse;
+  isError?: boolean;
+  retryQuery?: string;
 }
 
 const SAMPLE_PROMPTS = [
@@ -78,8 +81,10 @@ export const AIAssistantView: React.FC = () => {
       const errorMsg: ChatMessage = {
         id: `err-${Date.now()}`,
         sender: "assistant",
-        text: "I could not retrieve an answer from the grounded vector index at this time. Please ensure the backend vector store and FAISS indices are active.",
+        text: "Unable to retrieve an answer from the grounded knowledge index at this time. The statistical indexing service may be temporarily reconnecting.",
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        isError: true,
+        retryQuery: q,
       };
       setMessages((prev) => [...prev, errorMsg]);
     } finally {
@@ -184,7 +189,28 @@ export const AIAssistantView: React.FC = () => {
                       )}
 
                       {/* Message Content */}
-                      {isInsufficientContext ? (
+                      {m.isError ? (
+                        <div className="space-y-2">
+                          <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-lg flex items-start gap-2 text-rose-900">
+                            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                            <div className="space-y-1">
+                              <p className="font-semibold text-xs text-rose-900">Knowledge Copilot Unavailable</p>
+                              <p className="text-[11px] text-rose-800 leading-snug">{m.text}</p>
+                            </div>
+                          </div>
+                          {m.retryQuery && (
+                            <button
+                              type="button"
+                              onClick={() => sendMessage(m.retryQuery!)}
+                              disabled={loading}
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-rose-100 text-rose-800 hover:bg-rose-200 transition-colors cursor-pointer"
+                            >
+                              <RotateCcw className="w-3 h-3" />
+                              Retry Question
+                            </button>
+                          )}
+                        </div>
+                      ) : isInsufficientContext ? (
                         <div className="space-y-2">
                           <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2 text-amber-900">
                             <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />

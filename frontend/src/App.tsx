@@ -32,6 +32,9 @@ import AnalyticsView from "./features/analytics/AnalyticsView";
 import QuestView from "./features/quest/QuestView";
 import IGOTLearning from "./features/igot/IGOTLearning";
 
+import { ErrorState } from "./components/common/ErrorState";
+import { MetricSkeleton, CardSkeleton } from "./components/common/SkeletonLoader";
+
 import {
   api,
   type ConnectedLearnerFlowResponse,
@@ -47,27 +50,34 @@ const DashboardView = () => {
   const [flowData, setFlowData] = useState<ConnectedLearnerFlowResponse | null>(null);
   const [questData, setQuestData] = useState<QuestHomeData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
+  const fetchDashboardState = async () => {
+    try {
+      setLoading(true);
+      setFetchError(null);
+      const [flowRes, questRes] = await Promise.allSettled([
+        api.getConnectedLearnerFlow(cadreId),
+        api.getQuestHome(cadreId),
+      ]);
+      if (flowRes.status === "fulfilled") {
+        setFlowData(flowRes.value);
+      }
+      if (questRes.status === "fulfilled") {
+        setQuestData(questRes.value);
+      }
+      if (flowRes.status === "rejected" && questRes.status === "rejected") {
+        setFetchError("Unable to establish live connection to backend intelligence. Baseline cadre benchmarks are displayed.");
+      }
+    } catch (err) {
+      console.warn("Dashboard fetch error:", err);
+      setFetchError("Unable to fetch dashboard intelligence.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchDashboardState = async () => {
-      try {
-        setLoading(true);
-        const [flowRes, questRes] = await Promise.allSettled([
-          api.getConnectedLearnerFlow(cadreId),
-          api.getQuestHome(cadreId),
-        ]);
-        if (flowRes.status === "fulfilled") {
-          setFlowData(flowRes.value);
-        }
-        if (questRes.status === "fulfilled") {
-          setQuestData(questRes.value);
-        }
-      } catch (err) {
-        console.warn("Dashboard fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchDashboardState();
   }, [cadreId]);
 
@@ -119,37 +129,56 @@ const DashboardView = () => {
         </div>
       </div>
 
-            {/* KPI Stats Grid (Compact, High Information Density) */}
+      {fetchError && (
+        <ErrorState
+          compact
+          message={fetchError}
+          onRetry={fetchDashboardState}
+        />
+      )}
+
+      {/* KPI Stats Grid & Main Content */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-          {[1, 2, 3, 4].map((n) => (
-            <div key={n} className="h-24 rounded-xl skeleton-shimmer border border-slate-200" />
-          ))}
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            {[1, 2, 3, 4].map((n) => (
+              <MetricSkeleton key={n} />
+            ))}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <CardSkeleton lines={4} />
+            </div>
+            <div>
+              <CardSkeleton lines={3} />
+            </div>
+          </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-        {/* KPI 1: Competency Score */}
-        <Card variant="accent" className="hover:shadow-md transition-shadow">
-          <CardBody className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                  {t("dashboard.kpi_competency_score")}
-                </p>
-                <h3 className="text-2xl font-black text-slate-900 mt-0.5">
-                  3.4 <span className="text-xs font-medium text-slate-400">/ 5.0</span>
-                </h3>
-              </div>
-              <div className="p-2.5 bg-blue-50 text-blue-900 rounded-lg">
-                <Award className="w-5 h-5" />
-              </div>
-            </div>
-            <div className="mt-2.5 flex items-center gap-1.5 text-xs text-emerald-700 font-medium">
-              <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-              <span>{totalGaps} FRAC Competency Gaps</span>
-            </div>
-          </CardBody>
-        </Card>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            {/* KPI 1: Competency Score */}
+            <Card variant="accent" className="hover:shadow-md transition-shadow">
+              <CardBody className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                      {t("dashboard.kpi_competency_score")}
+                    </p>
+                    <h3 className="text-2xl font-black text-slate-900 mt-0.5">
+                      3.4 <span className="text-xs font-medium text-slate-400">/ 5.0</span>
+                    </h3>
+                  </div>
+                  <div className="p-2.5 bg-blue-50 text-blue-900 rounded-lg">
+                    <Award className="w-5 h-5" />
+                  </div>
+                </div>
+                <div className="mt-2.5 flex items-center gap-1.5 text-xs text-emerald-700 font-medium">
+                  <TrendingUp className="w-3.5 h-3.5 shrink-0" />
+                  <span>{totalGaps} FRAC Competency Gaps</span>
+                </div>
+              </CardBody>
+            </Card>
 
         {/* KPI 2: Active Pathways */}
         <Card variant="default" className="hover:shadow-md transition-shadow">
@@ -220,7 +249,6 @@ const DashboardView = () => {
           </CardBody>
         </Card>
       </div>
-      )}
 
       {/* Main Grid: Assigned Pathways & Pending Assessments */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -388,6 +416,8 @@ const DashboardView = () => {
           </div>
         </div>
       </div>
+      </>
+    )}
     </div>
   );
 };

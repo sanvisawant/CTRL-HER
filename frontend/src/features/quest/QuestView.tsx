@@ -7,6 +7,8 @@ import {
 } from "../../services/api";
 import { Card, CardHeader, CardTitle, CardDescription, CardBody } from "../../components/common/Card";
 import { Button } from "../../components/common/Button";
+import { ErrorState } from "../../components/common/ErrorState";
+import { MetricSkeleton, CardSkeleton } from "../../components/common/SkeletonLoader";
 import {
   Compass,
   Trophy,
@@ -18,7 +20,6 @@ import {
   Zap,
   Target,
   ShieldCheck,
-  AlertCircle,
 } from "lucide-react";
 
 export const QuestView: React.FC = () => {
@@ -53,8 +54,9 @@ export const QuestView: React.FC = () => {
   }, [cadreId]);
 
   const handleSubmitDaily = async () => {
-    if (!selectedAnswer) return;
+    if (!selectedAnswer || submitting) return;
     setSubmitting(true);
+    setError(null);
     try {
       const result = await api.submitQuestChallenge({
         user_id: cadreId,
@@ -72,15 +74,8 @@ export const QuestView: React.FC = () => {
       }
     } catch (err: unknown) {
       console.error("Daily challenge submission failed:", err);
-      // Fallback optimistic reward in case endpoint returns mock simulation
-      setSubmitResult({
-        is_correct: true,
-        xp_awarded: 50,
-        new_total_xp: (questData?.xp || 720) + 50,
-        new_level: questData?.level || 7,
-        leveled_up: false,
-        explanation: "Correct! Sentinel value 99999 represents missing enumeration code and must be imputed.",
-      });
+      setError("Challenge submission could not be evaluated at this time. Please retry.");
+      setSubmitResult(null);
     } finally {
       setSubmitting(false);
     }
@@ -119,18 +114,35 @@ export const QuestView: React.FC = () => {
         </Button>
       </div>
 
-      {error && (
-        <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-          <div>
-            <p className="font-bold">Backend Sync Notice</p>
-            <p className="mt-0.5">{error} Showing cached officer gamification profile.</p>
+      {loading && !questData ? (
+        <div className="space-y-4">
+          <MetricSkeleton count={3} />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <CardSkeleton rows={5} />
+            </div>
+            <CardSkeleton rows={4} />
           </div>
         </div>
-      )}
+      ) : error && !questData ? (
+        <ErrorState
+          title="Quest Hub Offline"
+          message="Unable to connect to the P4 Gamification and Daily Micro-Challenge engine. Please retry to load your official missions."
+          onRetry={loadQuestData}
+        />
+      ) : (
+        <>
+          {error && (
+            <ErrorState
+              compact
+              title="Quest Sync Notice"
+              message={error}
+              onRetry={loadQuestData}
+            />
+          )}
 
-      {/* Gamification Status Bar (Level, XP, Streak) */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+          {/* Gamification Status Bar (Level, XP, Streak) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
         {/* Level Card */}
         <Card variant="accent" className="hover:shadow-md transition-shadow">
           <CardBody className="p-4 flex items-center justify-between">
@@ -273,9 +285,10 @@ export const QuestView: React.FC = () => {
                     size="md"
                     onClick={handleSubmitDaily}
                     disabled={!selectedAnswer || submitting}
+                    isLoading={submitting}
                     rightIcon={<Target className="w-4 h-4" />}
                   >
-                    {submitting ? "Checking..." : "Submit Answer"}
+                    {submitting ? "Evaluating Challenge..." : "Submit Answer"}
                   </Button>
                 </div>
               ) : (
@@ -357,6 +370,8 @@ export const QuestView: React.FC = () => {
           </Card>
         </div>
       </div>
+        </>
+      )}
     </div>
   );
 };

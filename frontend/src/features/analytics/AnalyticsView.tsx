@@ -6,6 +6,8 @@ import {
 } from "../../services/api";
 import { Card, CardHeader, CardTitle, CardDescription, CardBody } from "../../components/common/Card";
 import { Button } from "../../components/common/Button";
+import { ErrorState } from "../../components/common/ErrorState";
+import { MetricSkeleton, CardSkeleton } from "../../components/common/SkeletonLoader";
 import {
   BarChart3,
   Users,
@@ -89,15 +91,34 @@ export const AnalyticsView: React.FC = () => {
         </Button>
       </div>
 
-      {error && (
-        <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
-          <p className="font-bold">Backend Status</p>
-          <p className="mt-0.5">{error}</p>
+      {loading && !dashboardData ? (
+        <div className="space-y-4">
+          <MetricSkeleton count={4} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <CardSkeleton rows={4} />
+            <CardSkeleton rows={4} />
+          </div>
+          <CardSkeleton rows={6} />
         </div>
-      )}
+      ) : error && !dashboardData ? (
+        <ErrorState
+          title="Workforce Intelligence Offline"
+          message="Unable to establish a connection to the P4 Workforce Analytics service. Please retry to retrieve live cadre and division statistics."
+          onRetry={loadAnalytics}
+        />
+      ) : (
+        <>
+          {error && (
+            <ErrorState
+              compact
+              title="Workforce Sync Warning"
+              message={error}
+              onRetry={loadAnalytics}
+            />
+          )}
 
-      {/* Top Level Workforce KPIs (Compact & High-Contrast) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {/* Top Level Workforce KPIs (Compact & High-Contrast) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <Card variant="accent" className="hover:shadow-md transition-shadow">
           <CardBody className="p-4">
             <div className="flex items-center justify-between">
@@ -398,6 +419,8 @@ export const AnalyticsView: React.FC = () => {
           )}
         </CardBody>
       </Card>
+        </>
+      )}
     </div>
   );
 };

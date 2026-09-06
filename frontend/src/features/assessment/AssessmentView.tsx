@@ -17,8 +17,10 @@ import {
   Sparkles,
   ArrowRight,
   RotateCcw,
-  AlertCircle,
+  FolderArchive,
 } from "lucide-react";
+import { ErrorState } from "../../components/common/ErrorState";
+import { EmptyState } from "../../components/common/EmptyState";
 
 export const AssessmentView: React.FC = () => {
   const { user } = useAuth();
@@ -36,12 +38,14 @@ export const AssessmentView: React.FC = () => {
   const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [docsLoading, setDocsLoading] = useState<boolean>(true);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   // Load available documents on mount
   useEffect(() => {
     const fetchDocs = async () => {
+      setDocsLoading(true);
       try {
         const res = await api.fetchDocuments();
         if (res.documents && res.documents.length > 0) {
@@ -50,6 +54,8 @@ export const AssessmentView: React.FC = () => {
         }
       } catch (err: unknown) {
         console.warn("Could not fetch documents for quiz generation:", err);
+      } finally {
+        setDocsLoading(false);
       }
     };
     fetchDocs();
@@ -89,7 +95,7 @@ export const AssessmentView: React.FC = () => {
   };
 
   const handleSubmitQuiz = async () => {
-    if (!activeQuiz) return;
+    if (!activeQuiz || submitting) return;
     setSubmitting(true);
     setError(null);
 
@@ -146,13 +152,12 @@ export const AssessmentView: React.FC = () => {
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 text-xs text-red-800">
-          <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-          <div>
-            <p className="font-bold">Evaluation Notice</p>
-            <p className="mt-0.5">{error}</p>
-          </div>
-        </div>
+        <ErrorState
+          compact
+          title="Assessment Notice"
+          message={error}
+          onRetry={activeQuiz && !quizResult ? handleSubmitQuiz : handleStartQuiz}
+        />
       )}
 
       {/* VIEW 1: Quiz Config / Start Screen */}
@@ -174,15 +179,19 @@ export const AssessmentView: React.FC = () => {
                 <select
                   value={selectedDocId}
                   onChange={(e) => setSelectedDocId(e.target.value)}
-                  className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-900"
+                  disabled={docsLoading || documents.length === 0}
+                  className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-900 disabled:opacity-60"
                 >
-                  {documents.map((doc) => (
-                    <option key={doc.document_id} value={doc.document_id}>
-                      {doc.filename}
-                    </option>
-                  ))}
-                  {documents.length === 0 && (
-                    <option value="">Default MoSPI Survey Manual</option>
+                  {docsLoading ? (
+                    <option value="">Loading MoSPI publications...</option>
+                  ) : documents.length > 0 ? (
+                    documents.map((doc) => (
+                      <option key={doc.document_id} value={doc.document_id}>
+                        {doc.filename}
+                      </option>
+                    ))
+                  ) : (
+                    <option value="">No reference publications found</option>
                   )}
                 </select>
               </div>
@@ -216,6 +225,14 @@ export const AssessmentView: React.FC = () => {
               </div>
             </div>
 
+            {!docsLoading && documents.length === 0 && (
+              <EmptyState
+                icon={<FolderArchive className="w-6 h-6 text-blue-900" />}
+                title="No Assessment Documents Available"
+                description="The assessment engine requires indexed training manuals or operational handbooks to formulate grounded MCQs. Please upload survey manuals in the Learning Repository."
+              />
+            )}
+
             <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
               <div className="text-xs text-slate-500 flex items-center gap-1.5">
                 <Sparkles className="w-4 h-4 text-amber-500" />
@@ -225,7 +242,8 @@ export const AssessmentView: React.FC = () => {
                 variant="saffron"
                 size="md"
                 onClick={handleStartQuiz}
-                disabled={loading}
+                isLoading={loading}
+                disabled={loading || documents.length === 0}
                 leftIcon={<Target className="w-4 h-4" />}
               >
                 {loading ? "Generating Safe Questions..." : "Begin Assessment"}
@@ -312,7 +330,8 @@ export const AssessmentView: React.FC = () => {
                   variant="primary"
                   size="md"
                   onClick={handleSubmitQuiz}
-                  disabled={submitting}
+                  disabled={submitting || Object.keys(selectedAnswers).length === 0}
+                  isLoading={submitting}
                   rightIcon={<ArrowRight className="w-4 h-4" />}
                 >
                   {submitting ? "Evaluating Answers..." : "Submit for Official Evaluation"}

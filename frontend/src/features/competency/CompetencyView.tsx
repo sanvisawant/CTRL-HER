@@ -19,7 +19,11 @@ import {
   CheckCircle2,
   RefreshCw,
   Layers,
+  RotateCcw,
 } from "lucide-react";
+import { ErrorState } from "../../components/common/ErrorState";
+import { EmptyState } from "../../components/common/EmptyState";
+import { MetricSkeleton, CardSkeleton } from "../../components/common/SkeletonLoader";
 
 export const CompetencyView: React.FC = () => {
   const { user } = useAuth();
@@ -113,114 +117,138 @@ export const CompetencyView: React.FC = () => {
       </div>
 
       {/* Error Notice if any */}
-      {error && (
-        <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
-          <div className="text-xs text-amber-800">
-            <p className="font-bold">Backend Connection Notice</p>
-            <p className="mt-0.5">{error}</p>
-          </div>
-        </div>
+      {error && !loading && (
+        <ErrorState
+          compact={Boolean(gapData || groupedComp)}
+          title="Competency Intelligence Notice"
+          message={error}
+          onRetry={loadData}
+        />
       )}
 
-      {/* Summary KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card variant="accent">
-          <CardBody className="p-4">
-            <p className="text-xs font-medium text-slate-500 uppercase">Master Competencies</p>
-            <h3 className="text-2xl font-bold text-slate-900 mt-1">
-              {groupedComp?.total_competencies || gapData?.total_competencies || 33}
-            </h3>
-            <p className="text-xs text-teal-700 mt-2 flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5" /> Canonical MoSPI Taxonomy
-            </p>
-          </CardBody>
-        </Card>
-
-        <Card variant="default">
-          <CardBody className="p-4">
-            <p className="text-xs font-medium text-slate-500 uppercase">High Priority Gaps</p>
-            <h3 className="text-2xl font-bold text-red-600 mt-1">
-              {gapData?.high_priority_count ?? gapsList.filter((g) => g.priority === "HIGH").length}
-            </h3>
-            <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
-              <TrendingDown className="w-3.5 h-3.5 text-red-500" /> Immediate Upskilling Required
-            </p>
-          </CardBody>
-        </Card>
-
-        <Card variant="default">
-          <CardBody className="p-4">
-            <p className="text-xs font-medium text-slate-500 uppercase">Medium Priority Gaps</p>
-            <h3 className="text-2xl font-bold text-amber-600 mt-1">
-              {gapData?.medium_priority_count ?? gapsList.filter((g) => g.priority === "MEDIUM").length}
-            </h3>
-            <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
-              <CheckCircle2 className="w-3.5 h-3.5 text-amber-500" /> Targeted Practice Recommended
-            </p>
-          </CardBody>
-        </Card>
-
-        <Card variant="default">
-          <CardBody className="p-4">
-            <p className="text-xs font-medium text-slate-500 uppercase">Average Gap Delta</p>
-            <h3 className="text-2xl font-bold text-blue-900 mt-1">
-              {gapData?.average_gap ? gapData.average_gap.toFixed(2) : "0.78"} / 5.0
-            </h3>
-            <p className="text-xs text-blue-800 mt-2 flex items-center gap-1">
-              <Target className="w-3.5 h-3.5" /> Role Benchmark Baseline
-            </p>
-          </CardBody>
-        </Card>
-      </div>
-
-      {/* Category Filter Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1">
-        <span className="text-xs font-bold text-slate-500 flex items-center gap-1 shrink-0 mr-2">
-          <Layers className="w-3.5 h-3.5" /> Domain:
-        </span>
-        {categories.map((cat) => (
-          <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
-              selectedCategory === cat
-                ? "bg-blue-900 text-white shadow-xs"
-                : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
-            }`}
-          >
-            {cat}
-          </button>
-        ))}
-      </div>
-
-      {/* Competencies & Skill Gaps Table / Card Grid */}
-      <Card>
-        <CardHeader>
-          <div>
-            <CardTitle className="text-sm">Competency Evaluations & Benchmarks</CardTitle>
-            <CardDescription>
-              Displaying {filteredGaps.length} competencies. Evaluated against official Senior Statistical Officer standards.
-            </CardDescription>
+      {/* Loading Skeleton View */}
+      {loading ? (
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((n) => (
+              <MetricSkeleton key={n} />
+            ))}
           </div>
-          <Link to="/igot-learning">
-            <Button variant="outline" size="sm" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
-              View Recommended Pathways
-            </Button>
-          </Link>
-        </CardHeader>
-        <CardBody>
-          {loading ? (
-            <div className="p-12 text-center text-slate-500">
-              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-blue-900" />
-              <p className="text-xs font-medium">Fetching real-time competency evaluations from P1 Supabase...</p>
-            </div>
-          ) : filteredGaps.length === 0 ? (
-            <div className="p-12 text-center text-slate-500 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-              <Award className="w-8 h-8 mx-auto mb-2 text-slate-400" />
-              <p className="text-xs font-semibold">No competency gaps registered under this filter.</p>
-            </div>
-          ) : (
+          <CardSkeleton lines={6} />
+        </div>
+      ) : !gapData && !groupedComp && error ? (
+        <ErrorState
+          title="Unable to Load Competency Framework"
+          message="Could not connect to the P1 Competency Intelligence service. Please verify backend availability."
+          onRetry={loadData}
+        />
+      ) : (
+        <>
+          {/* Summary KPI Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card variant="accent">
+              <CardBody className="p-4">
+                <p className="text-xs font-medium text-slate-500 uppercase">Master Competencies</p>
+                <h3 className="text-2xl font-bold text-slate-900 mt-1">
+                  {groupedComp?.total_competencies || gapData?.total_competencies || 33}
+                </h3>
+                <p className="text-xs text-teal-700 mt-2 flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5" /> Canonical MoSPI Taxonomy
+                </p>
+              </CardBody>
+            </Card>
+
+            <Card variant="default">
+              <CardBody className="p-4">
+                <p className="text-xs font-medium text-slate-500 uppercase">High Priority Gaps</p>
+                <h3 className="text-2xl font-bold text-red-600 mt-1">
+                  {gapData?.high_priority_count ?? gapsList.filter((g) => g.priority === "HIGH").length}
+                </h3>
+                <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
+                  <TrendingDown className="w-3.5 h-3.5 text-red-500" /> Immediate Upskilling Required
+                </p>
+              </CardBody>
+            </Card>
+
+            <Card variant="default">
+              <CardBody className="p-4">
+                <p className="text-xs font-medium text-slate-500 uppercase">Medium Priority Gaps</p>
+                <h3 className="text-2xl font-bold text-amber-600 mt-1">
+                  {gapData?.medium_priority_count ?? gapsList.filter((g) => g.priority === "MEDIUM").length}
+                </h3>
+                <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-500" /> Targeted Practice Recommended
+                </p>
+              </CardBody>
+            </Card>
+
+            <Card variant="default">
+              <CardBody className="p-4">
+                <p className="text-xs font-medium text-slate-500 uppercase">Average Gap Delta</p>
+                <h3 className="text-2xl font-bold text-blue-900 mt-1">
+                  {gapData?.average_gap ? gapData.average_gap.toFixed(2) : "0.78"} / 5.0
+                </h3>
+                <p className="text-xs text-blue-800 mt-2 flex items-center gap-1">
+                  <Target className="w-3.5 h-3.5" /> Role Benchmark Baseline
+                </p>
+              </CardBody>
+            </Card>
+          </div>
+
+          {/* Category Filter Tabs */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+            <span className="text-xs font-bold text-slate-500 flex items-center gap-1 shrink-0 mr-2">
+              <Layers className="w-3.5 h-3.5" /> Domain:
+            </span>
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
+                  selectedCategory === cat
+                    ? "bg-blue-900 text-white shadow-xs"
+                    : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Competencies & Skill Gaps Table / Card Grid */}
+          <Card>
+            <CardHeader>
+              <div>
+                <CardTitle className="text-sm">Competency Evaluations & Benchmarks</CardTitle>
+                <CardDescription>
+                  Displaying {filteredGaps.length} competencies. Evaluated against official Senior Statistical Officer standards.
+                </CardDescription>
+              </div>
+              <Link to="/igot-learning">
+                <Button variant="outline" size="sm" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
+                  View Recommended Pathways
+                </Button>
+              </Link>
+            </CardHeader>
+            <CardBody>
+              {filteredGaps.length === 0 ? (
+                <EmptyState
+                  icon={<Award className="w-6 h-6 text-slate-400" />}
+                  title="No Competencies Found"
+                  description={
+                    selectedCategory === "ALL"
+                      ? "No competency evaluations are registered yet for this officer profile."
+                      : `No competencies registered under the "${selectedCategory}" domain filter.`
+                  }
+                  actionText={selectedCategory !== "ALL" ? "Reset Domain Filter" : "Start Diagnostic Test"}
+                  actionIcon={selectedCategory !== "ALL" ? <RotateCcw className="w-3.5 h-3.5" /> : <Target className="w-3.5 h-3.5" />}
+                  onAction={
+                    selectedCategory !== "ALL"
+                      ? () => setSelectedCategory("ALL")
+                      : () => window.location.assign("/assessment")
+                  }
+                />
+              ) : (
             <div className="space-y-3">
               {filteredGaps.map((item, idx) => {
                 const current = item.current_score || 3.0;
@@ -310,9 +338,11 @@ export const CompetencyView: React.FC = () => {
                 );
               })}
             </div>
-          )}
+              )}
         </CardBody>
       </Card>
+      </>
+      )}
     </div>
   );
 };

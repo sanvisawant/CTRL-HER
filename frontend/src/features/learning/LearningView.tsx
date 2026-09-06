@@ -19,6 +19,9 @@ import {
   FolderArchive,
   Layers,
 } from "lucide-react";
+import { ErrorState } from "../../components/common/ErrorState";
+import { EmptyState } from "../../components/common/EmptyState";
+import { CardSkeleton } from "../../components/common/SkeletonLoader";
 
 export const LearningView: React.FC = () => {
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
@@ -157,9 +160,13 @@ export const LearningView: React.FC = () => {
           </CardHeader>
           <CardBody className="space-y-3">
             {searchResults.length === 0 ? (
-              <p className="text-xs text-slate-500 py-4 text-center">
-                No matching passages found. Try a different statistical keyword.
-              </p>
+              <EmptyState
+                icon={<Search className="w-6 h-6 text-slate-400" />}
+                title="No Matching Passages Found"
+                description={`No passages in the indexed documentation matched "${searchQuery}". Try broader terms such as "Sampling multipliers", "CPI rebasing", or "PLFS validation".`}
+                actionText="Clear Search Query"
+                onAction={clearSearch}
+              />
             ) : (
               searchResults.map((res, i) => (
                 <div
@@ -190,11 +197,13 @@ export const LearningView: React.FC = () => {
       )}
 
       {/* Error Notice */}
-      {error && (
-        <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800">
-          <p className="font-bold">Notice</p>
-          <p className="mt-0.5">{error}</p>
-        </div>
+      {error && !loading && (
+        <ErrorState
+          compact={documents.length > 0}
+          title="Repository Service Notice"
+          message={error}
+          onRetry={loadDocuments}
+        />
       )}
 
       {/* Official Indexed Documents List */}
@@ -217,15 +226,19 @@ export const LearningView: React.FC = () => {
         </CardHeader>
         <CardBody>
           {loading ? (
-            <div className="p-12 text-center text-slate-500">
-              <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-blue-900" />
-              <p className="text-xs font-medium">Loading document library from P3 storage...</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[1, 2, 3, 4].map((n) => (
+                <CardSkeleton key={n} lines={3} />
+              ))}
             </div>
           ) : documents.length === 0 ? (
-            <div className="p-12 text-center text-slate-500 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-              <FolderArchive className="w-8 h-8 mx-auto mb-2 text-slate-400" />
-              <p className="text-xs font-semibold">No documents currently registered in the learning repository.</p>
-            </div>
+            <EmptyState
+              icon={<FolderArchive className="w-6 h-6 text-slate-400" />}
+              title="No Ingested Documents"
+              description="No official MoSPI manuals or guidelines are currently registered in P3 storage."
+              actionText="Refresh Repository"
+              onAction={loadDocuments}
+            />
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {documents.map((doc) => (
