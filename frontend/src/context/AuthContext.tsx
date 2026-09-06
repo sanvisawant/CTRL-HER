@@ -10,22 +10,43 @@ export interface OfficerUser {
   phone?: string;
 }
 
+export const CONTROLLED_PERSONAS: Record<"learner" | "trainer" | "admin", OfficerUser> = {
+  learner: {
+    fullName: "Keiyona Rodrigues",
+    designation: "Senior Statistical Officer (ISS)",
+    cadreId: "ISS-2024-8921",
+    email: "keiyona.rodrigues@gov.in",
+    role: "learner",
+    division: "MoSPI Field Operations Division",
+  },
+  trainer: {
+    fullName: "Dr. Alok Sharma",
+    designation: "Subject Matter Specialist & Master Trainer",
+    cadreId: "TRN-2024-1042",
+    email: "alok.sharma@gov.in",
+    role: "trainer",
+    division: "National Statistical Systems Training Academy (NSSTA)",
+  },
+  admin: {
+    fullName: "Rajesh Kumar",
+    designation: "Director General & Cadre Administrator",
+    cadreId: "ADM-2024-001",
+    email: "rajesh.kumar@nic.in",
+    role: "admin",
+    division: "Ministry Administration & Human Resources",
+  },
+};
+
 interface AuthContextType {
   user: OfficerUser;
   setUser: (user: OfficerUser) => void;
   loginUser: (userData: Partial<OfficerUser>) => void;
+  switchPersona: (role: "learner" | "trainer" | "admin") => void;
   logoutUser: () => void;
   getInitials: () => string;
 }
 
-const DEFAULT_USER: OfficerUser = {
-  fullName: "Keiyona Rodrigues",
-  designation: "Senior Statistical Officer (ISS)",
-  cadreId: "ISS-2024-8921",
-  email: "keiyona.rodrigues@gov.in",
-  role: "learner",
-  division: "MoSPI Field Operations Division",
-};
+const DEFAULT_USER: OfficerUser = CONTROLLED_PERSONAS.learner;
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -35,12 +56,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const saved = localStorage.getItem("statsaksham_officer_profile");
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (parsed.fullName) {
+        if (parsed.fullName && parsed.role) {
           return { ...DEFAULT_USER, ...parsed };
         }
       }
     } catch {
-      // ignore
+      // fallback
     }
     return DEFAULT_USER;
   });
@@ -50,20 +71,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem("statsaksham_officer_profile", JSON.stringify(newUser));
   };
 
+  const switchPersona = (role: "learner" | "trainer" | "admin") => {
+    const persona = CONTROLLED_PERSONAS[role] || CONTROLLED_PERSONAS.learner;
+    setUser(persona);
+  };
+
   const loginUser = (userData: Partial<OfficerUser>) => {
-    setUserState((prev) => {
-      const updated = {
-        ...prev,
-        ...userData,
-        fullName: userData.fullName || prev.fullName || "Keiyona Rodrigues",
-      };
-      localStorage.setItem("statsaksham_officer_profile", JSON.stringify(updated));
-      return updated;
-    });
+    // Authoritatively resolve to controlled persona based on designated role
+    const chosenRole = userData.role || "learner";
+    const basePersona = CONTROLLED_PERSONAS[chosenRole] || CONTROLLED_PERSONAS.learner;
+    const resolved: OfficerUser = {
+      ...basePersona,
+      ...userData,
+      role: chosenRole, // enforce authoritative role match
+    };
+    setUser(resolved);
   };
 
   const logoutUser = () => {
-    // Keep saved profile for next login prefill or fallback
+    // Reset to default learner
+    setUser(CONTROLLED_PERSONAS.learner);
   };
 
   const getInitials = () => {
@@ -78,7 +105,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [user]);
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loginUser, logoutUser, getInitials }}>
+    <AuthContext.Provider
+      value={{ user, setUser, loginUser, switchPersona, logoutUser, getInitials }}
+    >
       {children}
     </AuthContext.Provider>
   );

@@ -96,6 +96,11 @@ export const AssessmentView: React.FC = () => {
 
   const handleSubmitQuiz = async () => {
     if (!activeQuiz || submitting) return;
+    const answeredCount = Object.keys(selectedAnswers).length;
+    if (answeredCount === 0) {
+      setError("Please select an option for at least one question before submitting your evaluation.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
 
@@ -140,11 +145,11 @@ export const AssessmentView: React.FC = () => {
         </div>
         {activeQuiz && !quizResult && (
           <Button
-            variant="outline"
+            variant="outlineInvert"
             size="sm"
             onClick={resetQuiz}
             leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
-            className="border-white/30 text-white hover:bg-white/10 shrink-0"
+            className="shrink-0"
           >
             Cancel Quiz
           </Button>
@@ -322,20 +327,32 @@ export const AssessmentView: React.FC = () => {
                 );
               })}
 
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                <Button variant="outline" size="md" onClick={resetQuiz}>
-                  Abandon Session
-                </Button>
-                <Button
-                  variant="primary"
-                  size="md"
-                  onClick={handleSubmitQuiz}
-                  disabled={submitting || Object.keys(selectedAnswers).length === 0}
-                  isLoading={submitting}
-                  rightIcon={<ArrowRight className="w-4 h-4" />}
-                >
-                  {submitting ? "Evaluating Answers..." : "Submit for Official Evaluation"}
-                </Button>
+              <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-xs text-slate-600">
+                  <span className="font-semibold text-slate-800">
+                    {Object.keys(selectedAnswers).length} of {activeQuiz.questions.length} Questions Answered
+                  </span>
+                  {Object.keys(selectedAnswers).length === 0 && (
+                    <span className="text-amber-600 font-medium">
+                      (Select your answer choice above)
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 self-end sm:self-auto">
+                  <Button variant="outline" size="md" onClick={resetQuiz}>
+                    Abandon Session
+                  </Button>
+                  <Button
+                    variant="primary"
+                    size="md"
+                    onClick={handleSubmitQuiz}
+                    disabled={submitting}
+                    isLoading={submitting}
+                    rightIcon={<ArrowRight className="w-4 h-4" />}
+                  >
+                    {submitting ? "Evaluating Answers..." : "Submit for Official Evaluation"}
+                  </Button>
+                </div>
               </div>
             </CardBody>
           </Card>

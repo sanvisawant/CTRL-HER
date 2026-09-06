@@ -31,6 +31,7 @@ export const IGOTLearning = () => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [partialWarning, setPartialWarning] = useState("");
 
   const learnerId = user?.cadreId || "ISS-2024-8921";
 
@@ -44,6 +45,7 @@ export const IGOTLearning = () => {
     try {
       setLoading(true);
       setError("");
+      setPartialWarning("");
 
       const [coursesResponse, progressResponse, flowResponse] = await Promise.allSettled([
         api.getIGOTCourses(),
@@ -51,7 +53,10 @@ export const IGOTLearning = () => {
         api.getConnectedLearnerFlow(learnerId),
       ]);
 
-      if (coursesResponse.status === "fulfilled") {
+      const coursesOk = coursesResponse.status === "fulfilled";
+      const flowOk = flowResponse.status === "fulfilled";
+
+      if (coursesOk) {
         setCourses(coursesResponse.value.courses || []);
       }
 
@@ -59,29 +64,45 @@ export const IGOTLearning = () => {
         setProgress(progressResponse.value.progress || []);
       }
 
-      if (flowResponse.status === "fulfilled") {
+      if (flowOk) {
         const flow = flowResponse.value;
         const gaps = flow.competency_gaps?.map((g) => g.competency_name) || [];
         setSkillGaps(gaps.slice(0, 6));
 
-        // Map flow recommendations to CourseRecommendation format
-        const recs: CourseRecommendation[] = (flow.recommendations || []).map((r) => ({
-          course_id: r.course_id,
-          title: r.title,
-          description: r.description,
-          competencies: r.matched_competencies || [],
-          difficulty: "Intermediate",
-          duration_hours: 12,
-          target_roles: r.target_roles || ["Statistical Officer"],
-          match_percentage: r.match_percentage,
-          matched_competencies: r.matched_competencies || [],
-          missing_competencies: [],
-          reason: r.reason || `Directly targets identified gap in ${r.matched_competencies.join(", ")}`,
-          url: r.url || "#",
-        }));
+        // Map flow recommendations safely to CourseRecommendation format
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const recs: CourseRecommendation[] = (flow.recommendations || []).map((r: any) => {
+          const compList: string[] = Array.isArray(r.matched_competencies) && r.matched_competencies.length > 0
+            ? r.matched_competencies
+            : r.competency_name
+            ? [r.competency_name]
+            : ["Statistical Core"];
+
+          return {
+            course_id: r.course_id || "IG001",
+            title: r.course_title || r.title || "Official Capacity Building Course",
+            description: r.description || "Grounded learning pathway tailored to official MoSPI cadre benchmarks.",
+            competencies: compList,
+            difficulty: "Intermediate",
+            duration_hours: 12,
+            target_roles: r.target_roles || ["Statistical Officer"],
+            match_percentage: r.match_percentage || 85,
+            matched_competencies: compList,
+            missing_competencies: [],
+            reason: r.reason || `Directly targets identified gap in ${compList.join(", ")}`,
+            url: r.url || "#",
+          };
+        });
         setRecommendations(recs);
-      } else {
-        console.warn("Connected learner flow notice:", flowResponse.reason);
+      }
+
+      // Graceful degradation logic
+      if (!coursesOk && !flowOk) {
+        setError("Unable to connect to the iGOT learning service. Please check that the backend is running.");
+      } else if (!coursesOk && flowOk) {
+        setPartialWarning("iGOT Course Catalog service is temporarily unreachable. Displaying personalized competency pathway recommendations.");
+      } else if (coursesOk && !flowOk) {
+        setPartialWarning("Connected Learner Flow service is temporarily unreachable. Displaying available official iGOT course catalog.");
       }
     } catch (err) {
       console.error("iGOT loading error:", err);
@@ -163,6 +184,16 @@ export const IGOTLearning = () => {
           </button>
         </div>
       </div>
+
+      {/* Partial Degradation Warning Banner if one service failed */}
+      {partialWarning && (
+        <ErrorState
+          compact
+          title="Partial Service Notice"
+          message={partialWarning}
+          onRetry={loadIGOTData}
+        />
+      )}
 
       {/* Prototype / Mock Integration Disclaimer Banner */}
       <div className="p-3.5 bg-blue-50 border border-blue-200 rounded-xl flex items-center gap-2.5 text-xs text-blue-900">

@@ -303,35 +303,51 @@ export interface LearningAssistantResponse {
 // --- P4: Admin Workforce Analytics & Heatmap ---
 export interface AdminOverviewKPIs {
   total_officials: number;
-  average_competency_score: number;
-  critical_gap_count: number;
-  learning_completion_rate: number;
+  average_competency?: number;
+  average_competency_score?: number;
+  critical_skill_gaps_count?: number;
+  critical_gap_count?: number;
+  training_completion_rate_pct?: number;
+  learning_completion_rate?: number;
+  active_learners_count?: number;
+  total_courses_completed?: number;
 }
 
 export interface DepartmentSummaryItem {
-  department: string;
-  officials: number;
-  average_score: number;
-  critical_gaps: number;
-  completion_pct: number;
+  department_id?: string;
+  department_code?: string;
+  department_name?: string;
+  department?: string;
+  total_officials?: number;
+  officials?: number;
+  average_competency?: number;
+  average_score?: number;
+  critical_gaps_count?: number;
+  critical_gaps?: number;
+  training_completion_pct?: number;
+  completion_pct?: number;
+  top_strengths?: string[];
+  top_critical_gaps?: string[];
 }
 
-export interface DomainBreakdown {
-  statistical: number;
-  technical: number;
-  digital: number;
-  behavioural: number;
+export interface DomainBreakdownItem {
+  domain: string;
+  average_score: number;
+  required_benchmark: number;
+  officials_assessed: number;
+  critical_count: number;
 }
 
 export interface AdminDashboardData {
   kpis: AdminOverviewKPIs;
-  domain_breakdown: DomainBreakdown;
-  score_distribution: Record<string, number>;
+  domain_breakdown: DomainBreakdownItem[] | Record<string, number>;
+  score_distribution?: Record<string, number> | null;
+  distribution?: { level_range: string; count: number; percentage: number }[];
   department_summary: DepartmentSummaryItem[];
-  training_effectiveness: {
-    average_gain_percentage: number;
-    before_score: number;
-    after_score: number;
+  training_effectiveness_summary?: {
+    overall_average_improvement_pct: number;
+    total_officials_trained: number;
+    summary_insight: string;
   };
 }
 
@@ -348,6 +364,29 @@ export interface HeatmapMatrixResponse {
   departments: string[];
   competencies: { code: string; name: string; domain: string }[];
   matrix: HeatmapCell[];
+}
+
+// --- Question Bank (Trainer & Assessment Governance) ---
+export interface QuestionBankItem {
+  question_id: string;
+  question: string;
+  options: MCQOption[];
+  correct_answer: string;
+  explanation: string;
+  difficulty: "easy" | "medium" | "hard";
+  topic: string;
+  source: MCQSource;
+  status: "DRAFT" | "REVIEW" | "APPROVED" | "REJECTED";
+  origin: "GENERATED" | "MANUAL";
+  created_at: string;
+  updated_at?: string;
+  reviewed_at?: string;
+  reviewed_by?: string | null;
+}
+
+export interface QuestionBankListResponse {
+  total: number;
+  items: QuestionBankItem[];
 }
 
 // --- P4: Gamification & Quest ---
@@ -380,20 +419,27 @@ export interface QuestHomeData {
 }
 
 export interface QuestSubmissionRequest {
-  user_id?: string;
-  challenge_type: string;
   challenge_id: string;
-  selected_answer: string;
+  user_id?: string;
+  answers?: any;
+  selected_answer?: string;
+  challenge_type?: string;
 }
 
 export interface QuestSubmissionResponse {
+  challenge_id: string;
   is_correct: boolean;
-  xp_awarded: number;
+  score_pct: number;
+  xp_earned?: number;
+  xp_awarded?: number;
   new_total_xp: number;
   new_level: number;
-  leveled_up: boolean;
-  explanation: string;
-  badge_unlocked?: string | null;
+  level_up?: boolean;
+  streak_days: number;
+  streak_increased?: boolean;
+  detailed_feedback?: string;
+  explanation?: string;
+  unlocked_achievements?: string[];
 }
 
 // ============================================================================
@@ -474,6 +520,35 @@ export const api = {
     return response.data;
   },
 
+  async uploadDocument(file: File): Promise<{ success: boolean; message: string; data: DocumentItem }> {
+    const formData = new FormData();
+    formData.append("file", file);
+    const response = await apiClient.post<{ success: boolean; message: string; data: DocumentItem }>(
+      "/api/documents/upload",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+    return response.data;
+  },
+
+  async embedDocument(documentId: string): Promise<{ document_id: string; status: string; chunks_embedded: number }> {
+    const response = await apiClient.post<{ document_id: string; status: string; chunks_embedded: number }>(
+      `/api/documents/${encodeURIComponent(documentId)}/embed`
+    );
+    return response.data;
+  },
+
+  async indexDocument(documentId: string): Promise<{ document_id: string; status: string; chunks_indexed: number }> {
+    const response = await apiClient.post<{ document_id: string; status: string; chunks_indexed: number }>(
+      `/api/documents/${encodeURIComponent(documentId)}/index`
+    );
+    return response.data;
+  },
+
   async semanticSearch(query: string, topK: number = 5): Promise<SearchResponse> {
     const response = await apiClient.post<SearchResponse>("/api/search", {
       query,
@@ -497,6 +572,29 @@ export const api = {
     const response = await apiClient.post<QuizResult>(
       `/api/assessment/quizzes/${quizId}/submit`,
       { answers }
+    );
+    return response.data;
+  },
+
+  // Question Bank Management (Trainer & Subject Matter Governance)
+  async getQuestionBank(status?: string, topic?: string): Promise<QuestionBankListResponse> {
+    const response = await apiClient.get<QuestionBankListResponse>(
+      "/api/assessment/question-bank",
+      { params: { status, topic } }
+    );
+    return response.data;
+  },
+
+  async approveQuestion(questionId: string): Promise<QuestionBankItem> {
+    const response = await apiClient.post<QuestionBankItem>(
+      `/api/assessment/question-bank/${encodeURIComponent(questionId)}/approve`
+    );
+    return response.data;
+  },
+
+  async rejectQuestion(questionId: string): Promise<QuestionBankItem> {
+    const response = await apiClient.post<QuestionBankItem>(
+      `/api/assessment/question-bank/${encodeURIComponent(questionId)}/reject`
     );
     return response.data;
   },
@@ -555,14 +653,22 @@ export const api = {
   async submitQuestChallenge(
     submission: QuestSubmissionRequest
   ): Promise<QuestSubmissionResponse> {
+    const payload = {
+      challenge_id: submission.challenge_id || "qst_daily_01",
+      user_id: submission.user_id,
+      answers: submission.answers !== undefined ? submission.answers : submission.selected_answer,
+    };
     const response = await apiClient.post<{ success: boolean; data: QuestSubmissionResponse }>(
       "/api/v1/quest/submit",
-      submission,
+      payload,
       {
         headers: submission.user_id ? { "X-User-Id": submission.user_id } : undefined,
       }
     );
-    return response.data.data;
+    const data = response.data.data;
+    data.xp_awarded = data.xp_earned ?? data.xp_awarded ?? 50;
+    data.explanation = data.detailed_feedback ?? data.explanation ?? "Challenge evaluated successfully.";
+    return data;
   },
 };
 

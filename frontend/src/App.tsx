@@ -31,6 +31,9 @@ import AssessmentView from "./features/assessment/AssessmentView";
 import AnalyticsView from "./features/analytics/AnalyticsView";
 import QuestView from "./features/quest/QuestView";
 import IGOTLearning from "./features/igot/IGOTLearning";
+import TrainerQuestionBankView from "./features/trainer/TrainerQuestionBankView";
+import AdminUserManagementView from "./features/admin/AdminUserManagementView";
+import { RoleProtectedRoute } from "./components/common/RoleProtectedRoute";
 
 import { ErrorState } from "./components/common/ErrorState";
 import { MetricSkeleton, CardSkeleton } from "./components/common/SkeletonLoader";
@@ -475,8 +478,38 @@ export default function App() {
             <Route path="/assessment" element={<AssessmentView />} />
             <Route path="/quizzes" element={<Navigate to="/assessment" replace />} />
             <Route path="/ai-assistant" element={<AIAssistantView />} />
-            <Route path="/quest" element={<QuestView />} />
-            <Route path="/analytics" element={<AnalyticsView />} />
+            <Route
+              path="/quest"
+              element={
+                <RoleProtectedRoute allowedRoles={["learner"]}>
+                  <QuestView />
+                </RoleProtectedRoute>
+              }
+            />
+            <Route
+              path="/analytics"
+              element={
+                <RoleProtectedRoute allowedRoles={["admin"]}>
+                  <AnalyticsView />
+                </RoleProtectedRoute>
+              }
+            />
+            <Route
+              path="/trainer/questions"
+              element={
+                <RoleProtectedRoute allowedRoles={["trainer", "admin"]}>
+                  <TrainerQuestionBankView />
+                </RoleProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <RoleProtectedRoute allowedRoles={["admin"]}>
+                  <AdminUserManagementView />
+                </RoleProtectedRoute>
+              }
+            />
             <Route path="/notices" element={<NoticesView />} />
           </Route>
 

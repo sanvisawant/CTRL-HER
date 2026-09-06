@@ -60,15 +60,15 @@ export const QuestView: React.FC = () => {
     try {
       const result = await api.submitQuestChallenge({
         user_id: cadreId,
-        challenge_type: "data_detective",
-        challenge_id: "detective_daily_01",
-        selected_answer: selectedAnswer,
+        challenge_type: "daily_challenge",
+        challenge_id: questData?.daily_challenge_id || "qst_daily_01",
+        answers: selectedAnswer,
       });
       setSubmitResult(result);
-      if (questData) {
+      if (questData && result && result.success !== false) {
         setQuestData({
           ...questData,
-          xp: result.new_total_xp || questData.xp + result.xp_awarded,
+          xp: result.new_total_xp ?? (questData.xp + (result.xp_awarded || 0)),
           level: result.new_level || questData.level,
         });
       }
@@ -81,11 +81,11 @@ export const QuestView: React.FC = () => {
     }
   };
 
-  const level = questData?.level || 7;
-  const xp = questData?.xp || 720;
+  const level = questData?.level ?? 1;
+  const xp = questData?.xp ?? 0;
   const xpNext = questData?.xp_for_next_level || 1000;
-  const streak = questData?.streak_days || 6;
-  const xpPct = Math.min(100, (xp / xpNext) * 100);
+  const streak = questData?.streak_days ?? 0;
+  const xpPct = xpNext > 0 ? Math.min(100, (xp / xpNext) * 100) : 0;
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -104,11 +104,11 @@ export const QuestView: React.FC = () => {
           </p>
         </div>
         <Button
-          variant="outline"
+          variant="outlineInvert"
           size="sm"
           onClick={loadQuestData}
           leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />}
-          className="border-white/30 text-white hover:bg-white/10 shrink-0"
+          className="shrink-0"
         >
           Sync XP
         </Button>

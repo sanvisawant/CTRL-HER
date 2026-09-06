@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { Loader2 } from "lucide-react";
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline" | "ghost" | "saffron" | "danger";
+  variant?: "primary" | "secondary" | "outline" | "outlineInvert" | "ghost" | "saffron" | "danger";
   size?: "sm" | "md" | "lg";
   isLoading?: boolean;
   leftIcon?: ReactNode;
@@ -34,6 +34,8 @@ export const Button = ({
       "bg-amber-700 text-white hover:bg-amber-800 active:bg-amber-900 focus-visible:ring-amber-700 shadow-sm border border-amber-700",
     outline:
       "border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 hover:border-slate-400 active:bg-slate-100 focus-visible:ring-blue-700 shadow-xs",
+    outlineInvert:
+      "border border-white/40 bg-transparent text-white hover:bg-white/10 active:bg-white/20 focus-visible:ring-white/50",
     ghost:
       "text-slate-700 hover:bg-slate-100 hover:text-slate-900 active:bg-slate-200 focus-visible:ring-slate-400",
     danger:

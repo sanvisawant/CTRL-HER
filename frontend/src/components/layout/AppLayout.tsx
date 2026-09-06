@@ -26,7 +26,7 @@ import { DakshaLogo } from "../common/DakshaLogo";
 export const AppLayout = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { user, getInitials } = useAuth();
+  const { user, getInitials, switchPersona } = useAuth();
 
   const [textSize, setTextSize] = useState<"normal" | "large" | "largest">("normal");
   const [isHighContrast, setIsHighContrast] = useState(false);
@@ -36,17 +36,39 @@ export const AppLayout = () => {
     i18n.changeLanguage(lang);
   };
 
-  const navItems = [
-    { label: t("nav.dashboard"), icon: LayoutDashboard, path: "/dashboard" },
-    { label: t("nav.competency"), icon: Award, path: "/competency" },
-    { label: "iGOT Pathways", icon: GraduationCap, path: "/igot-learning" },
-    { label: t("nav.learning"), icon: BookOpen, path: "/learning" },
-    { label: t("nav.assessments"), icon: FileCheck, path: "/assessment" },
-    { label: t("nav.ai_assistant"), icon: Bot, path: "/ai-assistant", badge: "AI" },
-    { label: t("nav.quest"), icon: Compass, path: "/quest" },
-    { label: t("nav.analytics"), icon: BarChart3, path: "/analytics" },
-    { label: t("nav.notices"), icon: Radio, path: "/notices" },
-  ];
+  const userRole = user?.role || "learner";
+
+  // Role-aware navigation definitions per specification
+  const getNavItems = () => {
+    const items = [
+      { label: t("nav.dashboard", "Dashboard"), icon: LayoutDashboard, path: "/dashboard" },
+    ];
+
+    if (userRole === "admin") {
+      items.push({ label: t("nav.analytics", "Cadre Analytics"), icon: BarChart3, path: "/analytics" });
+    }
+
+    items.push(
+      { label: t("nav.competency", "My Competency"), icon: Award, path: "/competency" },
+      { label: t("nav.igot_pathways", "iGOT Pathways"), icon: GraduationCap, path: "/igot-learning" },
+      { label: t("nav.learning", "Learning Repository"), icon: BookOpen, path: "/learning" },
+      { label: t("nav.assessments", "Assessments & Quizzes"), icon: FileCheck, path: "/assessment" },
+      { label: t("nav.ai_assistant", "AI Learning Assistant"), icon: Bot, path: "/ai-assistant", badge: "AI" }
+    );
+
+    if (userRole === "learner") {
+      items.push({ label: t("nav.quest", "Competency Quest"), icon: Compass, path: "/quest" });
+    } else if (userRole === "trainer") {
+      items.push({ label: t("nav.question_bank", "Question Bank"), icon: FileCheck, path: "/trainer/questions" });
+    } else if (userRole === "admin") {
+      items.push({ label: t("nav.user_management", "User Management"), icon: Users, path: "/admin/users" });
+    }
+
+    items.push({ label: t("nav.notices", "Portal Notices"), icon: Radio, path: "/notices" });
+    return items;
+  };
+
+  const navItems = getNavItems();
 
   const textSizeClass =
     textSize === "largest" ? "text-lg" : textSize === "large" ? "text-base" : "text-sm";
@@ -200,14 +222,28 @@ export const AppLayout = () => {
               <span className="w-2 h-2 bg-amber-600 rounded-full absolute top-1.5 right-1.5" />
             </button>
 
-            {/* Officer Profile Summary with Dynamic Registered Name */}
-            <div className="hidden sm:flex items-center gap-2.5 pl-2 border-l border-slate-200">
-              <div className="w-8 h-8 rounded-full bg-blue-900 text-white flex items-center justify-center text-xs font-bold">
+            {/* Controlled Persona & Role Switcher for Evaluation */}
+            <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-slate-200">
+              <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
+                <span className="text-[10px] font-bold text-slate-500 uppercase">Role:</span>
+                <select
+                  value={user.role}
+                  onChange={(e) => switchPersona(e.target.value as "learner" | "trainer" | "admin")}
+                  className="bg-transparent text-xs font-bold text-slate-800 focus:outline-none cursor-pointer"
+                  title="Switch authenticated demo persona"
+                >
+                  <option value="learner">Officer (Learner)</option>
+                  <option value="trainer">Master Trainer</option>
+                  <option value="admin">Administrator</option>
+                </select>
+              </div>
+
+              <div className="w-8 h-8 rounded-full bg-blue-900 text-white flex items-center justify-center text-xs font-bold shrink-0">
                 {getInitials()}
               </div>
-              <div className="text-left leading-tight hidden lg:block">
-                <p className="text-xs font-bold text-slate-900">{officerName}</p>
-                <p className="text-[10px] text-teal-700 font-semibold">{officerDesignation}</p>
+              <div className="text-left leading-tight hidden xl:block">
+                <p className="text-xs font-bold text-slate-900">{user.fullName}</p>
+                <p className="text-[10px] text-teal-700 font-semibold">{user.designation}</p>
               </div>
             </div>
           </div>
