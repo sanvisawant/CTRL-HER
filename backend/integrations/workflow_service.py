@@ -253,13 +253,23 @@ class WorkflowService:
 
         topics = competency_service.get_p3_topics_for_competency(competency_id)
 
-        # Match with ingested documents in P3
+        # Match with ingested documents in P3 using normalized text and aliases
         from routes.documents import _documents_db
+        search_terms = set(topics + [canon.name] + (canon.aliases or []))
+        if competency_id in [1, 2]:
+            search_terms.update(["NSS", "Sample"])
+        elif competency_id == 4:
+            search_terms.update(["CPI", "WPI", "Price"])
+        elif competency_id == 8:
+            search_terms.update(["SDG", "NIF"])
+
         matching_docs = []
         for doc_id, doc_info in _documents_db.items():
             doc_title = getattr(doc_info, "filename", "") or ""
             doc_desc = getattr(doc_info, "description", "") or ""
-            if any(t.lower() in doc_title.lower() for t in topics) or any(t.lower() in doc_desc.lower() for t in topics):
+            clean_title = doc_title.replace('_', ' ').replace('-', ' ').lower()
+            clean_desc = doc_desc.replace('_', ' ').replace('-', ' ').lower()
+            if any(t.lower() in clean_title or t.lower() in clean_desc for t in search_terms):
                 matching_docs.append({
                     "document_id": doc_id,
                     "filename": doc_title,
