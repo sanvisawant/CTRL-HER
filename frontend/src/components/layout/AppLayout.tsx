@@ -91,7 +91,7 @@ export const AppLayout = () => {
 
   return (
     <div
-      className={`min-h-screen flex flex-col bg-slate-100 ${
+      className={`h-screen flex flex-col overflow-hidden bg-slate-100 ${
         isHighContrast ? "high-contrast" : ""
       }`}
     >
@@ -259,10 +259,10 @@ export const AppLayout = () => {
       </header>
 
       {/* Main Body Layout with Sidebar */}
-      <div className={`flex flex-1 ${textSizeClass}`}>
+      <div className={`flex flex-1 min-h-0 overflow-hidden ${textSizeClass}`}>
         {/* Left Sidebar Navigation */}
         <aside
-          className={`fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white border-r border-slate-200 flex flex-col justify-between p-4 transition-transform duration-300 ease-in-out ${
+          className={`fixed lg:sticky lg:top-0 inset-y-0 left-0 z-30 w-64 h-full bg-white border-r border-slate-200 flex flex-col justify-between p-4 transition-transform duration-300 ease-in-out overflow-y-auto shrink-0 ${
             mobileMenuOpen
               ? "translate-x-0 top-16 shadow-2xl"
               : "-translate-x-full lg:translate-x-0"
@@ -335,7 +335,7 @@ export const AppLayout = () => {
         )}
 
         {/* Main Content Area */}
-        <main className="flex-1 p-4 sm:p-5 lg:p-6 overflow-y-auto max-w-7xl mx-auto w-full animate-fade-in">
+        <main className="flex-1 p-4 sm:p-5 lg:p-6 overflow-y-auto max-w-7xl mx-auto w-full animate-fade-in min-h-0">
           <Outlet />
         </main>
       </div>

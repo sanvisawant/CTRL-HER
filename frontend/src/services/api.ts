@@ -34,10 +34,12 @@ export interface CompetencyGapContract {
   competency_name: string;
   category: string;
   current_score: number;
-  benchmark_score: number;
+  benchmark_score?: number;
+  required_score?: number;
   gap: number;
   priority: "HIGH" | "MEDIUM" | "LOW";
   is_critical: boolean;
+  confidence_weight?: number;
   p3_topics?: string[];
 }
 
@@ -123,6 +125,61 @@ export interface SkillGapAnalysisResponse {
   average_gap: number;
   critical_gaps_rationale: string[];
   gaps: CompetencyGapContract[];
+}
+
+export interface CategoryProgress {
+  category: string;
+  current_average: number;
+  required_average: number;
+  readiness_pct: number;
+  competencies_count: number;
+}
+
+export interface HistoryMilestone {
+  id: number;
+  competency_id: number;
+  competency_name: string;
+  category: string;
+  score: number;
+  source_type: string;
+  reason?: string;
+  recorded_at: string;
+}
+
+export interface CompetencyDigitalTwinResponse {
+  official_id: string;
+  full_name: string;
+  designation: string;
+  job_role: string;
+  overall_readiness_pct: number;
+  status_summary: string;
+  category_breakdown: CategoryProgress[];
+  timeline_milestones?: HistoryMilestone[];
+  recent_updates_count?: number;
+}
+
+export interface CompetencyScoreOut {
+  competency_id: number;
+  competency_name: string;
+  category: string;
+  current_score: number;
+  confidence_weight: number;
+  last_updated: string;
+}
+
+export interface OfficialProfileOut {
+  id: string;
+  full_name: string;
+  designation: string;
+  department: string;
+  job_role: string;
+  current_assignment?: string;
+  education?: string;
+  experience_years: number;
+  previous_training?: string[];
+  career_objective?: string;
+  created_at: string;
+  scores: CompetencyScoreOut[];
 }
 
 // --- P2: iGOT Courses ---
@@ -448,6 +505,13 @@ export interface QuestSubmissionResponse {
 // API Service Methods
 // ============================================================================
 
+export function resolveOfficialUuid(id?: string): string {
+  if (id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id)) {
+    return id;
+  }
+  return "2b574d66-f752-4348-ab00-17587012f291";
+}
+
 export const api = {
   // ── 1. Cross-Module Integration ───────────────────────────────────────────
   async getConnectedLearnerFlow(cadreId: string): Promise<ConnectedLearnerFlowResponse> {
@@ -490,15 +554,33 @@ export const api = {
   },
 
   async getSkillGaps(officialId: string): Promise<SkillGapAnalysisResponse> {
+    const targetId = resolveOfficialUuid(officialId);
     const response = await apiClient.get<SkillGapAnalysisResponse>(
-      `/api/v1/competency/gaps/${encodeURIComponent(officialId)}`
+      `/api/v1/competency/gaps/${encodeURIComponent(targetId)}`
     );
     return response.data;
   },
 
   async getRadarData(officialId: string): Promise<RadarResponse> {
+    const targetId = resolveOfficialUuid(officialId);
     const response = await apiClient.get<RadarResponse>(
-      `/api/v1/competency/radar/${encodeURIComponent(officialId)}`
+      `/api/v1/competency/radar/${encodeURIComponent(targetId)}`
+    );
+    return response.data;
+  },
+
+  async getDigitalTwin(officialId: string): Promise<CompetencyDigitalTwinResponse> {
+    const targetId = resolveOfficialUuid(officialId);
+    const response = await apiClient.get<CompetencyDigitalTwinResponse>(
+      `/api/v1/competency/digital-twin/${encodeURIComponent(targetId)}`
+    );
+    return response.data;
+  },
+
+  async getProfile(officialId: string): Promise<OfficialProfileOut> {
+    const targetId = resolveOfficialUuid(officialId);
+    const response = await apiClient.get<OfficialProfileOut>(
+      `/api/v1/profile/${encodeURIComponent(targetId)}`
     );
     return response.data;
   },
