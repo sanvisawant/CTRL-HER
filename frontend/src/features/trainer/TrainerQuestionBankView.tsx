@@ -4,7 +4,7 @@ import {
   api,
   type QuestionBankItem,
 } from "../../services/api";
-import { Card, CardHeader, CardTitle, CardDescription, CardBody } from "../../components/common/Card";
+import { Card, CardBody } from "../../components/common/Card";
 import { Button } from "../../components/common/Button";
 import { ErrorState } from "../../components/common/ErrorState";
 import { EmptyState } from "../../components/common/EmptyState";
@@ -13,9 +13,7 @@ import {
   FileCheck,
   CheckCircle2,
   XCircle,
-  Clock,
   BookOpen,
-  Filter,
   RefreshCw,
   Search,
   ShieldCheck,

@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   api,
   type LearningAssistantResponse,
@@ -27,19 +28,24 @@ interface ChatMessage {
   retryQuery?: string;
 }
 
-const SAMPLE_PROMPTS = [
-  "Explain Stratified Random Sampling and multiplier estimation in NSSO surveys.",
-  "What is Non-Sampling Error and how can field investigators minimize it?",
-  "How is the Consumer Price Index (CPI) calculated and rebased in MoSPI?",
-  "What are the data validation checks required in the Periodic Labour Force Survey (PLFS)?",
-];
-
 export const AIAssistantView: React.FC = () => {
+  const { t } = useTranslation();
+
+  const SAMPLE_PROMPTS = [
+    "Explain Stratified Random Sampling and multiplier estimation in NSSO surveys.",
+    "What is Non-Sampling Error and how can field investigators minimize it?",
+    "How is the Consumer Price Index (CPI) calculated and rebased in MoSPI?",
+    "What are the data validation checks required in the Periodic Labour Force Survey (PLFS)?",
+  ];
+
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: "welcome",
       sender: "assistant",
-      text: "Namaskar Officer! I am DakshaAI, your MoSPI in-service knowledge copilot. Every answer is grounded directly in official ministry survey manuals, sampling handbooks, and statistical guidelines with transparent provenance citations. How may I assist your work today?",
+      text: t(
+        "ai_assistant.welcome_msg",
+        "Namaskar Officer! I am DakshaAI, your MoSPI in-service knowledge copilot. Every answer is grounded directly in official ministry survey manuals, sampling handbooks, and statistical guidelines with transparent provenance citations. How may I assist your work today?"
+      ),
       timestamp: "Just now",
     },
   ]);
@@ -104,13 +110,13 @@ export const AIAssistantView: React.FC = () => {
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-blue-800/50 border border-blue-400/30 text-blue-200 text-[11px] font-semibold">
             <Bot className="w-3.5 h-3.5 text-blue-300" />
-            <span>Grounded In-Service Learning Assistant</span>
+            <span>{t("ai_assistant.badge", "P3 Grounded Assistant & RAG Engine")}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black tracking-tight">
-            DakshaAI • MoSPI Knowledge Copilot
+            {t("ai_assistant.title", "DakshaAI — MoSPI Knowledge Copilot")}
           </h1>
           <p className="text-slate-300 text-xs max-w-2xl leading-relaxed">
-            Strictly grounded statistical responses derived directly from official NSS manuals, CPI rebasing methodologies, and PLFS procedural guidelines.
+            {t("ai_assistant.subtitle", "Every answer is strictly grounded in official survey manuals, sampling guides, and circulars with verifiable source citations.")}
           </p>
         </div>
         <div className="inline-flex items-center gap-2 bg-blue-950/70 border border-blue-700/50 px-3 py-1.5 rounded-lg text-xs text-blue-200 shrink-0">
@@ -291,7 +297,7 @@ export const AIAssistantView: React.FC = () => {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask a question on MoSPI methodology, survey manuals, or CPI calculation..."
+                  placeholder={t("ai_assistant.input_placeholder", "Ask a question about MoSPI sampling manuals, PLFS methodology, CPI rebasing, or survey guidelines...")}
                   disabled={loading}
                   className="flex-1 px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-900 focus:bg-white transition-all text-slate-900"
                 />
@@ -302,7 +308,7 @@ export const AIAssistantView: React.FC = () => {
                   disabled={loading || !input.trim()}
                   rightIcon={<Send className="w-3.5 h-3.5" />}
                 >
-                  Ask
+                  {t("ai_assistant.send_btn", "Send Query")}
                 </Button>
               </form>
             </div>
@@ -314,7 +320,7 @@ export const AIAssistantView: React.FC = () => {
           <Card className="shadow-xs">
             <CardHeader className="py-2.5 px-3.5 border-b border-slate-100">
               <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Recommended Queries
+                {t("ai_assistant.suggested_prompts", "Common Officer Queries:")}
               </CardTitle>
             </CardHeader>
             <CardBody className="p-3 space-y-2">

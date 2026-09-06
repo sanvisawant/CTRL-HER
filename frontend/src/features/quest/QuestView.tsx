@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import {
   api,
@@ -23,6 +24,7 @@ import {
 } from "lucide-react";
 
 export const QuestView: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const cadreId = user?.cadreId || "ISS-2024-8921";
 
@@ -94,13 +96,13 @@ export const QuestView: React.FC = () => {
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-blue-800/50 border border-blue-400/30 text-blue-200 text-[11px] font-semibold">
             <Compass className="w-3.5 h-3.5 text-blue-300" />
-            <span>P4 Competency Quest & Gamified Mastery</span>
+            <span>{t("quest.badge", "P4 Competency Quest & Gamified Mastery")}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black tracking-tight">
-            Statistical Gamification & Daily Micro-Missions
+            {t("quest.title", "Statistical Gamification & Daily Micro-Missions")}
           </h1>
           <p className="text-slate-300 text-xs max-w-2xl leading-relaxed">
-            Reinforce core survey methodology and data auditing habits through real-world micro-challenges and earn official cadre milestones.
+            {t("quest.subtitle", "Reinforce core survey methodology and data auditing habits through real-world micro-challenges and earn official cadre milestones.")}
           </p>
         </div>
         <Button
@@ -110,7 +112,7 @@ export const QuestView: React.FC = () => {
           leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />}
           className="shrink-0"
         >
-          Sync XP
+          {t("quest.sync_xp", "Sync XP")}
         </Button>
       </div>
 
@@ -147,7 +149,7 @@ export const QuestView: React.FC = () => {
         <Card variant="accent" className="hover:shadow-md transition-shadow">
           <CardBody className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-[11px] font-semibold text-slate-500 uppercase">Officer Rank Level</p>
+              <p className="text-[11px] font-semibold text-slate-500 uppercase">{t("quest.rank_level", "Officer Rank Level")}</p>
               <h3 className="text-2xl font-black text-slate-900 mt-0.5">
                 Level {level}
               </h3>
@@ -166,7 +168,7 @@ export const QuestView: React.FC = () => {
           <CardBody className="p-5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-500 uppercase">Cadre Experience (XP)</p>
+                <p className="text-xs font-medium text-slate-500 uppercase">{t("quest.experience_xp", "Cadre Experience (XP)")}</p>
                 <h3 className="text-2xl font-bold text-slate-900 mt-1">
                   {xp} <span className="text-slate-400 text-sm font-normal">/ {xpNext} XP</span>
                 </h3>
@@ -185,7 +187,7 @@ export const QuestView: React.FC = () => {
         <Card variant="default">
           <CardBody className="p-5 flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-slate-500 uppercase">Active Practice Streak</p>
+              <p className="text-xs font-medium text-slate-500 uppercase">{t("quest.streak", "Consecutive Days Streak")}</p>
               <h3 className="text-2xl font-bold text-slate-900 mt-1">
                 {streak} Days 🔥
               </h3>
@@ -209,7 +211,7 @@ export const QuestView: React.FC = () => {
               <div>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-100 text-amber-900 uppercase">
-                    Daily Micro-Challenge
+                    {t("quest.daily_challenge_title", "Daily Micro-Challenge")}
                   </span>
                   <span className="text-xs text-slate-500">2-Minute Scenario</span>
                 </div>
@@ -288,21 +290,21 @@ export const QuestView: React.FC = () => {
                     isLoading={submitting}
                     rightIcon={<Target className="w-4 h-4" />}
                   >
-                    {submitting ? "Evaluating Challenge..." : "Submit Answer"}
+                    {submitting ? t("quest.evaluating", "Evaluating Challenge...") : t("quest.submit_challenge", "Submit Challenge")}
                   </Button>
                 </div>
               ) : (
                 <div className="p-4 rounded-xl bg-green-50 border border-green-200 space-y-2 text-xs">
                   <div className="flex items-center justify-between text-green-900 font-bold">
                     <span className="flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-green-700" /> Challenge Completed!
+                      <CheckCircle2 className="w-4 h-4 text-green-700" /> {t("quest.challenge_completed", "Daily Challenge Completed")}
                     </span>
                     <span className="bg-green-200 text-green-900 px-2 py-0.5 rounded text-[11px]">
-                      +{submitResult.xp_awarded} XP Earned
+                      +{submitResult.xp_awarded} {t("quest.awarded_xp", "XP Awarded")}
                     </span>
                   </div>
-                  <p className="text-slate-700 leading-relaxed">
-                    {submitResult.explanation}
+                  <p className="text-slate-700 leading-relaxed font-sans">
+                    {submitResult.detailed_feedback}
                   </p>
                 </div>
               )}
@@ -310,14 +312,14 @@ export const QuestView: React.FC = () => {
           </Card>
         </div>
 
-        {/* Right 1 Col: Active Missions & Badges */}
+        {/* Right 1 Col: Cadre Peer Leaderboard */}
         <div className="space-y-6">
-          {/* Active Missions */}
           <Card>
-            <CardHeader className="py-3 px-4">
-              <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Official In-Service Missions
-              </CardTitle>
+            <CardHeader>
+              <div>
+                <CardTitle className="text-sm">{t("quest.leaderboard_title", "Cadre Peer Leaderboard")}</CardTitle>
+                <CardDescription>{t("quest.leaderboard_desc", "Top performing statistical officers across ministry divisions")}</CardDescription>
+              </div>
             </CardHeader>
             <CardBody className="p-4 pt-0 space-y-3">
               <div className="p-3 border border-slate-200 rounded-lg bg-slate-50 space-y-1.5">

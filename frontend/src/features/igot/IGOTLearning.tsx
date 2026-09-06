@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import {
   GraduationCap,
@@ -23,6 +24,7 @@ import { EmptyState } from "../../components/common/EmptyState";
 import { CardSkeleton } from "../../components/common/SkeletonLoader";
 
 export const IGOTLearning = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [courses, setCourses] = useState<IGOTCourse[]>([]);
   const [progress, setProgress] = useState<IGOTProgress[]>([]);
@@ -157,22 +159,22 @@ export const IGOTLearning = () => {
             </div>
             <div>
               <p className="text-[10px] uppercase tracking-wider font-bold text-teal-700">
-                Capacity Building
+                {t("igot.badge", "Capacity Building")}
               </p>
               <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
-                iGOT Karmayogi Personalized Learning
+                {t("igot.title", "iGOT Karmayogi Personalized Learning")}
               </h1>
             </div>
           </div>
           <p className="text-xs text-slate-500 mt-3 max-w-2xl">
-            Training recommendations mapped dynamically from your P1 competency gaps to the national capacity building catalog.
+            {t("igot.subtitle", "Training recommendations mapped dynamically from your P1 competency gaps to the national capacity building catalog.")}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded-lg text-[10px] font-bold text-blue-800">
             <span className="w-2 h-2 rounded-full bg-blue-500" />
-            iGOT Adapter (Mock Service)
+            {t("igot.mock_tag", "iGOT Adapter (Mock Service)")}
           </span>
           <button
             type="button"
@@ -199,7 +201,7 @@ export const IGOTLearning = () => {
       <div className="p-3.5 bg-blue-50 border border-blue-200 rounded-xl flex items-center gap-2.5 text-xs text-blue-900">
         <Info className="w-4 h-4 text-blue-700 shrink-0" />
         <span>
-          <strong>iGOT learning recommendation — prototype/mock integration:</strong> Courses and enrollments are simulated via the MoSPI mock iGOT adapter for the SIH 2026 prototype demonstration.
+          <strong>{t("igot.mock_tag", "iGOT Adapter (Mock Service)")}:</strong> {t("igot.disclaimer", "Courses and enrollments are simulated via the MoSPI mock iGOT adapter for the prototype demonstration.")}
         </span>
       </div>
 
@@ -213,11 +215,11 @@ export const IGOTLearning = () => {
             <div className="flex items-center gap-2">
               <BookOpen className="w-4 h-4 text-blue-900" />
               <h2 className="text-sm font-bold text-slate-900">
-                My iGOT Learning Progress
+                {t("igot.my_progress", "My iGOT Learning Progress")}
               </h2>
             </div>
             <p className="text-[11px] text-slate-500 mt-1">
-              Active enrollments from the connected iGOT repository
+              {t("igot.active_enrollments_desc", "Active enrollments from the connected iGOT repository")}
             </p>
           </div>
           <span className="text-[10px] font-semibold text-slate-500">

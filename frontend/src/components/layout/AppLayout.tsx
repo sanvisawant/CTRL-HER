@@ -19,9 +19,17 @@ import {
   Menu,
   X,
   Radio,
+  Users,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { DakshaLogo } from "../common/DakshaLogo";
+
+interface NavItem {
+  label: string;
+  icon: any;
+  path: string;
+  badge?: string;
+}
 
 export const AppLayout = () => {
   const { t, i18n } = useTranslation();
@@ -39,8 +47,8 @@ export const AppLayout = () => {
   const userRole = user?.role || "learner";
 
   // Role-aware navigation definitions per specification
-  const getNavItems = () => {
-    const items = [
+  const getNavItems = (): NavItem[] => {
+    const items: NavItem[] = [
       { label: t("nav.dashboard", "Dashboard"), icon: LayoutDashboard, path: "/dashboard" },
     ];
 
@@ -201,7 +209,7 @@ export const AppLayout = () => {
               <Globe className="w-3.5 h-3.5 text-slate-500" />
               <select
                 onChange={(e) => changeLanguage(e.target.value)}
-                value={i18n.language}
+                value={i18n.language ? i18n.language.slice(0, 2) : "en"}
                 className="bg-transparent text-xs font-medium text-slate-700 focus:outline-none cursor-pointer"
                 aria-label={t("common.language")}
               >
@@ -242,8 +250,8 @@ export const AppLayout = () => {
                 {getInitials()}
               </div>
               <div className="text-left leading-tight hidden xl:block">
-                <p className="text-xs font-bold text-slate-900">{user.fullName}</p>
-                <p className="text-[10px] text-teal-700 font-semibold">{user.designation}</p>
+                <p className="text-xs font-bold text-slate-900">{officerName}</p>
+                <p className="text-[10px] text-teal-700 font-semibold">{officerDesignation}</p>
               </div>
             </div>
           </div>

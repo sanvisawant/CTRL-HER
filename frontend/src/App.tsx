@@ -212,7 +212,7 @@ const DashboardView = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                  Cadre Rank & Level
+                  {t("quest.rank_level", "Cadre Rank & Level")}
                 </p>
                 <h3 className="text-2xl font-black text-slate-900 mt-0.5">
                   Lvl {level} <span className="text-xs font-normal text-slate-400">({xp} XP)</span>
@@ -260,9 +260,9 @@ const DashboardView = () => {
           <Card>
             <CardHeader>
               <div>
-                <CardTitle className="text-sm">Personalized FRAC Training Pathways</CardTitle>
+                <CardTitle className="text-sm">{t("dashboard.assigned_pathways_title", "Personalized FRAC Training Pathways")}</CardTitle>
                 <CardDescription>
-                  Dynamically mapped from your P1 competency gaps to the national iGOT catalog
+                  {t("dashboard.assigned_pathways_subtitle", "Dynamically mapped from your P1 competency gaps to the national iGOT catalog")}
                 </CardDescription>
               </div>
               <Link to="/igot-learning" className="text-xs text-blue-900 font-semibold hover:underline flex items-center gap-1">

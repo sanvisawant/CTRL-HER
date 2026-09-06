@@ -402,6 +402,7 @@ export interface QuestHomeData {
   xp_for_next_level: number;
   streak_days: number;
   daily_challenge_available: boolean;
+  daily_challenge_id?: string;
   active_missions: {
     id: string;
     title: string;
@@ -430,6 +431,7 @@ export interface QuestSubmissionResponse {
   challenge_id: string;
   is_correct: boolean;
   score_pct: number;
+  success?: boolean;
   xp_earned?: number;
   xp_awarded?: number;
   new_total_xp: number;

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import {
   api,
@@ -23,6 +24,7 @@ import { ErrorState } from "../../components/common/ErrorState";
 import { EmptyState } from "../../components/common/EmptyState";
 
 export const AssessmentView: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const cadreId = user?.cadreId || "ISS-2024-8921";
 
@@ -134,13 +136,13 @@ export const AssessmentView: React.FC = () => {
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-blue-800/50 border border-blue-400/30 text-blue-200 text-[11px] font-semibold">
             <Target className="w-3.5 h-3.5 text-blue-300" />
-            <span>P3 Diagnostic Assessment Engine</span>
+            <span>{t("assessment.badge", "P2 Continuous Evaluation Engine")}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black tracking-tight">
-            MoSPI Competency Diagnostic & In-Service Evaluation
+            {t("assessment.title", "Adaptive Competency Quizzes & APAR Knowledge Checks")}
           </h1>
           <p className="text-slate-300 text-xs max-w-2xl leading-relaxed">
-            Strictly grounded MCQs derived from official ministry manuals. Submissions automatically calibrate your competency profile and award gamified XP.
+            {t("assessment.subtitle", "Official in-service competency assessment generated from verified MoSPI knowledge manuals.")}
           </p>
         </div>
         {activeQuiz && !quizResult && (
@@ -151,7 +153,7 @@ export const AssessmentView: React.FC = () => {
             leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
             className="shrink-0"
           >
-            Cancel Quiz
+            {t("common.cancel", "Cancel Quiz")}
           </Button>
         )}
       </div>
@@ -170,7 +172,7 @@ export const AssessmentView: React.FC = () => {
         <Card>
           <CardHeader>
             <div>
-              <CardTitle className="text-sm">Initiate Diagnostic Assessment</CardTitle>
+              <CardTitle className="text-sm">{t("assessment.generate_quiz", "Generate AI Assessment")}</CardTitle>
               <CardDescription>
                 Select reference publication, question volume, and operational difficulty to generate verified questions.
               </CardDescription>
@@ -180,7 +182,7 @@ export const AssessmentView: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Document Selection */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700">Source Publication</label>
+                <label className="text-xs font-bold text-slate-700">{t("assessment.select_document", "Source Manual / Guideline")}</label>
                 <select
                   value={selectedDocId}
                   onChange={(e) => setSelectedDocId(e.target.value)}
@@ -188,7 +190,7 @@ export const AssessmentView: React.FC = () => {
                   className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-900 disabled:opacity-60"
                 >
                   {docsLoading ? (
-                    <option value="">Loading MoSPI publications...</option>
+                    <option value="">{t("common.loading", "Loading MoSPI publications...")}</option>
                   ) : documents.length > 0 ? (
                     documents.map((doc) => (
                       <option key={doc.document_id} value={doc.document_id}>
@@ -203,7 +205,7 @@ export const AssessmentView: React.FC = () => {
 
               {/* Question Count */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700">Question Volume</label>
+                <label className="text-xs font-bold text-slate-700">{t("assessment.num_questions", "Number of Questions")}</label>
                 <select
                   value={questionCount}
                   onChange={(e) => setQuestionCount(Number(e.target.value))}
@@ -217,15 +219,15 @@ export const AssessmentView: React.FC = () => {
 
               {/* Difficulty */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700">Operational Difficulty</label>
+                <label className="text-xs font-bold text-slate-700">{t("assessment.difficulty", "Difficulty Level")}</label>
                 <select
                   value={difficulty}
                   onChange={(e) => setDifficulty(e.target.value as "easy" | "medium" | "hard")}
                   className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-900"
                 >
-                  <option value="easy">Easy — Basic Terminology & Definitions</option>
-                  <option value="medium">Medium — Methodological Application</option>
-                  <option value="hard">Hard — Advanced Statistical Decision Making</option>
+                  <option value="easy">{t("assessment.easy", "Foundational")} (Easy)</option>
+                  <option value="medium">{t("assessment.medium", "Intermediate")} (Medium)</option>
+                  <option value="hard">{t("assessment.hard", "Advanced / Expert")} (Hard)</option>
                 </select>
               </div>
             </div>
@@ -233,8 +235,8 @@ export const AssessmentView: React.FC = () => {
             {!docsLoading && documents.length === 0 && (
               <EmptyState
                 icon={<FolderArchive className="w-6 h-6 text-blue-900" />}
-                title="No Assessment Documents Available"
-                description="The assessment engine requires indexed training manuals or operational handbooks to formulate grounded MCQs. Please upload survey manuals in the Learning Repository."
+                title={t("assessment.no_active_quiz", "No Assessment Documents Available")}
+                description={t("assessment.no_active_quiz_desc", "The assessment engine requires indexed training manuals or operational handbooks to formulate grounded MCQs. Please upload survey manuals in the Learning Repository.")}
               />
             )}
 
@@ -251,7 +253,7 @@ export const AssessmentView: React.FC = () => {
                 disabled={loading || documents.length === 0}
                 leftIcon={<Target className="w-4 h-4" />}
               >
-                {loading ? "Generating Safe Questions..." : "Begin Assessment"}
+                {loading ? t("common.loading", "Generating Safe Questions...") : t("assessment.start_quiz", "Start Assessment")}
               </Button>
             </div>
           </CardBody>
@@ -340,7 +342,7 @@ export const AssessmentView: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2 self-end sm:self-auto">
                   <Button variant="outline" size="md" onClick={resetQuiz}>
-                    Abandon Session
+                    {t("common.cancel", "Abandon Session")}
                   </Button>
                   <Button
                     variant="primary"
@@ -350,7 +352,7 @@ export const AssessmentView: React.FC = () => {
                     isLoading={submitting}
                     rightIcon={<ArrowRight className="w-4 h-4" />}
                   >
-                    {submitting ? "Evaluating Answers..." : "Submit for Official Evaluation"}
+                    {submitting ? t("assessment.submitting", "Evaluating Answers...") : t("assessment.submit_quiz", "Submit Evaluation")}
                   </Button>
                 </div>
               </div>
@@ -375,14 +377,14 @@ export const AssessmentView: React.FC = () => {
                           : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {quizResult.percentage >= 60 ? "PASSED" : "NEEDS REVIEW"}
+                      {quizResult.percentage >= 60 ? t("assessment.passed", "Competency Standard Achieved") : t("assessment.failed", "Further Review Recommended")}
                     </span>
                     <span className="text-xs text-slate-500">
                       Submitted at {new Date(quizResult.submitted_at).toLocaleTimeString()}
                     </span>
                   </div>
                   <h3 className="text-2xl font-bold text-slate-900">
-                    Evaluation Result: {quizResult.score} / {quizResult.total_questions} ({quizResult.percentage.toFixed(0)}%)
+                    {t("assessment.results_title", "Assessment Results & Feedback")}: {quizResult.score} / {quizResult.total_questions} ({quizResult.percentage.toFixed(0)}%)
                   </h3>
                   <p className="text-xs text-slate-600 max-w-xl">
                     {quizResult.overall_feedback}
@@ -391,7 +393,7 @@ export const AssessmentView: React.FC = () => {
 
                 <div className="flex items-center gap-3 shrink-0">
                   <Button variant="primary" size="md" onClick={resetQuiz} leftIcon={<RotateCcw className="w-4 h-4" />}>
-                    Take Another Quiz
+                    {t("assessment.retake_btn", "Retake / New Assessment")}
                   </Button>
                 </div>
               </div>
@@ -402,7 +404,7 @@ export const AssessmentView: React.FC = () => {
           <Card>
             <CardHeader>
               <div>
-                <CardTitle className="text-sm">Pedagogical Feedback & Correct Rationales</CardTitle>
+                <CardTitle className="text-sm">{t("assessment.explanation", "Statistical Rationale & Reference")}</CardTitle>
                 <CardDescription>
                   Ground truth derived from official manuals with cited chunk locations.
                 </CardDescription>

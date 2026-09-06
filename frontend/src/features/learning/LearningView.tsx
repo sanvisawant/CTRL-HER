@@ -22,7 +22,6 @@ import {
   AlertCircle,
   X,
   FileUp,
-  Clock,
   Layers,
 } from "lucide-react";
 import { ErrorState } from "../../components/common/ErrorState";
@@ -301,7 +300,7 @@ export const LearningView: React.FC = () => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search across all MoSPI manuals (e.g., 'sampling', 'Consumer Price Index methodology', 'Stratified sampling multipliers')..."
+                placeholder={t("learning.search_placeholder", "Search statistical concepts (e.g., 'sampling', 'Consumer Price Index methodology')...")}
                 className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:bg-white transition-all"
               />
             </div>

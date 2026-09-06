@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import {
   api,
@@ -26,6 +27,7 @@ import { EmptyState } from "../../components/common/EmptyState";
 import { MetricSkeleton, CardSkeleton } from "../../components/common/SkeletonLoader";
 
 export const CompetencyView: React.FC = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const cadreId = user?.cadreId || "ISS-2024-8921";
 
@@ -89,28 +91,31 @@ export const CompetencyView: React.FC = () => {
         <div className="space-y-1">
           <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-blue-800/50 border border-blue-400/30 text-blue-200 text-[11px] font-semibold">
             <Award className="w-3.5 h-3.5 text-blue-300" />
-            <span>P1 Competency Intelligence & Digital Twin</span>
+            <span>{t("competency.badge", "P1 Competency Intelligence & Digital Twin")}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black tracking-tight">
-            MoSPI Competency Framework & Skill Gap Diagnostic
+            {t("competency.title", "MoSPI Competency Framework & Skill Gap Diagnostic")}
           </h1>
           <p className="text-slate-300 text-xs max-w-2xl leading-relaxed">
-            Official benchmark evaluation for {user?.fullName || "Keiyona Rodrigues"} (Cadre: {cadreId}) anchored on the canonical 33 MoSPI statistical competencies.
+            {t("competency.subtitle", {
+              name: user?.fullName || "Keiyona Rodrigues",
+              cadreId,
+              defaultValue: `Official benchmark evaluation for ${user?.fullName || "Keiyona Rodrigues"} (Cadre: ${cadreId}) anchored on canonical MoSPI statistical competencies.`
+            })}
           </p>
         </div>
         <div className="flex items-center gap-2.5 shrink-0">
           <Button
-            variant="outline"
+            variant="outlineInvert"
             size="sm"
             onClick={loadData}
             leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />}
-            className="border-white/30 text-white hover:bg-white/10"
           >
-            Refresh
+            {t("competency.refresh", "Refresh")}
           </Button>
           <Link to="/assessment">
             <Button variant="saffron" size="sm" leftIcon={<Target className="w-3.5 h-3.5" />}>
-              Start Diagnostic Test
+              {t("competency.start_diagnostic", "Start Diagnostic Test")}
             </Button>
           </Link>
         </div>
@@ -148,48 +153,48 @@ export const CompetencyView: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <Card variant="accent">
               <CardBody className="p-4">
-                <p className="text-xs font-medium text-slate-500 uppercase">Master Competencies</p>
+                <p className="text-xs font-medium text-slate-500 uppercase">{t("competency.kpi_master", "Master Competencies")}</p>
                 <h3 className="text-2xl font-bold text-slate-900 mt-1">
                   {groupedComp?.total_competencies || gapData?.total_competencies || 33}
                 </h3>
                 <p className="text-xs text-teal-700 mt-2 flex items-center gap-1">
-                  <ShieldCheck className="w-3.5 h-3.5" /> Canonical MoSPI Taxonomy
+                  <ShieldCheck className="w-3.5 h-3.5" /> {t("competency.kpi_master_sub", "Canonical MoSPI Taxonomy")}
                 </p>
               </CardBody>
             </Card>
 
             <Card variant="default">
               <CardBody className="p-4">
-                <p className="text-xs font-medium text-slate-500 uppercase">High Priority Gaps</p>
+                <p className="text-xs font-medium text-slate-500 uppercase">{t("competency.kpi_gaps", "Identified Skill Gaps")}</p>
                 <h3 className="text-2xl font-bold text-red-600 mt-1">
                   {gapData?.high_priority_count ?? gapsList.filter((g) => g.priority === "HIGH").length}
                 </h3>
                 <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
-                  <TrendingDown className="w-3.5 h-3.5 text-red-500" /> Immediate Upskilling Required
+                  <TrendingDown className="w-3.5 h-3.5 text-red-500" /> {t("competency.kpi_gaps_sub", "Priority 1 Gaps")}
                 </p>
               </CardBody>
             </Card>
 
             <Card variant="default">
               <CardBody className="p-4">
-                <p className="text-xs font-medium text-slate-500 uppercase">Medium Priority Gaps</p>
+                <p className="text-xs font-medium text-slate-500 uppercase">{t("competency.kpi_score", "Average Proficiency")}</p>
                 <h3 className="text-2xl font-bold text-amber-600 mt-1">
-                  {gapData?.medium_priority_count ?? gapsList.filter((g) => g.priority === "MEDIUM").length}
+                  {gapData?.average_gap ? (5.0 - gapData.average_gap).toFixed(1) : "3.4"} / 5.0
                 </h3>
                 <p className="text-xs text-slate-500 mt-2 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-500" /> Targeted Practice Recommended
+                  <CheckCircle2 className="w-3.5 h-3.5 text-amber-500" /> {t("competency.kpi_score_sub", "Baseline Benchmark")}
                 </p>
               </CardBody>
             </Card>
 
             <Card variant="default">
               <CardBody className="p-4">
-                <p className="text-xs font-medium text-slate-500 uppercase">Average Gap Delta</p>
+                <p className="text-xs font-medium text-slate-500 uppercase">{t("competency.kpi_pathways", "Assigned Pathways")}</p>
                 <h3 className="text-2xl font-bold text-blue-900 mt-1">
-                  {gapData?.average_gap ? gapData.average_gap.toFixed(2) : "0.78"} / 5.0
+                  {gapsList.length > 0 ? Math.min(gapsList.length, 6) : 4}
                 </h3>
                 <p className="text-xs text-blue-800 mt-2 flex items-center gap-1">
-                  <Target className="w-3.5 h-3.5" /> Role Benchmark Baseline
+                  <Target className="w-3.5 h-3.5" /> {t("competency.kpi_pathways_sub", "Curated iGOT Modules")}
                 </p>
               </CardBody>
             </Card>
@@ -210,7 +215,7 @@ export const CompetencyView: React.FC = () => {
                     : "bg-white text-slate-700 border border-slate-200 hover:bg-slate-50"
                 }`}
               >
-                {cat}
+                {cat === "ALL" ? t("competency.tab_all", "All Competencies") : cat}
               </button>
             ))}
           </div>
@@ -219,14 +224,14 @@ export const CompetencyView: React.FC = () => {
           <Card>
             <CardHeader>
               <div>
-                <CardTitle className="text-sm">Competency Evaluations & Benchmarks</CardTitle>
+                <CardTitle className="text-sm">{t("modules.competency.title", "My Competency Matrix & Gap Diagnostics")}</CardTitle>
                 <CardDescription>
-                  Displaying {filteredGaps.length} competencies. Evaluated against official Senior Statistical Officer standards.
+                  {t("modules.competency.desc", "FRAC framework competency mapping, skill scores, and benchmark comparisons across statistical cadres.")}
                 </CardDescription>
               </div>
               <Link to="/igot-learning">
                 <Button variant="outline" size="sm" rightIcon={<ArrowRight className="w-3.5 h-3.5" />}>
-                  View Recommended Pathways
+                  {t("competency.action_igot", "iGOT Pathway")}
                 </Button>
               </Link>
             </CardHeader>
