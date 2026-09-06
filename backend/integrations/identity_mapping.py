@@ -22,7 +22,7 @@ logger = logging.getLogger("statsaksham.integrations.identity")
 
 DEMO_IDENTITIES: List[CanonicalIdentity] = [
     # Demo Officer 1: Primary Learner Profile
-    # Matches P1 demo official (Ramesh/Sanvi/Keiyona) across frontend and backend fixtures
+    # Matches P1 demo official (Ramesh/Saniya/Riya) across frontend and backend fixtures
     CanonicalIdentity(
         canonical_user_id="2b574d66-f752-4348-ab00-17587012f291",
         p1_user_id="2b574d66-f752-4348-ab00-17587012f291",
@@ -30,10 +30,10 @@ DEMO_IDENTITIES: List[CanonicalIdentity] = [
         p3_learner_id="U001",
         p4_user_id="usr_demo_001",
         p5_cadre_id="ISS-2024-8921",
-        full_name="Keiyona Rodrigues",
+        full_name="Siya Sharma",
         designation="Senior Statistical Officer",
         department="National Sample Survey Office (NSSO)",
-        email="keiyona.rodrigues@gov.in",
+        email="siya.sharma@gov.in",
         role="learner"
     ),
     # Demo Officer 2: Secondary Senior Official

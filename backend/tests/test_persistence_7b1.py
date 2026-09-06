@@ -49,12 +49,12 @@ def test_identity_persistence():
     count = svc.total_mapped_identities()
     assert count >= 3, f"Expected at least 3 identities, found {count}"
     
-    # Verify Keiyona Rodrigues exists and maps properly
-    keiyona = svc.get_by_canonical("2b574d66-f752-4348-ab00-17587012f291")
-    assert keiyona is not None, "Keiyona Rodrigues canonical identity missing!"
-    assert keiyona.p2_learner_id == "U001"
-    assert keiyona.p3_learner_id == "U001"
-    assert keiyona.p4_user_id == "usr_demo_001"
+    # Verify Siya Sharma exists and maps properly
+    siya = svc.get_by_canonical("2b574d66-f752-4348-ab00-17587012f291")
+    assert siya is not None, "siya Sharma canonical identity missing!"
+    assert siya.p2_learner_id == "U001"
+    assert siya.p3_learner_id == "U001"
+    assert siya.p4_user_id == "usr_demo_001"
     print(f"    [PASS] Identity service loaded {count} identities directly from Supabase.")
 
 

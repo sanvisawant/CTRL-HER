@@ -12,7 +12,7 @@ In Step 7B-1, we migrated two persistence layers from in-memory / static-fixture
 
 1. **Cross-Module Canonical Identity Mapping (`identity_mapping`)**:
    - Stores mapping between Canonical UUID, P1 UUID, P2/P3 Learner ID, P4 User ID, and P5 Cadre ID.
-   - Migrated 3 canonical identities (Keiyona Rodrigues, Sunita Deshmukh, Ananya Sen).
+   - Migrated 3 canonical identities ( Siya Sharma, Sunita Deshmukh, Ananya Sen).
    - `IdentityMappingService` now loads directly from Supabase at runtime with graceful in-code fallback if Supabase is unavailable.
 
 2. **P3 Document Metadata Registry (`documents`)**:

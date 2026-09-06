@@ -2,7 +2,7 @@
 StatSaksham AI — Step 7B-2 Restart Persistence Verification Suite
 Tests:
   Test A — Learner Progress
-    1. Load/create learner progress for canonical user Keiyona Rodrigues (U001).
+    1. Load/create learner progress for canonical user Siya Sharma(U001).
     2. Update progress with topic performance.
     3. Confirm Supabase persistence.
     4. Wipe in-memory cache completely.
@@ -75,7 +75,7 @@ def test_tables_exist():
 def test_learner_progress_persistence():
     print("\n>>> Step 7B-2 / Test A: Learner Progress Persistence & Restart...")
     repo = get_learner_progress_repository()
-    learner_id = "U001"  # Canonical officer Keiyona Rodrigues
+    learner_id = "U001"  # Canonical officer Siya Sharma
 
     # 1. Load profile
     profile = repo.get_progress(learner_id)
