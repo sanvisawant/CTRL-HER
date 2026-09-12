@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -89,10 +89,65 @@ function parseRationale(rawText: string): ParsedRationale {
   };
 }
 
+const getRecommendedIGOTCourse = (skillName: string): { title: string; hours: number } => {
+  const lower = skillName.toLowerCase();
+  if (lower.includes("sampling")) return { title: "Advanced Sampling Techniques & Frame Design", hours: 3 };
+  if (lower.includes("quality") || lower.includes("scrutiny")) return { title: "Data Quality Assurance & Validation Standards", hours: 4 };
+  if (lower.includes("python") || lower.includes("programming")) return { title: "Python for Official Statistics & Automation", hours: 6 };
+  if (lower.includes("price") || lower.includes("index")) return { title: "Consumer Price Index (CPI) Compilation Methodology", hours: 3 };
+  if (lower.includes("national") || lower.includes("gdp")) return { title: "National Accounts Statistics & GDP Estimation", hours: 5 };
+  if (lower.includes("policy")) return { title: "Evidence-Based Policy Formulation & Analysis", hours: 4 };
+  return { title: `MoSPI In-Service Professional Certification: ${skillName}`, hours: 4 };
+};
+
 export const CompetencyView: React.FC = () => {
   const { t } = useTranslation();
   const { user } = useAuth();
   const cadreId = user?.cadreId || "ISS-2024-8921";
+  const [searchParams] = useSearchParams();
+  const urlView = searchParams.get("view");
+
+  const declaredSkills = useMemo(() => {
+    return user?.declaredSkills && user.declaredSkills.length > 0
+      ? user.declaredSkills
+      : ["Survey Sampling & Design", "Data Quality & Scrutiny", "Statistical Analysis & Inference"];
+  }, [user]);
+
+  const verifiedSkillEntries = useMemo(() => {
+    return Object.entries(user?.verifiedSkillScores || {});
+  }, [user]);
+
+  const hasVerifiedScores = verifiedSkillEntries.length > 0;
+  const isFreshUser = Boolean(user?.isFirstTimeUser && !user?.hasCompletedBaseline && !hasVerifiedScores);
+
+  const [viewMode, setViewMode] = useState<"simplified" | "cadre">(() => {
+    if (urlView === "cadre") return "cadre";
+    return "simplified";
+  });
+
+  const simplifiedMetrics = useMemo(() => {
+    if (verifiedSkillEntries.length === 0) {
+      return {
+        avgScore: 0,
+        avgPercentage: 0,
+        testedCount: 0,
+        totalDeclared: declaredSkills.length,
+        overallGap: 4.0,
+      };
+    }
+    const totalScore = verifiedSkillEntries.reduce((acc, [, item]) => acc + item.score, 0);
+    const totalPct = verifiedSkillEntries.reduce((acc, [, item]) => acc + item.percentage, 0);
+    const avgScore = Number((totalScore / verifiedSkillEntries.length).toFixed(1));
+    const avgPercentage = Math.round(totalPct / verifiedSkillEntries.length);
+    const overallGap = Number(Math.max(0, 4.0 - avgScore).toFixed(1));
+    return {
+      avgScore,
+      avgPercentage,
+      testedCount: verifiedSkillEntries.length,
+      totalDeclared: declaredSkills.length,
+      overallGap,
+    };
+  }, [verifiedSkillEntries, declaredSkills]);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -358,6 +413,35 @@ export const CompetencyView: React.FC = () => {
 
           {/* Action Buttons */}
           <div className="flex sm:flex-row flex-wrap items-center gap-2.5 shrink-0 pt-2 lg:pt-0">
+            {!isFreshUser && (
+              <div className="inline-flex rounded-lg bg-slate-800/80 p-0.5 border border-slate-700/60 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setViewMode("simplified")}
+                  className={`px-3 py-1.5 rounded-md font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    viewMode === "simplified"
+                      ? "bg-blue-600 text-white shadow-xs"
+                      : "text-slate-300 hover:text-white"
+                  }`}
+                >
+                  <Award className="w-3.5 h-3.5" />
+                  <span>Simplified Report</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("cadre")}
+                  className={`px-3 py-1.5 rounded-md font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    viewMode === "cadre"
+                      ? "bg-blue-600 text-white shadow-xs"
+                      : "text-slate-300 hover:text-white"
+                  }`}
+                >
+                  <Layers className="w-3.5 h-3.5" />
+                  <span>Ministry Matrix</span>
+                </button>
+              </div>
+            )}
+
             <Button
               variant="outlineInvert"
               size="sm"
@@ -366,7 +450,7 @@ export const CompetencyView: React.FC = () => {
             >
               {t("competency.refresh", "Refresh Diagnostic")}
             </Button>
-            <Link to="/assessment">
+            <Link to={`/assessment?competency=${encodeURIComponent(declaredSkills[0] || "Survey Sampling & Design")}`}>
               <Button variant="saffron" size="sm" leftIcon={<Target className="w-3.5 h-3.5" />}>
                 {t("competency.start_diagnostic", "Start Diagnostic Test")}
               </Button>
@@ -396,14 +480,447 @@ export const CompetencyView: React.FC = () => {
           <CardSkeleton lines={6} />
           <CardSkeleton lines={4} />
         </div>
-      ) : !gapData && !groupedComp && error ? (
-        <ErrorState
-          title="Unable to Load Competency Framework"
-          message="Could not connect to the P1 Competency Intelligence service. Please verify backend availability."
-          onRetry={loadData}
-        />
+      ) : isFreshUser ? (
+        /* ── 1. FRESH OFFICER BLANK ANALYSIS STATE ────────────────────────── */
+        <div className="space-y-6 animate-fade-in">
+          {/* Fresh Officer Welcome & Baseline Calibration Pending Hero */}
+          <div className="relative overflow-hidden rounded-xl border border-blue-900/30 bg-gradient-to-r from-slate-950 via-blue-950 to-indigo-950 p-6 text-white shadow-md">
+            <div className="space-y-3">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-400/40 text-amber-300 text-xs font-bold">
+                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                <span>FIRST-TIME REGISTRATION • BASELINE CALIBRATION PENDING</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                Welcome, {officialName} — Competency Digital Twin is Uncalibrated
+              </h2>
+              <p className="text-slate-300 text-xs sm:text-sm max-w-3xl leading-relaxed">
+                You registered with <span className="text-white font-bold">{declaredSkills.length} self-declared operational skills</span>. 
+                Because this is your first time in DAKSHA, your competency analysis is completely blank (no assumed or pre-populated scores). 
+                To establish your verified baseline and receive your simplified competency report, please take your first 5-minute diagnostic test.
+              </p>
+
+              <div className="pt-2 flex flex-wrap items-center gap-3">
+                <Link
+                  to={`/assessment?competency=${encodeURIComponent(declaredSkills[0] || "Survey Sampling & Design")}`}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs sm:text-sm shadow-md transition-all active:scale-[0.98]"
+                >
+                  <Target className="w-4 h-4 text-slate-950" />
+                  <span>Take Diagnostic Test on My Skills &rarr;</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setViewMode("cadre")}
+                  className="px-4 py-2 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  Preview MoSPI Cadre Framework (33 Competencies)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Declared Skills Diagnostic Queue — Blank State */}
+          <div className="space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <Layers className="w-4 h-4 text-blue-900" />
+                  <span>Your Declared Skills (Pending Diagnostic Verification)</span>
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Each skill below starts at 0.0 uncalibrated. Complete a diagnostic test to generate your verified score.
+                </p>
+              </div>
+              <span className="text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1 rounded-full self-start sm:self-auto">
+                0 of {declaredSkills.length} Verified
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {declaredSkills.map((skill, idx) => (
+                <Card key={skill} className="border border-slate-200 hover:border-blue-300 transition-all shadow-2xs">
+                  <CardBody className="p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-800">
+                        SELF-DECLARED AT REGISTRATION
+                      </span>
+                      <span className="text-xs text-slate-400 font-mono">#{idx + 1}</span>
+                    </div>
+
+                    <div>
+                      <h4 className="font-bold text-slate-900 text-sm">{skill}</h4>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        MoSPI Statistical Operations & Cadre Standard
+                      </p>
+                    </div>
+
+                    {/* Blank Score Meter */}
+                    <div className="space-y-1.5 pt-1">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-slate-500">Verified Score:</span>
+                        <span className="font-bold text-slate-400">— / 4.0 (Blank)</span>
+                      </div>
+                      <div className="h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                        <div className="h-full bg-slate-300 w-0" />
+                      </div>
+                      <div className="flex justify-between text-[10px] text-slate-400">
+                        <span>Baseline: 0.0</span>
+                        <span>Target Benchmark: 4.0 Standard</span>
+                      </div>
+                    </div>
+
+                    <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+                      <span className="text-[11px] font-medium text-amber-700 flex items-center gap-1">
+                        <RotateCcw className="w-3 h-3 text-amber-600" />
+                        Awaiting Test
+                      </span>
+                      <Link
+                        to={`/assessment?competency=${encodeURIComponent(skill)}`}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-blue-900 hover:bg-blue-950 text-white text-xs font-bold transition-all shadow-2xs"
+                      >
+                        <span>Take Test Now</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    </div>
+                  </CardBody>
+                </Card>
+              ))}
+            </div>
+          </div>
+
+          {/* 3-Step Lifecycle Card */}
+          <Card className="border border-blue-200 bg-blue-50/40">
+            <CardBody className="p-5">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-blue-900 mb-3">
+                How DAKSHA Calibrates Your Competency Digital Twin
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="p-3 bg-white rounded-lg border border-blue-100 space-y-1 shadow-2xs">
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-800 text-xs font-black flex items-center justify-center">✓</span>
+                    <h4 className="text-xs font-bold text-slate-900">1. Claim Skills</h4>
+                  </div>
+                  <p className="text-[11px] text-slate-500">
+                    Completed during registration. You selected {declaredSkills.length} operational proficiencies.
+                  </p>
+                </div>
+
+                <div className="p-3 bg-white rounded-lg border border-amber-300 ring-2 ring-amber-400/30 space-y-1 shadow-2xs">
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-amber-100 text-amber-800 text-xs font-black flex items-center justify-center">2</span>
+                    <h4 className="text-xs font-bold text-amber-900">2. Take 5-Min Diagnostic</h4>
+                  </div>
+                  <p className="text-[11px] text-slate-600 font-medium">
+                    Current stage. Complete questions from official manuals to verify your capability baseline.
+                  </p>
+                </div>
+
+                <div className="p-3 bg-white rounded-lg border border-slate-200 opacity-70 space-y-1 shadow-2xs">
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-600 text-xs font-black flex items-center justify-center">3</span>
+                    <h4 className="text-xs font-bold text-slate-700">3. Simplified Report & iGOT</h4>
+                  </div>
+                  <p className="text-[11px] text-slate-500">
+                    Receive your simplified score report, gap detection, and personalized iGOT Karmayogi learning recommendations.
+                  </p>
+                </div>
+              </div>
+            </CardBody>
+          </Card>
+        </div>
+      ) : viewMode === "simplified" ? (
+        /* ── 2. SIMPLIFIED COMPETENCY REPORT ──────────────────────────────── */
+        <div className="space-y-6 animate-fade-in">
+          {/* Simplified View Switcher Banner */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-gradient-to-r from-blue-900 to-indigo-950 text-white rounded-xl shadow-xs border border-blue-800">
+            <div className="flex items-center gap-2.5">
+              <Award className="w-5 h-5 text-amber-400 shrink-0" />
+              <div>
+                <h2 className="text-sm font-bold text-white">
+                  Simplified Officer Competency Report
+                </h2>
+                <p className="text-xs text-blue-200">
+                  Focused analysis based directly on your declared and verified operational skills.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setViewMode("cadre")}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-semibold border border-white/20 transition-colors shrink-0 cursor-pointer"
+            >
+              <Layers className="w-3.5 h-3.5 text-blue-300" />
+              <span>Switch to Ministry Framework (33 Competencies) &rarr;</span>
+            </button>
+          </div>
+
+          {/* 4 Clean Executive KPI Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <Card className="border-l-4 border-l-blue-900 shadow-xs">
+              <CardBody className="p-4">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  Verified Competency Score
+                </p>
+                <div className="flex items-baseline gap-2 mt-1">
+                  <h3 className="text-2xl font-black text-slate-900">
+                    {simplifiedMetrics.avgScore > 0 ? `${simplifiedMetrics.avgScore} / 4.0` : "—"}
+                  </h3>
+                  <span className="text-xs font-bold text-blue-800">
+                    {simplifiedMetrics.avgScore >= 3.5 ? "Mastered" : simplifiedMetrics.avgScore >= 2.5 ? "Proficient" : "Developing"}
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Average across diagnostic checks
+                </p>
+              </CardBody>
+            </Card>
+
+            <Card className="border-l-4 border-l-emerald-600 shadow-xs">
+              <CardBody className="p-4">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  Test Accuracy
+                </p>
+                <h3 className="text-2xl font-black text-emerald-700 mt-1">
+                  {simplifiedMetrics.avgPercentage}%
+                </h3>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Questions answered correctly
+                </p>
+              </CardBody>
+            </Card>
+
+            <Card className="border-l-4 border-l-indigo-600 shadow-xs">
+              <CardBody className="p-4">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  Skills Calibrated
+                </p>
+                <h3 className="text-2xl font-black text-indigo-900 mt-1">
+                  {simplifiedMetrics.testedCount} of {simplifiedMetrics.totalDeclared}
+                </h3>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Self-declared proficiencies tested
+                </p>
+              </CardBody>
+            </Card>
+
+            <Card className="border-l-4 border-l-amber-500 shadow-xs">
+              <CardBody className="p-4">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  Gap to Target Standard
+                </p>
+                <h3 className="text-2xl font-black text-amber-600 mt-1">
+                  -{simplifiedMetrics.overallGap.toFixed(1)}
+                </h3>
+                <p className="text-[11px] text-slate-500 mt-1">
+                  Target: 4.0 MoSPI Cadre Benchmark
+                </p>
+              </CardBody>
+            </Card>
+          </div>
+
+          {/* Verified Skills Section */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                  <span>Verified Competencies (Evaluated by Diagnostic Check)</span>
+                </h3>
+                <p className="text-xs text-slate-500">
+                  Performance-verified scores grounded in official MoSPI manual evaluations.
+                </p>
+              </div>
+              <Link
+                to="/assessment"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-900 text-white text-xs font-bold hover:bg-blue-950 transition-colors shadow-2xs"
+              >
+                <Target className="w-3.5 h-3.5" />
+                <span>Test Another Skill</span>
+              </Link>
+            </div>
+
+            {verifiedSkillEntries.length === 0 ? (
+              <Card className="border-dashed border-slate-300 bg-slate-50/50">
+                <CardBody className="p-6 text-center space-y-2">
+                  <RotateCcw className="w-8 h-8 text-amber-500 mx-auto" />
+                  <h4 className="text-sm font-bold text-slate-800">No Skills Evaluated Yet</h4>
+                  <p className="text-xs text-slate-500 max-w-md mx-auto">
+                    Take your first diagnostic check below to populate your verified competency report.
+                  </p>
+                  <Link
+                    to={`/assessment?competency=${encodeURIComponent(declaredSkills[0] || "Survey Sampling & Design")}`}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-blue-900 text-white text-xs font-bold hover:bg-blue-950 transition-colors"
+                  >
+                    <span>Start Test Now</span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
+                </CardBody>
+              </Card>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {verifiedSkillEntries.map(([skillName, data]) => {
+                  const rec = getRecommendedIGOTCourse(skillName);
+                  const gap = Math.max(0, 4.0 - data.score);
+
+                  return (
+                    <Card key={skillName} className="border border-slate-200 shadow-xs hover:border-slate-300 transition-all">
+                      <CardBody className="p-5 space-y-4">
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <div className="flex items-center gap-1.5 mb-1">
+                              <span className={`px-2 py-0.5 text-[10px] font-black rounded ${
+                                data.score >= 3.5 ? "bg-emerald-100 text-emerald-800" : data.score >= 2.5 ? "bg-blue-100 text-blue-800" : "bg-amber-100 text-amber-800"
+                              }`}>
+                                {data.score >= 3.5 ? "LEVEL 4: MASTERED" : data.score >= 2.5 ? "LEVEL 3: PROFICIENT" : "LEVEL 2: DEVELOPING"}
+                              </span>
+                              <span className="text-[10px] text-slate-400 font-medium">
+                                Verified on {new Date(data.date).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" })}
+                              </span>
+                            </div>
+                            <h4 className="text-base font-bold text-slate-900">{skillName}</h4>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <span className="text-xl font-black text-slate-900">{data.score}</span>
+                            <span className="text-xs text-slate-400"> / 4.0</span>
+                          </div>
+                        </div>
+
+                        {/* Visual Score Meter */}
+                        <div className="space-y-1.5">
+                          <div className="flex justify-between text-xs font-medium">
+                            <span className="text-slate-600">
+                              Diagnostic Result: {data.correctAnswers} / {data.totalQuestions} Correct ({data.percentage}%)
+                            </span>
+                            <span className={gap > 0.5 ? "text-amber-700 font-bold" : "text-emerald-700 font-bold"}>
+                              {gap > 0 ? `Gap: -${gap.toFixed(1)}` : "At Cadre Standard"}
+                            </span>
+                          </div>
+                          <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200 relative">
+                            <div
+                              style={{ width: `${(data.score / 4.0) * 100}%` }}
+                              className={`h-full transition-all duration-500 ${
+                                data.score >= 3.5 ? "bg-emerald-600" : data.score >= 2.5 ? "bg-blue-800" : "bg-amber-500"
+                              }`}
+                            />
+                          </div>
+                          <div className="flex justify-between text-[10px] text-slate-400">
+                            <span>0.0 Novice</span>
+                            <span>2.5 Operational</span>
+                            <span className="font-bold text-slate-600">4.0 Target Standard</span>
+                          </div>
+                        </div>
+
+                        {/* Recommended Action / iGOT Bridge */}
+                        <div className="p-3 rounded-lg bg-slate-50 border border-slate-200 space-y-2">
+                          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800">
+                            <BookOpen className="w-3.5 h-3.5 text-blue-900" />
+                            <span>Recommended Learning to Close Gap</span>
+                          </div>
+                          <p className="text-xs text-slate-600">
+                            <span className="font-semibold text-slate-800">{rec.title}</span> • ~{rec.hours} hrs self-paced on iGOT Karmayogi
+                          </p>
+                          <div className="pt-1 flex items-center justify-between gap-2">
+                            <Link
+                              to="/igot-learning"
+                              className="inline-flex items-center gap-1 text-xs font-bold text-blue-900 hover:text-blue-950"
+                            >
+                              <span>Explore Course on iGOT</span>
+                              <ArrowRight className="w-3 h-3" />
+                            </Link>
+                            <Link
+                              to={`/assessment?competency=${encodeURIComponent(skillName)}`}
+                              className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900"
+                            >
+                              <RotateCcw className="w-3 h-3" />
+                              <span>Retest Skill</span>
+                            </Link>
+                          </div>
+                        </div>
+                      </CardBody>
+                    </Card>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Remaining Declared Skills (if any) */}
+          {declaredSkills.some((s) => !user?.verifiedSkillScores?.[s]) && (
+            <div className="space-y-3 pt-2">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                <RotateCcw className="w-4 h-4 text-amber-600" />
+                <span>Other Declared Skills Awaiting Diagnostic Test</span>
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {declaredSkills
+                  .filter((s) => !user?.verifiedSkillScores?.[s])
+                  .map((skill) => (
+                    <div
+                      key={skill}
+                      className="p-3.5 bg-white border border-slate-200 rounded-lg flex items-center justify-between gap-2 shadow-2xs hover:border-blue-300 transition-colors"
+                    >
+                      <div>
+                        <h4 className="text-xs font-bold text-slate-900">{skill}</h4>
+                        <span className="text-[10px] text-amber-700 font-medium">
+                          Self-Declared • Score: Pending
+                        </span>
+                      </div>
+                      <Link
+                        to={`/assessment?competency=${encodeURIComponent(skill)}`}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-blue-50 hover:bg-blue-100 text-blue-900 text-xs font-bold transition-colors shrink-0"
+                      >
+                        <span>Test Now</span>
+                        <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+
+          {/* Bridge to Competency Journey & Virtual Work Mission */}
+          <Card className="border border-blue-200 bg-gradient-to-r from-blue-50/70 to-indigo-50/70 shadow-2xs">
+            <CardBody className="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-blue-900 bg-blue-100 px-2 py-0.5 rounded">
+                  NEXT STAGE IN YOUR JOURNEY
+                </span>
+                <h3 className="text-sm sm:text-base font-bold text-slate-900">
+                  Ready to apply your skills in a realistic workplace scenario?
+                </h3>
+                <p className="text-xs text-slate-600 max-w-xl">
+                  Your baseline competency check is recorded. Continue to your Google Skills-style Learning Path to solve a Virtual Workplace Challenge and earn cadre credentials.
+                </p>
+              </div>
+              <Link
+                to="/journey"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-blue-900 hover:bg-blue-950 text-white text-xs font-bold shadow-xs shrink-0 transition-colors"
+              >
+                <span>Go to My Journey</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </CardBody>
+          </Card>
+        </div>
       ) : (
+        /* ── 3. COMPREHENSIVE CADRE 33-COMPETENCY VIEW ────────────────────── */
         <>
+          {/* Cadre View Return Notice */}
+          <div className="flex items-center justify-between p-3 rounded-lg bg-blue-50 border border-blue-200 text-blue-900 text-xs">
+            <div className="flex items-center gap-2">
+              <Layers className="w-4 h-4 text-blue-800 shrink-0" />
+              <span className="font-semibold">
+                Viewing Full Ministry Cadre Framework (33 Competencies Across 4 Operational Domains).
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setViewMode("simplified")}
+              className="font-bold underline hover:text-blue-950 cursor-pointer"
+            >
+              &larr; Return to Simplified Report
+            </button>
+          </div>
+
           {/* ── 2. AI DIAGNOSTIC SUMMARY CARDS ─────────────────────────────────── */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
             {/* Overall Readiness */}
@@ -593,11 +1110,10 @@ export const CompetencyView: React.FC = () => {
                                 {item.category || "Statistical"}
                               </span>
                               <span
-                                className={`px-2 py-0.5 text-[10px] font-black rounded ${
-                                  item.priority === "HIGH" || gap >= 1.5
+                                className={`px-2 py-0.5 text-[10px] font-black rounded ${item.priority === "HIGH" || gap >= 1.5
                                     ? "bg-red-100 text-red-800 border border-red-200"
                                     : "bg-amber-100 text-amber-800 border border-amber-200"
-                                }`}
+                                  }`}
                               >
                                 {item.priority || "HIGH"} PRIORITY
                               </span>
@@ -738,11 +1254,10 @@ export const CompetencyView: React.FC = () => {
                   <div
                     key={dom.key}
                     onClick={() => setSelectedDomain(isSelected ? "ALL" : dom.key)}
-                    className={`cursor-pointer p-4 rounded-xl border transition-all ${
-                      isSelected
+                    className={`cursor-pointer p-4 rounded-xl border transition-all ${isSelected
                         ? "border-blue-900 bg-blue-50/40 shadow-xs ring-2 ring-blue-900/20"
                         : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-xs"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -853,11 +1368,10 @@ export const CompetencyView: React.FC = () => {
                     <button
                       key={dom.key}
                       onClick={() => setSelectedDomain(dom.key)}
-                      className={`px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                        selectedDomain.toLowerCase() === dom.key.toLowerCase()
+                      className={`px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${selectedDomain.toLowerCase() === dom.key.toLowerCase()
                           ? "bg-blue-900 text-white shadow-xs"
                           : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                      }`}
+                        }`}
                     >
                       {dom.label}
                     </button>
@@ -878,11 +1392,10 @@ export const CompetencyView: React.FC = () => {
                     <button
                       key={sev.key}
                       onClick={() => setSelectedSeverity(sev.key as any)}
-                      className={`px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
-                        selectedSeverity === sev.key
+                      className={`px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${selectedSeverity === sev.key
                           ? "bg-slate-900 text-white shadow-xs"
                           : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                      }`}
+                        }`}
                     >
                       {sev.label}
                     </button>
@@ -987,9 +1500,8 @@ export const CompetencyView: React.FC = () => {
                                 {t("competency.gap_delta", "Gap Delta")}
                               </span>
                               <span
-                                className={`font-bold text-sm ${
-                                  gap >= 1.5 ? "text-red-600" : gap >= 0.5 ? "text-amber-600" : "text-teal-600"
-                                }`}
+                                className={`font-bold text-sm ${gap >= 1.5 ? "text-red-600" : gap >= 0.5 ? "text-amber-600" : "text-teal-600"
+                                  }`}
                               >
                                 {gap > 0 ? `-${gap.toFixed(1)}` : "On Target"}
                               </span>
@@ -1012,9 +1524,8 @@ export const CompetencyView: React.FC = () => {
                           <div className="overflow-hidden h-2 text-xs flex rounded-full bg-slate-100 relative">
                             <div
                               style={{ width: `${currentPct}%` }}
-                              className={`shadow-none flex flex-col justify-center transition-all duration-500 ${
-                                isHigh ? "bg-red-500" : isMed ? "bg-amber-500" : "bg-blue-900"
-                              }`}
+                              className={`shadow-none flex flex-col justify-center transition-all duration-500 ${isHigh ? "bg-red-500" : isMed ? "bg-amber-500" : "bg-blue-900"
+                                }`}
                             />
                             <div
                               style={{ left: `${benchPct}%` }}

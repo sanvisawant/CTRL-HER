@@ -15,10 +15,27 @@ import {
   AlertCircle,
   Globe,
   RefreshCw,
+  Sparkles,
+  Plus,
+  X,
+  Check,
 } from "lucide-react";
 import { Button } from "../../components/common/Button";
 import { AuthBrandPanel } from "./AuthBrandPanel";
 import { useAuth } from "../../context/AuthContext";
+
+const PRESET_SKILLS = [
+  "Survey Sampling & Design",
+  "Data Quality & Scrutiny",
+  "Statistical Analysis & Inference",
+  "Data Visualization & Dashboards",
+  "Python for Data Science",
+  "Field Survey Operations",
+  "Index Numbers & Price Statistics",
+  "National Accounts & GDP",
+  "Public Policy & Decision Making",
+  "Econometrics & Forecasting",
+];
 
 interface SignupFormInputs {
   fullName: string;
@@ -41,6 +58,45 @@ export const Signup = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [fontSize, setFontSize] = useState<"normal" | "large" | "largest">("normal");
+
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([
+    "Survey Sampling & Design",
+    "Data Quality & Scrutiny",
+  ]);
+  const [customSkillInput, setCustomSkillInput] = useState("");
+  const [skillError, setSkillError] = useState<string | null>(null);
+
+  const toggleSkill = (skill: string) => {
+    setSelectedSkills((prev) => {
+      const exists = prev.includes(skill);
+      const next = exists ? prev.filter((s) => s !== skill) : [...prev, skill];
+      if (next.length > 0) setSkillError(null);
+      return next;
+    });
+  };
+
+  const addCustomSkill = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmed = customSkillInput.trim();
+    if (!trimmed) return;
+    if (selectedSkills.some((s) => s.toLowerCase() === trimmed.toLowerCase())) {
+      setSkillError(`"${trimmed}" is already added.`);
+      return;
+    }
+    setSelectedSkills((prev) => [...prev, trimmed]);
+    setCustomSkillInput("");
+    setSkillError(null);
+  };
+
+  const removeSkill = (skillToRemove: string) => {
+    setSelectedSkills((prev) => {
+      const next = prev.filter((s) => s !== skillToRemove);
+      if (next.length === 0) {
+        setSkillError("Please select or add at least one skill you are good at.");
+      }
+      return next;
+    });
+  };
 
   const {
     register,
@@ -84,6 +140,11 @@ export const Signup = () => {
       return;
     }
 
+    if (selectedSkills.length === 0) {
+      setSkillError("Please select or add at least one skill you are good at.");
+      return;
+    }
+
     setIsLoading(true);
 
     loginUser({
@@ -93,11 +154,15 @@ export const Signup = () => {
       cadreId: data.cadreId,
       role: data.role,
       phone: data.phone,
+      declaredSkills: selectedSkills,
+      isFirstTimeUser: true,
+      hasCompletedBaseline: false,
+      verifiedSkillScores: {},
     });
 
     setTimeout(() => {
       setIsLoading(false);
-      navigate("/dashboard");
+      navigate("/competency");
     }, 500);
   };
 
@@ -495,6 +560,107 @@ export const Signup = () => {
                     </p>
                   )}
                 </div>
+              </div>
+
+              {/* Row 5: Skills You Are Good At (Self-Declared Competency Focus) */}
+              <div className="pt-2 pb-1 border-t border-slate-200/80 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <Sparkles className="w-4 h-4 text-blue-900 shrink-0" />
+                    <label className="text-xs font-bold text-slate-800 tracking-tight">
+                      Skills You Are Good At / Core Proficiencies <span className="text-red-600">*</span>
+                    </label>
+                  </div>
+                  <span className="text-[11px] font-medium text-slate-500">
+                    {selectedSkills.length} selected
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-500 leading-tight">
+                  Select your current operational strengths. When you first enter DAKSHA, your competency profile starts fresh and prompts you for a baseline diagnostic test on these skills.
+                </p>
+
+                {/* Selected Skills Chips */}
+                {selectedSkills.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 p-2 rounded-lg bg-blue-50/60 border border-blue-100">
+                    {selectedSkills.map((skill) => (
+                      <span
+                        key={skill}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-900 text-white shadow-2xs"
+                      >
+                        <Check className="w-3 h-3 text-blue-200" />
+                        <span>{skill}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeSkill(skill)}
+                          className="ml-0.5 text-blue-300 hover:text-white transition-colors"
+                          title="Remove skill"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Preset Suggestions */}
+                <div>
+                  <span className="block text-[11px] font-semibold text-slate-600 mb-1">
+                    Quick Suggestions (Click to add/remove):
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {PRESET_SKILLS.map((skill) => {
+                      const isSelected = selectedSkills.includes(skill);
+                      return (
+                        <button
+                          key={skill}
+                          type="button"
+                          onClick={() => toggleSkill(skill)}
+                          className={`text-xs px-2.5 py-1 rounded-md border font-medium transition-all cursor-pointer ${
+                            isSelected
+                              ? "bg-blue-900 text-white border-blue-900 shadow-2xs"
+                              : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:border-slate-300"
+                          }`}
+                        >
+                          {isSelected ? "✓ " : "+ "}
+                          {skill}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Custom Skill Input */}
+                <div className="flex items-center gap-2 pt-1">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      value={customSkillInput}
+                      onChange={(e) => setCustomSkillInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addCustomSkill();
+                        }
+                      }}
+                      placeholder="Add custom skill (e.g. Econometrics, Big Data)..."
+                      className="w-full px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-900 focus:bg-white"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => addCustomSkill()}
+                    className="px-3 py-1.5 text-xs font-semibold text-blue-900 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors shrink-0 flex items-center gap-1"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Add
+                  </button>
+                </div>
+
+                {skillError && (
+                  <p className="text-[11px] text-red-600 font-medium">
+                    {skillError}
+                  </p>
+                )}
               </div>
 
               {/* Declaration Checkbox */}

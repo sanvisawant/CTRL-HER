@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 
 // Real Unified Feature Views
+import JourneyView from "./features/journey/JourneyView";
 import CompetencyView from "./features/competency/CompetencyView";
 import LearningView from "./features/learning/LearningView";
 import AIAssistantView from "./features/assistant/AIAssistantView";
@@ -470,6 +471,8 @@ export default function App() {
           {/* Protected Government Portal Application Shell */}
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<DashboardView />} />
+            <Route path="/journey" element={<JourneyView />} />
+            <Route path="/my-journey" element={<Navigate to="/journey" replace />} />
             <Route path="/competency" element={<CompetencyView />} />
             <Route path="/competencies" element={<Navigate to="/competency" replace />} />
             <Route path="/learning" element={<LearningView />} />

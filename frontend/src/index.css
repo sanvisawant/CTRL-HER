@@ -265,3 +265,55 @@ button, input, select, textarea {
 @media (prefers-reduced-motion: reduce) {
   .stat-pulse { animation: none; opacity: 0; }
 }
+
+/* ── DAKSHA Restrained Government-Grade Glassmorphism ─────────────────────── */
+.daksha-glass {
+  background-color: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+}
+
+.daksha-glass-navy {
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.94) 0%, rgba(30, 58, 138, 0.90) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.35);
+}
+
+.daksha-glass-elevated {
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  box-shadow: 0 8px 24px -4px rgba(30, 58, 138, 0.12);
+}
+
+.daksha-glass-locked {
+  background-color: rgba(248, 250, 252, 0.65);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px dashed rgba(203, 213, 225, 0.8);
+}
+
+/* Timeline subtle active pulse */
+@keyframes activeStageBeacon {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(30, 58, 138, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(30, 58, 138, 0.08);
+  }
+}
+
+.active-stage-beacon {
+  animation: activeStageBeacon 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .active-stage-beacon {
+    animation: none !important;
+  }
+}

@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import { useSearchParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -21,14 +22,20 @@ import {
   FolderArchive,
   ChevronDown,
   Search,
+  Award,
 } from "lucide-react";
 import { ErrorState } from "../../components/common/ErrorState";
 import { EmptyState } from "../../components/common/EmptyState";
 
 export const AssessmentView: React.FC = () => {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, recordSkillAssessment } = useAuth();
   const cadreId = user?.cadreId || "ISS-2024-8921";
+  const [searchParams] = useSearchParams();
+
+  // Target skill for evaluation
+  const querySkill = searchParams.get("competency") || searchParams.get("skill") || "";
+  const [targetSkill, setTargetSkill] = useState<string>(querySkill);
 
   // Documents for quiz creation
   const [documents, setDocuments] = useState<DocumentItem[]>([]);
@@ -38,6 +45,16 @@ export const AssessmentView: React.FC = () => {
   const [docDropdownOpen, setDocDropdownOpen] = useState<boolean>(false);
   const [docSearchQuery, setDocSearchQuery] = useState<string>("");
   const docDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Sync target skill with searchParams or user declared skills
+  useEffect(() => {
+    const param = searchParams.get("competency") || searchParams.get("skill");
+    if (param) {
+      setTargetSkill(param);
+    } else if (user?.declaredSkills && user.declaredSkills.length > 0 && !targetSkill) {
+      setTargetSkill(user.declaredSkills[0]);
+    }
+  }, [searchParams, user]);
 
   // Quiz State
   const [activeQuiz, setActiveQuiz] = useState<QuizResponse | null>(null);
@@ -101,6 +118,7 @@ export const AssessmentView: React.FC = () => {
     try {
       const quiz = await api.createQuiz({
         document_id: selectedDocId,
+        topic: targetSkill || undefined,
         count: questionCount,
         difficulty,
         learner_id: cadreId,
@@ -139,6 +157,17 @@ export const AssessmentView: React.FC = () => {
     try {
       const result = await api.submitQuiz(activeQuiz.quiz_id, answersPayload);
       setQuizResult(result);
+
+      // Record verified skill score into officer's profile
+      const computedScore = (result.percentage / 100) * 4.0;
+      const evaluatedSkill = targetSkill || activeQuiz.topic || activeQuiz.questions[0]?.topic || "Core Statistical Competency";
+      recordSkillAssessment(
+        evaluatedSkill,
+        computedScore,
+        result.percentage,
+        result.total_questions,
+        result.correct_answers
+      );
     } catch (err: unknown) {
       console.error("Quiz submission failed:", err);
       setError("Failed to evaluate quiz submission on backend. Please retry.");
@@ -204,6 +233,71 @@ export const AssessmentView: React.FC = () => {
             </div>
           </CardHeader>
           <CardBody className="space-y-5">
+            {/* Target Skill Input & Quick Selection */}
+            <div className="p-3.5 bg-gradient-to-r from-blue-50 to-indigo-50/60 border border-blue-200/80 rounded-xl space-y-2.5 shadow-2xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5">
+                  <Target className="w-4 h-4 text-blue-900 shrink-0" />
+                  <span className="text-xs font-bold text-slate-900">
+                    Skill Being Evaluated (Diagnostic Target)
+                  </span>
+                  {targetSkill && (
+                    <span className="text-[10px] font-semibold bg-blue-900 text-white px-2 py-0.5 rounded-full">
+                      Active
+                    </span>
+                  )}
+                </div>
+                {targetSkill && (
+                  <button
+                    type="button"
+                    onClick={() => setTargetSkill("")}
+                    className="text-[11px] text-slate-500 hover:text-slate-800 self-start sm:self-auto font-medium"
+                  >
+                    Clear Filter
+                  </button>
+                )}
+              </div>
+
+              {/* Input for target skill */}
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={targetSkill}
+                  onChange={(e) => setTargetSkill(e.target.value)}
+                  placeholder="Enter skill to test (e.g. Survey Sampling, Data Quality, Python)..."
+                  className="w-full text-xs px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-900 focus:outline-none"
+                />
+              </div>
+
+              {/* Declared Skills from Registration */}
+              {user?.declaredSkills && user.declaredSkills.length > 0 && (
+                <div className="space-y-1 pt-1">
+                  <span className="text-[11px] font-semibold text-slate-600 block">
+                    Your Declared Registration Skills (Click to target for test):
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {user.declaredSkills.map((skill) => {
+                      const isTarget = targetSkill.toLowerCase() === skill.toLowerCase();
+                      return (
+                        <button
+                          key={skill}
+                          type="button"
+                          onClick={() => setTargetSkill(skill)}
+                          className={`text-xs px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer ${
+                            isTarget
+                              ? "bg-blue-900 text-white shadow-2xs ring-1 ring-blue-900"
+                              : "bg-white text-slate-700 border border-slate-200 hover:bg-blue-50 hover:border-blue-300"
+                          }`}
+                        >
+                          {isTarget ? "🎯 " : ""}{skill}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Document Selection with downward opening menu */}
               <div className="space-y-1.5 relative" ref={docDropdownRef}>
@@ -220,12 +314,11 @@ export const AssessmentView: React.FC = () => {
                     {docsLoading
                       ? t("common.loading", "Loading MoSPI publications...")
                       : documents.find((d) => d.document_id === selectedDocId)?.filename ||
-                        (documents.length > 0 ? "Select reference publication..." : "No reference publications found")}
+                      (documents.length > 0 ? "Select reference publication..." : "No reference publications found")}
                   </span>
                   <ChevronDown
-                    className={`w-4 h-4 text-slate-500 shrink-0 transition-transform duration-200 ${
-                      docDropdownOpen ? "rotate-180" : ""
-                    }`}
+                    className={`w-4 h-4 text-slate-500 shrink-0 transition-transform duration-200 ${docDropdownOpen ? "rotate-180" : ""
+                      }`}
                   />
                 </button>
 
@@ -266,11 +359,10 @@ export const AssessmentView: React.FC = () => {
                                 setDocDropdownOpen(false);
                                 setDocSearchQuery("");
                               }}
-                              className={`px-3 py-2 text-xs flex items-center justify-between cursor-pointer transition-colors ${
-                                isSelected
+                              className={`px-3 py-2 text-xs flex items-center justify-between cursor-pointer transition-colors ${isSelected
                                   ? "bg-blue-50 text-blue-950 font-bold"
                                   : "text-slate-700 hover:bg-slate-50 hover:text-slate-950"
-                              }`}
+                                }`}
                               title={doc.filename}
                             >
                               <span className="truncate mr-2">{doc.filename}</span>
@@ -283,10 +375,10 @@ export const AssessmentView: React.FC = () => {
                       {documents.filter((doc) =>
                         doc.filename.toLowerCase().includes(docSearchQuery.toLowerCase())
                       ).length === 0 && (
-                        <div className="px-3 py-3 text-xs text-slate-400 text-center">
-                          No matching publications found
-                        </div>
-                      )}
+                          <div className="px-3 py-3 text-xs text-slate-400 text-center">
+                            No matching publications found
+                          </div>
+                        )}
                     </div>
                   </div>
                 )}
@@ -396,16 +488,14 @@ export const AssessmentView: React.FC = () => {
                             key={opt.id}
                             type="button"
                             onClick={() => handleSelectOption(q.question_id, opt.id)}
-                            className={`p-3 rounded-lg border text-left text-xs transition-all flex items-start gap-2.5 ${
-                              isChosen
+                            className={`p-3 rounded-lg border text-left text-xs transition-all flex items-start gap-2.5 ${isChosen
                                 ? "bg-blue-900 text-white border-blue-900 font-semibold shadow-xs"
                                 : "bg-slate-50 text-slate-800 border-slate-200 hover:border-blue-900/40 hover:bg-white"
-                            }`}
+                              }`}
                           >
                             <span
-                              className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
-                                isChosen ? "bg-white text-blue-900" : "bg-slate-200 text-slate-700"
-                              }`}
+                              className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${isChosen ? "bg-white text-blue-900" : "bg-slate-200 text-slate-700"
+                                }`}
                             >
                               {opt.id}
                             </span>
@@ -460,11 +550,10 @@ export const AssessmentView: React.FC = () => {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`px-2.5 py-0.5 text-xs font-bold rounded-full ${
-                        quizResult.percentage >= 60
+                      className={`px-2.5 py-0.5 text-xs font-bold rounded-full ${quizResult.percentage >= 60
                           ? "bg-green-100 text-green-800"
                           : "bg-red-100 text-red-800"
-                      }`}
+                        }`}
                     >
                       {quizResult.percentage >= 60 ? t("assessment.passed", "Competency Standard Achieved") : t("assessment.failed", "Further Review Recommended")}
                     </span>
@@ -478,10 +567,24 @@ export const AssessmentView: React.FC = () => {
                   <p className="text-xs text-slate-600 max-w-xl">
                     {quizResult.overall_feedback}
                   </p>
+                  <div className="pt-2 flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold">
+                      <Award className="w-3.5 h-3.5 text-emerald-600" />
+                      Verified Score: {((quizResult.percentage / 100) * 4.0).toFixed(1)} / 4.0 recorded in Competency Digital Twin
+                    </span>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-3 shrink-0">
-                  <Button variant="primary" size="md" onClick={resetQuiz} leftIcon={<RotateCcw className="w-4 h-4" />}>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+                  <Link
+                    to="/competency"
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs shadow-sm transition-all"
+                  >
+                    <Award className="w-4 h-4" />
+                    <span>View My Simplified Competency Report</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                  <Button variant="outline" size="md" onClick={resetQuiz} leftIcon={<RotateCcw className="w-4 h-4" />}>
                     {t("assessment.retake_btn", "Retake / New Assessment")}
                   </Button>
                 </div>
@@ -503,20 +606,18 @@ export const AssessmentView: React.FC = () => {
               {quizResult.question_results.map((qr, idx) => (
                 <div
                   key={qr.question_id || idx}
-                  className={`p-4 rounded-xl border ${
-                    qr.is_correct
+                  className={`p-4 rounded-xl border ${qr.is_correct
                       ? "border-green-200 bg-green-50/30"
                       : "border-red-200 bg-red-50/30"
-                  } space-y-2.5`}
+                    } space-y-2.5`}
                 >
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-bold text-slate-900">
                       Question {idx + 1}: {qr.topic}
                     </span>
                     <span
-                      className={`flex items-center gap-1 font-bold ${
-                        qr.is_correct ? "text-green-700" : "text-red-700"
-                      }`}
+                      className={`flex items-center gap-1 font-bold ${qr.is_correct ? "text-green-700" : "text-red-700"
+                        }`}
                     >
                       {qr.is_correct ? (
                         <>

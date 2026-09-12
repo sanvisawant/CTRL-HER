@@ -20,6 +20,7 @@ import {
   X,
   Radio,
   Users,
+  Milestone,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { DakshaLogo } from "../common/DakshaLogo";
@@ -52,6 +53,7 @@ export const AppLayout = () => {
   const getNavItems = (): NavItem[] => {
     const items: NavItem[] = [
       { label: t("nav.dashboard", "Dashboard"), icon: LayoutDashboard, path: "/dashboard" },
+      { label: t("nav.journey", "My Journey"), icon: Milestone, path: "/journey" },
     ];
 
     if (userRole === "admin") {

@@ -1,5 +1,13 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
+export interface VerifiedSkillScore {
+  score: number; // 0.0 to 4.0
+  percentage: number;
+  date: string;
+  totalQuestions: number;
+  correctAnswers: number;
+}
+
 export interface OfficerUser {
   fullName: string;
   designation: string;
@@ -8,6 +16,10 @@ export interface OfficerUser {
   role: "learner" | "trainer" | "admin";
   division?: string;
   phone?: string;
+  declaredSkills?: string[];
+  isFirstTimeUser?: boolean;
+  hasCompletedBaseline?: boolean;
+  verifiedSkillScores?: Record<string, VerifiedSkillScore>;
 }
 
 export const CONTROLLED_PERSONAS: Record<"learner" | "trainer" | "admin", OfficerUser> = {
@@ -18,6 +30,9 @@ export const CONTROLLED_PERSONAS: Record<"learner" | "trainer" | "admin", Office
     email: "sanvi.sawant@gov.in",
     role: "learner",
     division: "MoSPI Field Operations Division",
+    declaredSkills: ["Survey Sampling", "Data Quality & Scrutiny", "Statistical Analysis"],
+    isFirstTimeUser: false,
+    hasCompletedBaseline: true,
   },
   trainer: {
     fullName: "Dr. Alok Sharma",
@@ -26,6 +41,9 @@ export const CONTROLLED_PERSONAS: Record<"learner" | "trainer" | "admin", Office
     email: "alok.sharma@gov.in",
     role: "trainer",
     division: "National Statistical Systems Training Academy (NSSTA)",
+    declaredSkills: ["National Accounts", "Index Numbers", "Econometrics"],
+    isFirstTimeUser: false,
+    hasCompletedBaseline: true,
   },
   admin: {
     fullName: "Rajesh Kumar",
@@ -34,6 +52,9 @@ export const CONTROLLED_PERSONAS: Record<"learner" | "trainer" | "admin", Office
     email: "rajesh.kumar@nic.in",
     role: "admin",
     division: "Ministry Administration & Human Resources",
+    declaredSkills: ["Public Policy", "Cadre Management", "Digital Governance"],
+    isFirstTimeUser: false,
+    hasCompletedBaseline: true,
   },
 };
 
@@ -44,6 +65,14 @@ interface AuthContextType {
   switchPersona: (role: "learner" | "trainer" | "admin") => void;
   logoutUser: () => void;
   getInitials: () => string;
+  recordSkillAssessment: (
+    skill: string,
+    score: number,
+    percentage: number,
+    totalQuestions: number,
+    correctAnswers: number
+  ) => void;
+  resetToFreshUser: (skills?: string[]) => void;
 }
 
 const DEFAULT_USER: OfficerUser = CONTROLLED_PERSONAS.learner;
@@ -84,19 +113,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const loginUser = (userData: Partial<OfficerUser>) => {
-    // Authoritatively resolve to controlled persona based on designated role
     const chosenRole = userData.role || "learner";
     const basePersona = CONTROLLED_PERSONAS[chosenRole] || CONTROLLED_PERSONAS.learner;
     const resolved: OfficerUser = {
       ...basePersona,
       ...userData,
-      role: chosenRole, // enforce authoritative role match
+      role: chosenRole,
+      declaredSkills: userData.declaredSkills ?? basePersona.declaredSkills ?? [],
+      isFirstTimeUser: userData.isFirstTimeUser ?? false,
+      hasCompletedBaseline: userData.hasCompletedBaseline ?? false,
+      verifiedSkillScores: userData.verifiedSkillScores ?? {},
     };
     setUser(resolved);
   };
 
+  const recordSkillAssessment = (
+    skill: string,
+    score: number,
+    percentage: number,
+    totalQuestions: number,
+    correctAnswers: number
+  ) => {
+    setUserState((prev) => {
+      const updatedScores = {
+        ...(prev.verifiedSkillScores || {}),
+        [skill]: {
+          score: Number(score.toFixed(1)),
+          percentage: Math.round(percentage),
+          date: new Date().toISOString(),
+          totalQuestions,
+          correctAnswers,
+        },
+      };
+      const updatedUser: OfficerUser = {
+        ...prev,
+        hasCompletedBaseline: true,
+        verifiedSkillScores: updatedScores,
+      };
+      localStorage.setItem("statsaksham_officer_profile", JSON.stringify(updatedUser));
+      return updatedUser;
+    });
+  };
+
+  const resetToFreshUser = (skills: string[] = ["Survey Sampling", "Data Quality & Scrutiny"]) => {
+    const freshUser: OfficerUser = {
+      ...DEFAULT_USER,
+      declaredSkills: skills,
+      isFirstTimeUser: true,
+      hasCompletedBaseline: false,
+      verifiedSkillScores: {},
+    };
+    setUser(freshUser);
+  };
+
   const logoutUser = () => {
-    // Reset to default learner
     setUser(CONTROLLED_PERSONAS.learner);
   };
 
@@ -113,7 +183,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <AuthContext.Provider
-      value={{ user, setUser, loginUser, switchPersona, logoutUser, getInitials }}
+      value={{
+        user,
+        setUser,
+        loginUser,
+        switchPersona,
+        logoutUser,
+        getInitials,
+        recordSkillAssessment,
+        resetToFreshUser,
+      }}
     >
       {children}
     </AuthContext.Provider>
