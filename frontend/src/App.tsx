@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { AppLayout } from "./components/layout/AppLayout";
 import { Login } from "./features/auth/Login";
 import { Signup } from "./features/auth/Signup";
+import { LandingPage } from "./features/landing/LandingPage";
 import {
   Sparkles,
   TrendingUp,
@@ -747,8 +748,8 @@ export default function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Root route redirects to /login */}
-          <Route path="/" element={<Navigate to="/login" replace />} />
+          {/* Public Official Government Landing Page */}
+          <Route path="/" element={<LandingPage />} />
 
           {/* Public Authentication Routes */}
           <Route path="/login" element={<Login />} />
