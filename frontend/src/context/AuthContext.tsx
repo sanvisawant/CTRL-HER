@@ -172,7 +172,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const getInitials = () => {
     if (!user?.fullName) return "SS";
-    const parts = user.fullName.trim().split(/\s+/);
+    const cleaned = user.fullName.replace(/^(Dr\.|Mr\.|Mrs\.|Ms\.|Shri|Smt\.)\s+/i, "").trim();
+    const parts = cleaned.split(/\s+/).filter(Boolean);
+    if (parts.length === 0) return "SS";
     if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };

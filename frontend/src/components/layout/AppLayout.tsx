@@ -270,17 +270,8 @@ export const AppLayout = () => {
           {/* Officer Card */}
           <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 flex items-center justify-between">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-200 shrink-0 border border-slate-300 flex items-center justify-center font-bold text-xs text-blue-900">
-                <img
-                  src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=128&q=80"
-                  alt={officerName}
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    // Fallback to text initials if image fails
-                    e.currentTarget.style.display = "none";
-                  }}
-                />
-                <span className="select-none">{getInitials()}</span>
+              <div className="w-8 h-8 rounded-full bg-indigo-600 text-white shrink-0 flex items-center justify-center font-bold text-xs shadow-xs select-none">
+                {getInitials()}
               </div>
               <div className="truncate text-left leading-tight">
                 <p className="text-xs font-bold text-slate-900 truncate">{officerName}</p>
@@ -393,18 +384,10 @@ export const AppLayout = () => {
             <button
               type="button"
               onClick={() => setSettingsOpen(!settingsOpen)}
-              className="w-8 h-8 rounded-full overflow-hidden bg-slate-200 border border-slate-300 flex items-center justify-center font-bold text-xs text-blue-900 cursor-pointer shadow-2xs"
+              className="w-8 h-8 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white flex items-center justify-center font-bold text-xs cursor-pointer shadow-xs transition-colors select-none"
               title={`${officerName} - Click to configure`}
             >
-              <img
-                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=128&q=80"
-                alt={officerName}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                }}
-              />
-              <span className="select-none">{getInitials()}</span>
+              {getInitials()}
             </button>
           </div>
         </header>
