@@ -17,6 +17,9 @@ import {
   Lock,
   Check,
   Globe,
+  GraduationCap,
+  Target,
+  FileCheck,
 } from "lucide-react";
 import { DakshaLogo } from "../../components/common/DakshaLogo";
 
@@ -42,6 +45,15 @@ interface Translations {
   aggregateReadiness: string;
   verifiedStandard: string;
   fracSync: string;
+  aboutTag: string;
+  aboutTitle: string;
+  aboutSub: string;
+  aboutStat1: string;
+  aboutStat1Sub: string;
+  aboutStat2: string;
+  aboutStat2Sub: string;
+  aboutStat3: string;
+  aboutStat3Sub: string;
   pillarsTag: string;
   pillarsTitle: string;
   pillarsSub: string;
@@ -78,6 +90,16 @@ const TRANSLATIONS: Record<LanguageCode, Translations> = {
     aggregateReadiness: "Aggregate National Readiness",
     verifiedStandard: "Verified standard",
     fracSync: "Synchronized with Mission Karmayogi Framework (FRAC)",
+    aboutTag: "Institutional Mandate",
+    aboutTitle: "About DAKSHA & MoSPI Capacity Architecture",
+    aboutSub:
+      "DAKSHA (Digital Assessment & Knowledge System for Holistic Advancement) is the official competency management ecosystem established by the Ministry of Statistics & Programme Implementation. Operating under the National Programme for Civil Services Capacity Building (Mission Karmayogi), DAKSHA transitions cadre training from rule-based tenure to role-based competency readiness across central statistical divisions.",
+    aboutStat1: "33 Cadre Roles",
+    aboutStat1Sub: "Standardized competency profiles mapped to ISS & SSS hierarchy",
+    aboutStat2: "NSSTA Accredited",
+    aboutStat2Sub: "Endorsed methodologies from National Statistical Systems Training Academy",
+    aboutStat3: "Evidence-Based",
+    aboutStat3Sub: "Situational diagnostic twins for verified in-service performance",
     pillarsTag: "Governance Architecture",
     pillarsTitle: "Four Pillars of Statistical Excellence",
     pillarsSub:
@@ -115,6 +137,16 @@ const TRANSLATIONS: Record<LanguageCode, Translations> = {
     aggregateReadiness: "कुल राष्ट्रीय सक्षमता तत्परता",
     verifiedStandard: "प्रमाणित मानक",
     fracSync: "मिशन कर्मयोगी फ्रेमवर्क (FRAC) के साथ समन्वित",
+    aboutTag: "संस्थागत अधिदेश",
+    aboutTitle: "दक्षा (DAKSHA) एवं MoSPI सक्षमता संरचना",
+    aboutSub:
+      "दक्षा (डिजिटल असेसमेंट एंड नॉलेज सिस्टम फॉर होलिस्टिक एडवांसमेंट) सांख्यिकी और कार्यक्रम कार्यान्वयन मंत्रालय द्वारा स्थापित आधिकारिक सक्षमता प्रबंधन तंत्र है। सिविल सेवा क्षमता निर्माण के राष्ट्रीय कार्यक्रम (मिशन कर्मयोगी) के तहत संचालित, यह मंच सांख्यिकीय संवर्ग के अधिकारियों को नियम-आधारित से भूमिका-आधारित सक्षमता की ओर अग्रसर करता है।",
+    aboutStat1: "33 संवर्ग भूमिकाएं",
+    aboutStat1Sub: "ISS और SSS पदानुक्रम के अनुरूप मानकीकृत सक्षमता प्रोफाइल",
+    aboutStat2: "NSSTA द्वारा मान्यता प्राप्त",
+    aboutStat2Sub: "राष्ट्रीय सांख्यिकी प्रणाली प्रशिक्षण अकादमी द्वारा समर्थित कार्यप्रणाली",
+    aboutStat3: "साक्ष्य-आधारित निदान",
+    aboutStat3Sub: "वार्षिक सेवा मूल्यांकन हेतु प्रमाणित डिजिटल सक्षमता रिकॉर्ड",
     pillarsTag: "शासन संरचना",
     pillarsTitle: "सांख्यिकीय उत्कृष्टता के चार स्तंभ",
     pillarsSub:
@@ -152,6 +184,16 @@ const TRANSLATIONS: Record<LanguageCode, Translations> = {
     aggregateReadiness: "एकूण राष्ट्रीय सक्षमता सज्जता",
     verifiedStandard: "प्रमाणित निकष",
     fracSync: "मिशन कर्मयोगी फ्रेमवर्क (FRAC) शी संलग्न",
+    aboutTag: "संस्थात्मक उद्दिष्ट",
+    aboutTitle: "दक्षा (DAKSHA) आणि MoSPI क्षमता आराखडा",
+    aboutSub:
+      "दक्षा (डिजिटल असेसमेंट अँड नॉलेज सिस्टीम फॉर होलिस्टिक ॲडव्हान्समेंट) हे सांख्यिकी आणि कार्यक्रम अंमलबजावणी मंत्रालयाचे अधिकृत सक्षमता व्यवस्थापन व्यासपीठ आहे. मिशन कर्मयोगी उपक्रमांतर्गत विकसित केलेले हे व्यासपीठ सांख्यिकी संवर्गातील अधिकाऱ्यांच्या कौशल्यांचे अचूक मापन, क्षेत्रीय सज्जता आणि सातत्यपूर्ण व्यावसायिक विकास सुनिश्चित करते.",
+    aboutStat1: "३३ संवर्ग पदे",
+    aboutStat1Sub: "ISS व SSS पदानुक्रमासाठी निश्चित केलेले सक्षमता निकष",
+    aboutStat2: "NSSTA प्रमाणित",
+    aboutStat2Sub: "राष्ट्रीय सांख्यिकी अकादमीद्वारे मान्यताप्राप्त अभ्यासक्रम व पद्धती",
+    aboutStat3: "पुराव्यावर आधारित",
+    aboutStat3Sub: "वार्षिक गोपनीय अहवाल (APAR) सज्जतेसाठी प्रमाणित कार्यक्षमता नोंद",
     pillarsTag: "प्रशासन रचना",
     pillarsTitle: "सांख्यिकी उत्कृष्टतेचे चार आधारस्तंभ",
     pillarsSub:
@@ -181,7 +223,7 @@ export const LandingPage: React.FC = () => {
     fontSizeScale === "large" ? "text-[105%]" : fontSizeScale === "larger" ? "text-[110%]" : "text-[100%]";
 
   return (
-    <div className={`min-h-screen bg-slate-50 text-slate-900 font-sans antialiased selection:bg-blue-100 selection:text-blue-900 ${fontScaleClass}`}>
+    <div className={`min-h-screen bg-slate-50 text-slate-900 font-sans antialiased selection:bg-blue-100 selection:text-blue-900 ${fontScaleClass} scroll-smooth`}>
       {/* 1. Indian Tricolor Ribbon Bar */}
       <div className="w-full flex h-1.5" aria-hidden="true">
         <div className="flex-1 bg-[#FF9933]" />
@@ -383,7 +425,7 @@ export const LandingPage: React.FC = () => {
                   <ArrowRight className="w-4 h-4" />
                 </button>
                 <a
-                  href="#pillars"
+                  href="#about"
                   className="px-6 py-3.5 rounded-xl bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 font-bold text-base shadow-xs flex items-center gap-2 transition-all cursor-pointer"
                 >
                   <BookOpen className="w-4 h-4 text-slate-500" />
@@ -533,8 +575,76 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 5. Four Pillars of Statistical Excellence */}
-      <section id="pillars" className="py-20 bg-white border-b border-slate-200/80">
+      {/* 5. Dedicated "About DAKSHA" Section (Resolves #about Navigation) */}
+      <section id="about" className="py-20 bg-white border-b border-slate-200/80 scroll-mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            {/* Left Narrative */}
+            <div className="lg:col-span-7 space-y-5">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-xs font-extrabold text-blue-900 uppercase tracking-wider">
+                <Building2 className="w-3.5 h-3.5" />
+                <span>{t.aboutTag}</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-950 font-serif leading-tight">
+                {t.aboutTitle}
+              </h2>
+              <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
+                {t.aboutSub}
+              </p>
+              <div className="pt-2 flex flex-wrap gap-4 text-xs font-semibold text-slate-700">
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>Mission Karmayogi (NPCSCB) Compliant</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>Role-Based Capacity Building (FRAC)</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                  <span>Annual APAR Diagnostic Integration</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Metric Cards */}
+            <div className="lg:col-span-5 space-y-4">
+              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start gap-4 shadow-2xs hover:border-blue-300 transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-blue-100 border border-blue-200 text-blue-900 flex items-center justify-center shrink-0">
+                  <Target className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900">{t.aboutStat1}</h4>
+                  <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{t.aboutStat1Sub}</p>
+                </div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start gap-4 shadow-2xs hover:border-indigo-300 transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-indigo-100 border border-indigo-200 text-indigo-900 flex items-center justify-center shrink-0">
+                  <GraduationCap className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900">{t.aboutStat2}</h4>
+                  <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{t.aboutStat2Sub}</p>
+                </div>
+              </div>
+
+              <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-start gap-4 shadow-2xs hover:border-emerald-300 transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-emerald-100 border border-emerald-200 text-emerald-900 flex items-center justify-center shrink-0">
+                  <FileCheck className="w-5 h-5" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-slate-900">{t.aboutStat3}</h4>
+                  <p className="text-xs text-slate-600 mt-0.5 leading-relaxed">{t.aboutStat3Sub}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Four Pillars of Statistical Excellence */}
+      <section id="pillars" className="py-20 bg-slate-50/70 border-b border-slate-200/80 scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
           {/* Section Header */}
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
@@ -552,7 +662,7 @@ export const LandingPage: React.FC = () => {
           {/* 4 Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Pillar 1: Cadre Competency Calibration */}
-            <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-6 hover:shadow-md hover:border-blue-300 transition-all group flex flex-col justify-between">
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-6 hover:shadow-md hover:border-blue-300 transition-all group flex flex-col justify-between">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-xl bg-blue-100 border border-blue-200 text-blue-900 flex items-center justify-center group-hover:scale-105 transition-transform shadow-2xs">
                   <BarChart3 className="w-6 h-6" />
@@ -571,7 +681,7 @@ export const LandingPage: React.FC = () => {
             </div>
 
             {/* Pillar 2: Methodological Mastery */}
-            <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-6 hover:shadow-md hover:border-amber-300 transition-all group flex flex-col justify-between">
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-6 hover:shadow-md hover:border-amber-300 transition-all group flex flex-col justify-between">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-xl bg-amber-100 border border-amber-200 text-amber-900 flex items-center justify-center group-hover:scale-105 transition-transform shadow-2xs">
                   <BookOpen className="w-6 h-6" />
@@ -590,7 +700,7 @@ export const LandingPage: React.FC = () => {
             </div>
 
             {/* Pillar 3: Official Knowledge In-Service Copilot */}
-            <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-6 hover:shadow-md hover:border-indigo-300 transition-all group flex flex-col justify-between">
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-6 hover:shadow-md hover:border-indigo-300 transition-all group flex flex-col justify-between">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-xl bg-indigo-100 border border-indigo-200 text-indigo-900 flex items-center justify-center group-hover:scale-105 transition-transform shadow-2xs">
                   <Sparkles className="w-6 h-6" />
@@ -609,7 +719,7 @@ export const LandingPage: React.FC = () => {
             </div>
 
             {/* Pillar 4: Adaptive Career Pathways */}
-            <div className="bg-slate-50 border border-slate-200/90 rounded-2xl p-6 hover:shadow-md hover:border-emerald-300 transition-all group flex flex-col justify-between">
+            <div className="bg-white border border-slate-200/90 rounded-2xl p-6 hover:shadow-md hover:border-emerald-300 transition-all group flex flex-col justify-between">
               <div className="space-y-4">
                 <div className="w-12 h-12 rounded-xl bg-emerald-100 border border-emerald-200 text-emerald-900 flex items-center justify-center group-hover:scale-105 transition-transform shadow-2xs">
                   <Award className="w-6 h-6" />
@@ -630,8 +740,8 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 6. How It Works (Cadre Learning Lifecycle) */}
-      <section id="lifecycle" className="py-20 bg-slate-50 border-b border-slate-200/80">
+      {/* 7. How It Works (Cadre Learning Lifecycle) */}
+      <section id="lifecycle" className="py-20 bg-white border-b border-slate-200/80 scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
             <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-indigo-50 text-indigo-900 border border-indigo-200 uppercase tracking-wider">
@@ -648,7 +758,7 @@ export const LandingPage: React.FC = () => {
           {/* 3-Step Lifecycle Visual Progression Bar */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
             {/* Step 1 */}
-            <div className="bg-white rounded-2xl p-7 border border-slate-200 shadow-sm relative space-y-4">
+            <div className="bg-slate-50 rounded-2xl p-7 border border-slate-200/80 shadow-sm relative space-y-4 hover:border-blue-300 transition-colors">
               <div className="flex items-center justify-between">
                 <span className="w-10 h-10 rounded-full bg-blue-900 text-white font-extrabold text-sm flex items-center justify-center shadow-xs">
                   01
@@ -672,7 +782,7 @@ export const LandingPage: React.FC = () => {
             </div>
 
             {/* Step 2 */}
-            <div className="bg-white rounded-2xl p-7 border border-slate-200 shadow-sm relative space-y-4">
+            <div className="bg-slate-50 rounded-2xl p-7 border border-slate-200/80 shadow-sm relative space-y-4 hover:border-indigo-300 transition-colors">
               <div className="flex items-center justify-between">
                 <span className="w-10 h-10 rounded-full bg-indigo-800 text-white font-extrabold text-sm flex items-center justify-center shadow-xs">
                   02
@@ -696,7 +806,7 @@ export const LandingPage: React.FC = () => {
             </div>
 
             {/* Step 3 */}
-            <div className="bg-white rounded-2xl p-7 border border-slate-200 shadow-sm relative space-y-4">
+            <div className="bg-slate-50 rounded-2xl p-7 border border-slate-200/80 shadow-sm relative space-y-4 hover:border-emerald-300 transition-colors">
               <div className="flex items-center justify-between">
                 <span className="w-10 h-10 rounded-full bg-emerald-700 text-white font-extrabold text-sm flex items-center justify-center shadow-xs">
                   03
@@ -722,8 +832,8 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 7. Recent Circulars & Official Announcements */}
-      <section id="circulars" className="py-20 bg-white border-b border-slate-200/80">
+      {/* 8. Recent Circulars & Official Announcements */}
+      <section id="circulars" className="py-20 bg-slate-50/70 border-b border-slate-200/80 scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
             <div>
@@ -747,7 +857,7 @@ export const LandingPage: React.FC = () => {
           {/* Circulars List */}
           <div className="space-y-3.5">
             {/* Circular 1 */}
-            <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 hover:border-blue-300 hover:bg-white transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="p-5 rounded-xl bg-white border border-slate-200 hover:border-blue-300 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2 text-xs">
                   <span className="font-mono text-[11px] font-bold text-blue-900 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
@@ -768,7 +878,7 @@ export const LandingPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => alert("Downloading Official Circular MoSPI/TRG/2026/04 (PDF)...")}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-xs shrink-0 cursor-pointer shadow-2xs"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-50 border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold text-xs shrink-0 cursor-pointer shadow-2xs"
               >
                 <Download className="w-3.5 h-3.5 text-slate-500" />
                 <span>Download PDF (480 KB)</span>
@@ -776,7 +886,7 @@ export const LandingPage: React.FC = () => {
             </div>
 
             {/* Circular 2 */}
-            <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 hover:border-blue-300 hover:bg-white transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="p-5 rounded-xl bg-white border border-slate-200 hover:border-blue-300 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2 text-xs">
                   <span className="font-mono text-[11px] font-bold text-blue-900 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
@@ -797,7 +907,7 @@ export const LandingPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => alert("Downloading Official Circular MoSPI/ISS/SYS/88 (PDF)...")}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-xs shrink-0 cursor-pointer shadow-2xs"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-50 border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold text-xs shrink-0 cursor-pointer shadow-2xs"
               >
                 <Download className="w-3.5 h-3.5 text-slate-500" />
                 <span>Download PDF (320 KB)</span>
@@ -805,7 +915,7 @@ export const LandingPage: React.FC = () => {
             </div>
 
             {/* Circular 3 */}
-            <div className="p-5 rounded-xl bg-slate-50 border border-slate-200 hover:border-blue-300 hover:bg-white transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="p-5 rounded-xl bg-white border border-slate-200 hover:border-blue-300 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2 text-xs">
                   <span className="font-mono text-[11px] font-bold text-blue-900 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
@@ -826,7 +936,7 @@ export const LandingPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => alert("Downloading Official Circular MoSPI/FOD/SOP/12 (PDF)...")}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-semibold text-xs shrink-0 cursor-pointer shadow-2xs"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-slate-50 border border-slate-300 hover:bg-slate-100 text-slate-700 font-semibold text-xs shrink-0 cursor-pointer shadow-2xs"
               >
                 <Download className="w-3.5 h-3.5 text-slate-500" />
                 <span>Download PDF (1.2 MB)</span>
@@ -836,8 +946,8 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 8. Call to Action Banner */}
-      <section id="about" className="py-16 bg-gradient-to-br from-blue-950 via-slate-900 to-indigo-950 text-white relative overflow-hidden">
+      {/* 9. Call to Action Banner (ID: portal-access) */}
+      <section id="portal-access" className="py-16 bg-gradient-to-br from-blue-950 via-slate-900 to-indigo-950 text-white relative overflow-hidden">
         <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
         <div className="max-w-5xl mx-auto px-4 sm:px-8 text-center space-y-6 relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-bold text-amber-300">
@@ -863,8 +973,8 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* 9. Official Footer */}
-      <footer id="helpdesk" className="bg-slate-950 text-slate-300 text-xs pt-16 pb-12 border-t border-slate-800">
+      {/* 10. Official Footer */}
+      <footer id="helpdesk" className="bg-slate-950 text-slate-300 text-xs pt-16 pb-12 border-t border-slate-800 scroll-mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-8 space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
             {/* Ministry Branding */}
@@ -897,6 +1007,11 @@ export const LandingPage: React.FC = () => {
                   <button type="button" onClick={() => navigate("/signup")} className="hover:text-white transition-colors cursor-pointer">
                     New Officer Onboarding
                   </button>
+                </li>
+                <li>
+                  <a href="#about" className="hover:text-white transition-colors">
+                    {t.navAbout}
+                  </a>
                 </li>
                 <li>
                   <a href="#pillars" className="hover:text-white transition-colors">
