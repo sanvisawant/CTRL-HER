@@ -68,9 +68,11 @@ This guide provides end-to-end instructions for deploying the **DAKSHA** platfor
 4. In the **Configure Project** screen:
    - **Framework Preset:** Select `Vite`.
    - **Root Directory:** Click **Edit** and choose `frontend` *(Crucial step!)*.
-   - **Build Command:** `npm run build` (Default)
-   - **Output Directory:** `dist` (Default)
-   - **Install Command:** `npm install` (Default)
+   - **Build and Output Settings:** Keep the override toggles **OFF** (or set to defaults):
+     - **Build Command:** `npm run build` (or Vite default)
+     - **Output Directory:** `dist` (Default)
+     - **Install Command:** `npm install` (Default)
+     > ⚠️ **Important:** Do NOT put `cd frontend` in the Build Command because Root Directory is already set to `frontend`.
 5. Expand the **Environment Variables** section:
    - **Key:** `VITE_API_BASE_URL`
    - **Value:** `https://daksha-backend.onrender.com` *(Paste your Render backend URL without a trailing slash)*
