@@ -184,31 +184,38 @@ export const AssessmentView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4 animate-fade-in pb-32">
-      {/* Header Banner (Compact & Dignified) */}
-      <div className="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 rounded-xl p-4 sm:p-5 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 border border-blue-800/40">
+    <div className="space-y-6 animate-fade-in pb-32">
+      {/* Light, Spacious LMS Hero Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-1">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-blue-800/50 border border-blue-400/30 text-blue-200 text-[11px] font-semibold">
-            <Target className="w-3.5 h-3.5 text-blue-300" />
-            <span>{t("assessment.badge", "P2 Continuous Evaluation Engine")}</span>
+          <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+            <Link to="/dashboard" className="hover:text-indigo-600 transition-colors">Dashboard</Link>
+            <span>/</span>
+            <span className="text-slate-800 font-semibold">Quizzes & Assessments</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight">
-            {t("assessment.title", "Adaptive Competency Quizzes & APAR Knowledge Checks")}
-          </h1>
-          <p className="text-slate-300 text-xs max-w-2xl leading-relaxed">
-            {t("assessment.subtitle", "Official in-service competency assessment generated from verified MoSPI knowledge manuals.")}
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+              Quizzes & APAR Knowledge Checks
+            </h1>
+            <span className="bg-indigo-50 text-indigo-700 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-indigo-200/60 inline-flex items-center gap-1.5 shadow-2xs">
+              <Target className="w-3.5 h-3.5 text-indigo-600" />
+              P2 Diagnostic Engine
+            </span>
+          </div>
+          <p className="text-xs text-slate-500 font-medium max-w-2xl">
+            Adaptive in-service competency assessments grounded in verified MoSPI statistical documentation.
           </p>
         </div>
+
         {activeQuiz && !quizResult && (
-          <Button
-            variant="outlineInvert"
-            size="sm"
+          <button
+            type="button"
             onClick={resetQuiz}
-            leftIcon={<RotateCcw className="w-3.5 h-3.5" />}
-            className="shrink-0"
+            className="bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs px-3.5 py-2 rounded-xl border border-slate-200 shadow-2xs flex items-center gap-2 transition-colors cursor-pointer shrink-0"
           >
-            {t("common.cancel", "Cancel Quiz")}
-          </Button>
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Cancel Assessment</span>
+          </button>
         )}
       </div>
 
@@ -223,26 +230,27 @@ export const AssessmentView: React.FC = () => {
 
       {/* VIEW 1: Quiz Config / Start Screen */}
       {!activeQuiz && !quizResult && (
-        <Card>
-          <CardHeader>
-            <div>
-              <CardTitle className="text-sm">{t("assessment.generate_quiz", "Generate AI Assessment")}</CardTitle>
-              <CardDescription>
-                Select reference publication, question volume, and operational difficulty to generate verified questions.
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardBody className="space-y-5">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-6">
+          <div className="pb-3 border-b border-slate-100">
+            <h2 className="text-base font-bold text-slate-900">
+              Configure Your Assessment
+            </h2>
+            <p className="text-xs text-slate-500">
+              Select reference publication, question volume, and operational difficulty to generate verified questions.
+            </p>
+          </div>
+
+          <div className="space-y-5">
             {/* Target Skill Input & Quick Selection */}
-            <div className="p-3.5 bg-gradient-to-r from-blue-50 to-indigo-50/60 border border-blue-200/80 rounded-xl space-y-2.5 shadow-2xs">
+            <div className="p-4 bg-gradient-to-r from-indigo-50/70 via-blue-50/50 to-slate-50 border border-indigo-100 rounded-2xl space-y-3">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                <div className="flex items-center gap-1.5">
-                  <Target className="w-4 h-4 text-blue-900 shrink-0" />
+                <div className="flex items-center gap-2">
+                  <Target className="w-4 h-4 text-indigo-600 shrink-0" />
                   <span className="text-xs font-bold text-slate-900">
                     Skill Being Evaluated (Diagnostic Target)
                   </span>
                   {targetSkill && (
-                    <span className="text-[10px] font-semibold bg-blue-900 text-white px-2 py-0.5 rounded-full">
+                    <span className="text-[10px] font-semibold bg-indigo-600 text-white px-2 py-0.5 rounded-full">
                       Active
                     </span>
                   )}
@@ -251,7 +259,7 @@ export const AssessmentView: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setTargetSkill("")}
-                    className="text-[11px] text-slate-500 hover:text-slate-800 self-start sm:self-auto font-medium"
+                    className="text-[11px] text-slate-500 hover:text-slate-800 font-medium cursor-pointer"
                   >
                     Clear Filter
                   </button>
@@ -265,14 +273,14 @@ export const AssessmentView: React.FC = () => {
                   value={targetSkill}
                   onChange={(e) => setTargetSkill(e.target.value)}
                   placeholder="Enter skill to test (e.g. Survey Sampling, Data Quality, Python)..."
-                  className="w-full text-xs px-3 py-2 bg-white border border-slate-300 rounded-lg text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-900 focus:outline-none"
+                  className="w-full text-xs px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-indigo-600 focus:outline-none transition-all"
                 />
               </div>
 
               {/* Declared Skills from Registration */}
               {user?.declaredSkills && user.declaredSkills.length > 0 && (
-                <div className="space-y-1 pt-1">
-                  <span className="text-[11px] font-semibold text-slate-600 block">
+                <div className="space-y-1.5 pt-1">
+                  <span className="text-[11px] font-semibold text-slate-500 block">
                     Your Declared Registration Skills (Click to target for test):
                   </span>
                   <div className="flex flex-wrap gap-1.5">
@@ -283,10 +291,10 @@ export const AssessmentView: React.FC = () => {
                           key={skill}
                           type="button"
                           onClick={() => setTargetSkill(skill)}
-                          className={`text-xs px-2.5 py-1 rounded-md font-medium transition-all cursor-pointer ${
+                          className={`text-xs px-3 py-1.5 rounded-xl font-medium transition-all duration-150 cursor-pointer ${
                             isTarget
-                              ? "bg-blue-900 text-white shadow-2xs ring-1 ring-blue-900"
-                              : "bg-white text-slate-700 border border-slate-200 hover:bg-blue-50 hover:border-blue-300"
+                              ? "bg-indigo-600 text-white shadow-2xs font-bold ring-2 ring-indigo-200"
+                              : "bg-white text-slate-700 border border-slate-200 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-300"
                           }`}
                         >
                           {isTarget ? "🎯 " : ""}{skill}
@@ -298,147 +306,170 @@ export const AssessmentView: React.FC = () => {
               )}
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {/* Document Selection with downward opening menu */}
-              <div className="space-y-1.5 relative" ref={docDropdownRef}>
-                <label className="text-xs font-bold text-slate-700">{t("assessment.select_document", "Source Manual / Guideline")}</label>
-                <button
-                  type="button"
-                  disabled={docsLoading || documents.length === 0}
-                  onClick={() => setDocDropdownOpen((prev) => !prev)}
-                  className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-900 disabled:opacity-60 flex items-center justify-between text-left cursor-pointer hover:bg-slate-100/70 transition-colors"
-                  aria-haspopup="listbox"
-                  aria-expanded={docDropdownOpen}
-                >
-                  <span className="truncate mr-2 font-medium">
-                    {docsLoading
-                      ? t("common.loading", "Loading MoSPI publications...")
-                      : documents.find((d) => d.document_id === selectedDocId)?.filename ||
-                      (documents.length > 0 ? "Select reference publication..." : "No reference publications found")}
-                  </span>
-                  <ChevronDown
-                    className={`w-4 h-4 text-slate-500 shrink-0 transition-transform duration-200 ${docDropdownOpen ? "rotate-180" : ""
-                      }`}
-                  />
-                </button>
+            {/* Document Selection */}
+            <div className="space-y-1.5 relative" ref={docDropdownRef}>
+              <label className="text-xs font-bold text-slate-700">Source Manual / Guideline</label>
+              <button
+                type="button"
+                disabled={docsLoading || documents.length === 0}
+                onClick={() => setDocDropdownOpen((prev) => !prev)}
+                className="w-full text-xs p-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-600 disabled:opacity-60 flex items-center justify-between text-left cursor-pointer hover:bg-slate-100/80 transition-colors"
+                aria-haspopup="listbox"
+                aria-expanded={docDropdownOpen}
+              >
+                <span className="truncate mr-2 font-medium">
+                  {docsLoading
+                    ? "Loading MoSPI publications..."
+                    : documents.find((d) => d.document_id === selectedDocId)?.filename ||
+                    (documents.length > 0 ? "Select reference publication..." : "No reference publications found")}
+                </span>
+                <ChevronDown
+                  className={`w-4 h-4 text-slate-500 shrink-0 transition-transform duration-200 ${docDropdownOpen ? "rotate-180" : ""}`}
+                />
+              </button>
 
-                {/* Downward opening dropdown menu */}
-                {docDropdownOpen && (
-                  <div
-                    className="absolute top-full left-0 right-0 mt-1.5 z-50 bg-white border border-slate-200 rounded-lg shadow-xl overflow-hidden animate-fade-in"
-                  >
-                    {documents.length > 5 && (
-                      <div className="p-2 border-b border-slate-100 bg-slate-50/80 sticky top-0 z-10">
-                        <div className="relative">
-                          <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
-                          <input
-                            type="text"
-                            value={docSearchQuery}
-                            onChange={(e) => setDocSearchQuery(e.target.value)}
-                            placeholder="Filter documents..."
-                            className="w-full text-xs pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-md text-slate-800 focus:outline-none focus:ring-1 focus:ring-blue-900"
-                            autoFocus
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        </div>
+              {/* Downward opening dropdown menu */}
+              {docDropdownOpen && (
+                <div
+                  className="absolute top-full left-0 right-0 mt-1.5 z-50 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden animate-fade-in"
+                >
+                  {documents.length > 5 && (
+                    <div className="p-2 border-b border-slate-100 bg-slate-50 sticky top-0 z-10">
+                      <div className="relative">
+                        <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400" />
+                        <input
+                          type="text"
+                          value={docSearchQuery}
+                          onChange={(e) => setDocSearchQuery(e.target.value)}
+                          placeholder="Filter documents..."
+                          className="w-full text-xs pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-600"
+                          autoFocus
+                          onClick={(e) => e.stopPropagation()}
+                        />
                       </div>
-                    )}
-
-                    <div className="max-h-60 overflow-y-auto divide-y divide-slate-100">
-                      {documents
-                        .filter((doc) =>
-                          doc.filename.toLowerCase().includes(docSearchQuery.toLowerCase())
-                        )
-                        .map((doc) => {
-                          const isSelected = doc.document_id === selectedDocId;
-                          return (
-                            <div
-                              key={doc.document_id}
-                              onClick={() => {
-                                setSelectedDocId(doc.document_id);
-                                setDocDropdownOpen(false);
-                                setDocSearchQuery("");
-                              }}
-                              className={`px-3 py-2 text-xs flex items-center justify-between cursor-pointer transition-colors ${isSelected
-                                  ? "bg-blue-50 text-blue-950 font-bold"
-                                  : "text-slate-700 hover:bg-slate-50 hover:text-slate-950"
-                                }`}
-                              title={doc.filename}
-                            >
-                              <span className="truncate mr-2">{doc.filename}</span>
-                              {isSelected && (
-                                <CheckCircle2 className="w-3.5 h-3.5 text-blue-900 shrink-0" />
-                              )}
-                            </div>
-                          );
-                        })}
-                      {documents.filter((doc) =>
-                        doc.filename.toLowerCase().includes(docSearchQuery.toLowerCase())
-                      ).length === 0 && (
-                          <div className="px-3 py-3 text-xs text-slate-400 text-center">
-                            No matching publications found
-                          </div>
-                        )}
                     </div>
+                  )}
+
+                  <div className="max-h-60 overflow-y-auto divide-y divide-slate-100">
+                    {documents
+                      .filter((doc) =>
+                        doc.filename.toLowerCase().includes(docSearchQuery.toLowerCase())
+                      )
+                      .map((doc) => {
+                        const isSelected = doc.document_id === selectedDocId;
+                        return (
+                          <div
+                            key={doc.document_id}
+                            onClick={() => {
+                              setSelectedDocId(doc.document_id);
+                              setDocDropdownOpen(false);
+                              setDocSearchQuery("");
+                            }}
+                            className={`px-3 py-2.5 text-xs flex items-center justify-between cursor-pointer transition-colors ${isSelected
+                                ? "bg-indigo-50 text-indigo-900 font-bold"
+                                : "text-slate-700 hover:bg-slate-50"
+                              }`}
+                            title={doc.filename}
+                          >
+                            <span className="truncate mr-2">{doc.filename}</span>
+                            {isSelected && (
+                              <CheckCircle2 className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                            )}
+                          </div>
+                        );
+                      })}
                   </div>
-                )}
+                </div>
+              )}
+            </div>
+
+            {/* Step-by-Step Selectable Pills Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
+              {/* Question Count Selectable Pills */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-700 block">Question Volume</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { count: 3, label: "3 Micro-Checks", desc: "Quick ~3m" },
+                    { count: 5, label: "5 Questions", desc: "Standard ~5m" },
+                    { count: 10, label: "10 Mastery", desc: "In-depth ~10m" },
+                  ].map((item) => {
+                    const isSelected = questionCount === item.count;
+                    return (
+                      <button
+                        key={item.count}
+                        type="button"
+                        onClick={() => setQuestionCount(item.count)}
+                        className={`p-3 rounded-xl border text-center transition-all duration-200 cursor-pointer ${
+                          isSelected
+                            ? "bg-indigo-50 border-indigo-400 text-indigo-700 font-bold shadow-2xs ring-2 ring-indigo-200"
+                            : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-white hover:border-slate-300"
+                        }`}
+                      >
+                        <div className="text-xs font-bold">{item.label}</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">{item.desc}</div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
-              {/* Question Count */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700">{t("assessment.num_questions", "Number of Questions")}</label>
-                <select
-                  value={questionCount}
-                  onChange={(e) => setQuestionCount(Number(e.target.value))}
-                  className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-900"
-                >
-                  <option value={3}>3 Questions (Micro-Check)</option>
-                  <option value={5}>5 Questions (Standard Diagnostic)</option>
-                  <option value={10}>10 Questions (Comprehensive APAR)</option>
-                </select>
-              </div>
-
-              {/* Difficulty */}
-              <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-700">{t("assessment.difficulty", "Difficulty Level")}</label>
-                <select
-                  value={difficulty}
-                  onChange={(e) => setDifficulty(e.target.value as "easy" | "medium" | "hard")}
-                  className="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-900"
-                >
-                  <option value="easy">{t("assessment.easy", "Foundational")} (Easy)</option>
-                  <option value="medium">{t("assessment.medium", "Intermediate")} (Medium)</option>
-                  <option value="hard">{t("assessment.hard", "Advanced / Expert")} (Hard)</option>
-                </select>
+              {/* Color-Coded Difficulty Selectable Pills */}
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-slate-700 block">Difficulty Level</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { key: "easy" as const, label: "Beginner", color: "border-emerald-300 text-emerald-700 bg-emerald-50 ring-2 ring-emerald-200", tag: "Foundational" },
+                    { key: "medium" as const, label: "Intermediate", color: "border-blue-300 text-blue-700 bg-blue-50 ring-2 ring-blue-200", tag: "Operational" },
+                    { key: "hard" as const, label: "Advanced", color: "border-purple-300 text-purple-700 bg-purple-50 ring-2 ring-purple-200", tag: "Expert" },
+                  ].map((item) => {
+                    const isSelected = difficulty === item.key;
+                    return (
+                      <button
+                        key={item.key}
+                        type="button"
+                        onClick={() => setDifficulty(item.key)}
+                        className={`p-3 rounded-xl border text-center transition-all duration-200 cursor-pointer ${
+                          isSelected
+                            ? `${item.color} font-bold shadow-2xs`
+                            : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-white hover:border-slate-300"
+                        }`}
+                      >
+                        <div className="text-xs font-bold">{item.label}</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">{item.tag}</div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
             {!docsLoading && documents.length === 0 && (
               <EmptyState
-                icon={<FolderArchive className="w-6 h-6 text-blue-900" />}
-                title={t("assessment.no_active_quiz", "No Assessment Documents Available")}
-                description={t("assessment.no_active_quiz_desc", "The assessment engine requires indexed training manuals or operational handbooks to formulate grounded MCQs. Please upload survey manuals in the Learning Repository.")}
+                icon={<FolderArchive className="w-6 h-6 text-indigo-600" />}
+                title="No Assessment Documents Available"
+                description="The assessment engine requires indexed training manuals or operational handbooks to formulate grounded MCQs. Please upload survey manuals in the Learning Repository."
               />
             )}
 
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-              <div className="text-xs text-slate-500 flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-amber-500" />
-                <span>Pass mark is 60%. Successful attempts award gamified XP and update your official digital twin.</span>
+            {/* Launch Action Bar */}
+            <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="text-xs text-slate-500 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
+                <span>Pass mark is 60%. Successful attempts award gamified XP and update your official competency digital twin.</span>
               </div>
-              <Button
-                variant="saffron"
-                size="md"
+              <button
+                type="button"
                 onClick={handleStartQuiz}
-                isLoading={loading}
                 disabled={loading || documents.length === 0}
-                leftIcon={<Target className="w-4 h-4" />}
+                className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
-                {loading ? t("common.loading", "Generating Safe Questions...") : t("assessment.start_quiz", "Start Assessment")}
-              </Button>
+                <Target className="w-4 h-4 text-amber-300" />
+                <span>{loading ? "Generating Safe Questions..." : "Start Assessment 🚀"}</span>
+              </button>
             </div>
-          </CardBody>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* VIEW 2: Active Quiz Questions */}

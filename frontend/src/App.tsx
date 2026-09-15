@@ -1,26 +1,28 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Link, useNavigate } from "react-router-dom";
 import "./i18n/config";
 import { useTranslation } from "react-i18next";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { AppLayout } from "./components/layout/AppLayout";
 import { Login } from "./features/auth/Login";
 import { Signup } from "./features/auth/Signup";
-import { Card, CardHeader, CardTitle, CardDescription, CardBody } from "./components/common/Card";
-import { Button } from "./components/common/Button";
 import {
-  Award,
-  BookOpen,
-  TrendingUp,
-  Target,
   Sparkles,
-  ArrowRight,
-  ShieldCheck,
-  CheckCircle2,
-  Clock,
+  TrendingUp,
+  GraduationCap,
   BarChart3,
-  Bot,
+  ShieldCheck,
+  FileCheck,
+  FileEdit,
+  Clock,
+  HelpCircle,
+  Play,
+  ArrowRight,
+  ArrowUpRight,
+  ArrowUp,
+  Info,
   AlertTriangle,
+  PlusCircle,
 } from "lucide-react";
 
 // Real Unified Feature Views
@@ -45,9 +47,10 @@ import {
   type QuestHomeData,
 } from "./services/api";
 
-// Official Government Learner Dashboard View connected to Real Backend
+// Modern SaaS Government Learner Dashboard View matching Reference Design
 const DashboardView = () => {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const cadreId = user?.cadreId || "ISS-2024-8921";
 
@@ -55,6 +58,7 @@ const DashboardView = () => {
   const [questData, setQuestData] = useState<QuestHomeData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [copilotQuery, setCopilotQuery] = useState<string>("");
 
   const fetchDashboardState = async () => {
     try {
@@ -86,50 +90,74 @@ const DashboardView = () => {
   }, [cadreId]);
 
   const officerName =
-    user?.fullName && (user.fullName.toLowerCase().includes("sanvi") || user.fullName.toLowerCase().includes("siya") || user.fullName.toLowerCase().includes("keiyona"))
-      ? (i18n.language === "hi" ? "सान्वी सावंत" : i18n.language === "mr" ? "सान्वी सावंत" : user.fullName)
+    user?.fullName &&
+    (user.fullName.toLowerCase().includes("sanvi") ||
+      user.fullName.toLowerCase().includes("siya") ||
+      user.fullName.toLowerCase().includes("keiyona"))
+      ? i18n.language === "hi"
+        ? "सान्वी सावंत"
+        : i18n.language === "mr"
+        ? "सान्वी सावंत"
+        : user.fullName
       : user?.fullName || "Sanvi Sawant";
 
   const officerDesignation = user?.designation || "Senior Statistical Officer (ISS)";
 
-  // Derived real data
-  const totalGaps = flowData?.total_competency_gaps ?? 33;
+  // Derived metrics
   const recommendations = flowData?.recommendations || [];
-  const level = questData?.level || 7;
+  const level = questData?.level || 4;
   const xp = questData?.xp || 720;
 
+  const handleCopilotSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (copilotQuery.trim()) {
+      navigate("/ai-assistant", { state: { query: copilotQuery.trim() } });
+    }
+  };
+
+  const handlePromptChipClick = (prompt: string) => {
+    navigate("/ai-assistant", { state: { query: prompt } });
+  };
+
   return (
-    <div className="space-y-5 animate-fade-in">
-      {/* Officer Welcome & Authority Hero Banner (Compact & Commanding) */}
-      <div className="bg-gradient-to-r from-blue-900 via-blue-950 to-slate-900 rounded-xl p-4 sm:p-6 text-white shadow-sm relative overflow-hidden border border-blue-800/40">
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="space-y-1.5">
-            <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-400/30 text-amber-300 text-[11px] font-semibold">
-              <Sparkles className="w-3 h-3 text-amber-400" />
-              <span>{t("dashboard.hero_tag")}</span>
-            </div>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight">
-              {t("dashboard.welcome_title", { name: officerName })}
+    <div className="space-y-6 animate-fade-in">
+      {/* Dashboard Header: Modern Title & Direct CTAs */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-1">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+              Welcome back, {officerName.split(" ")[0]}
             </h1>
-            <p className="text-slate-300 text-xs max-w-2xl leading-relaxed">
-              {t("dashboard.welcome_subtitle", {
-                designation: officerDesignation,
-                cadreId: user?.cadreId || "8921",
-              })}
-            </p>
+            <span className="bg-blue-50 text-blue-700 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-blue-200/60 inline-flex items-center gap-1.5 shadow-2xs">
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+              MoSPI Official Cadre
+            </span>
           </div>
-          <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-            <Link to="/assessment">
-              <Button variant="saffron" size="sm" leftIcon={<Target className="w-3.5 h-3.5" />}>
-                {t("dashboard.gap_diagnostic_btn")}
-              </Button>
-            </Link>
-            <Link to="/ai-assistant">
-              <Button variant="secondary" size="sm" leftIcon={<Bot className="w-3.5 h-3.5" />}>
-                {t("dashboard.consult_bot_btn")}
-              </Button>
-            </Link>
-          </div>
+          <p className="text-xs text-slate-500 font-medium">
+            {officerDesignation} • Field Operations Division, Central Cadre
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3 shrink-0">
+          <Link to="/assessment">
+            <button
+              type="button"
+              className="bg-white hover:bg-slate-50 text-slate-800 font-bold text-xs px-4 py-2.5 rounded-xl border border-slate-200 shadow-2xs flex items-center gap-2 transition-all hover:-translate-y-0.5 cursor-pointer"
+            >
+              <FileEdit className="w-3.5 h-3.5 text-slate-600" />
+              <span>Start Diagnostic</span>
+            </button>
+          </Link>
+
+          <Link to="/ai-assistant">
+            <button
+              type="button"
+              className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 active:scale-95 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-md shadow-indigo-500/20 flex items-center gap-2 transition-all hover:-translate-y-0.5 cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              <span>Consult DakshaAI</span>
+            </button>
+          </Link>
         </div>
       </div>
 
@@ -141,290 +169,548 @@ const DashboardView = () => {
         />
       )}
 
-      {/* KPI Stats Grid & Main Content */}
       {loading ? (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[1, 2, 3, 4].map((n) => (
               <MetricSkeleton key={n} />
             ))}
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <CardSkeleton lines={4} />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <div className="lg:col-span-8">
+              <CardSkeleton lines={5} />
             </div>
-            <div>
-              <CardSkeleton lines={3} />
+            <div className="lg:col-span-4">
+              <CardSkeleton lines={4} />
             </div>
           </div>
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-            {/* KPI 1: Competency Score */}
-            <Card variant="accent" className="hover:shadow-md transition-shadow">
-              <CardBody className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                      {t("dashboard.kpi_competency_score")}
-                    </p>
-                    <h3 className="text-2xl font-black text-slate-900 mt-0.5">
-                      3.4 <span className="text-xs font-medium text-slate-400">/ 5.0</span>
-                    </h3>
+          {/* Top Metrics Row (4-Column KPI Strip with Distinct EdTech Palettes) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* KPI 1: Overall Competency Score (Emerald Accent) */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex flex-col justify-between hover:shadow-sm transition-all hover:-translate-y-0.5">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500">
+                    <span>Overall Competency Score</span>
+                    <Info className="w-3.5 h-3.5 text-slate-400 cursor-help" />
                   </div>
-                  <div className="p-2.5 bg-blue-50 text-blue-900 rounded-lg">
-                    <Award className="w-5 h-5" />
+                  <div className="mt-2 text-3xl font-black text-slate-900 tracking-tight">
+                    3.4 <span className="text-sm font-normal text-slate-400">/ 5.0</span>
                   </div>
                 </div>
-                <div className="mt-2.5 flex items-center gap-1.5 text-xs text-emerald-700 font-medium">
-                  <TrendingUp className="w-3.5 h-3.5 shrink-0" />
-                  <span>{totalGaps} FRAC Competency Gaps</span>
-                </div>
-              </CardBody>
-            </Card>
 
-        {/* KPI 2: Active Pathways */}
-        <Card variant="default" className="hover:shadow-md transition-shadow">
-          <CardBody className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                  {t("dashboard.kpi_active_pathways")}
-                </p>
-                <h3 className="text-2xl font-black text-slate-900 mt-0.5">
-                  {recommendations.length > 0 ? recommendations.length : 3}
-                </h3>
-              </div>
-              <div className="p-2.5 bg-teal-50 text-teal-700 rounded-lg">
-                <BookOpen className="w-5 h-5" />
-              </div>
-            </div>
-            <div className="mt-2.5 flex items-center gap-1.5 text-xs text-slate-500 font-medium">
-              <Clock className="w-3.5 h-3.5 shrink-0 text-teal-600" />
-              <span>iGOT Adaptive Curriculum</span>
-            </div>
-          </CardBody>
-        </Card>
-
-        {/* KPI 3: Cadre Rank & Level */}
-        <Card variant="default" className="hover:shadow-md transition-shadow">
-          <CardBody className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                  {t("quest.rank_level", "Cadre Rank & Level")}
-                </p>
-                <h3 className="text-2xl font-black text-slate-900 mt-0.5">
-                  Lvl {level} <span className="text-xs font-normal text-slate-400">({xp} XP)</span>
-                </h3>
-              </div>
-              <div className="p-2.5 bg-amber-50 text-amber-700 rounded-lg">
-                <Sparkles className="w-5 h-5" />
-              </div>
-            </div>
-            <div className="mt-2.5 flex items-center gap-1.5 text-xs text-amber-700 font-medium">
-              <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-amber-600" />
-              <span>Ranked Top 12% in Cadre</span>
-            </div>
-          </CardBody>
-        </Card>
-
-        {/* KPI 4: APAR Readiness */}
-        <Card variant="default" className="hover:shadow-md transition-shadow">
-          <CardBody className="p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                  {t("dashboard.kpi_cadre_rank")}
-                </p>
-                <h3 className="text-2xl font-black text-blue-900 mt-0.5">
-                  {t("dashboard.kpi_cadre_rank_val")}
-                </h3>
-              </div>
-              <div className="p-2.5 bg-indigo-50 text-indigo-700 rounded-lg">
-                <BarChart3 className="w-5 h-5" />
-              </div>
-            </div>
-            <div className="mt-2.5 flex items-center gap-1.5 text-xs text-blue-900 font-semibold">
-              <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-blue-700" />
-              <span>{t("dashboard.kpi_cadre_rank_sub")}</span>
-            </div>
-          </CardBody>
-        </Card>
-      </div>
-
-      {/* Main Grid: Assigned Pathways & Pending Assessments */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left 2 Cols: Assigned FRAC Pathways */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <div>
-                <CardTitle className="text-sm">{t("dashboard.assigned_pathways_title", "Personalized FRAC Training Pathways")}</CardTitle>
-                <CardDescription>
-                  {t("dashboard.assigned_pathways_subtitle", "Dynamically mapped from your P1 competency gaps to the national iGOT catalog")}
-                </CardDescription>
-              </div>
-              <Link to="/igot-learning" className="text-xs text-blue-900 font-semibold hover:underline flex items-center gap-1">
-                {t("dashboard.view_all")} <ArrowRight className="w-3 h-3" />
-              </Link>
-            </CardHeader>
-            <CardBody className="space-y-4">
-              {recommendations.length > 0 ? (
-                recommendations.slice(0, 3).map((rec, idx) => (
-                  <div
-                    key={rec.course_id || idx}
-                    className="p-4 border border-slate-200 rounded-xl hover:border-blue-900/40 transition-colors bg-white"
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-blue-100 text-blue-900">
-                            {rec.provider || "iGOT Karmayogi"}
-                          </span>
-                          <span className="text-xs text-slate-500">
-                            Matches: {rec.matched_competencies?.join(", ") || "Statistical Competency"}
-                          </span>
-                        </div>
-                        <h4 className="font-semibold text-slate-900 text-sm">
-                          {rec.title}
-                        </h4>
-                      </div>
-                      <span className="text-xs font-bold text-blue-900 shrink-0">
-                        {rec.match_percentage.toFixed(0)}% Fit
-                      </span>
-                    </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2 mt-3 overflow-hidden">
-                      <div className="bg-blue-900 h-2 rounded-full" style={{ width: `${Math.max(25, rec.match_percentage)}%` }} />
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <>
-                  {/* Default Pathways */}
-                  <div className="p-4 border border-slate-200 rounded-xl hover:border-blue-900/40 transition-colors bg-white">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-blue-100 text-blue-900">
-                            {t("dashboard.pathway1_badge")}
-                          </span>
-                          <span className="text-xs text-slate-500">
-                            {t("dashboard.pathway1_meta")}
-                          </span>
-                        </div>
-                        <h4 className="font-semibold text-slate-900 text-sm">
-                          {t("dashboard.pathway1_title")}
-                        </h4>
-                      </div>
-                      <span className="text-xs font-bold text-blue-900 shrink-0">
-                        75% Progress
-                      </span>
-                    </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2 mt-3 overflow-hidden">
-                      <div className="bg-blue-900 h-2 rounded-full" style={{ width: "75%" }} />
-                    </div>
-                  </div>
-
-                  <div className="p-4 border border-slate-200 rounded-xl hover:border-blue-900/40 transition-colors bg-white">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-teal-100 text-teal-900">
-                            {t("dashboard.pathway2_badge")}
-                          </span>
-                          <span className="text-xs text-slate-500">
-                            {t("dashboard.pathway2_meta")}
-                          </span>
-                        </div>
-                        <h4 className="font-semibold text-slate-900 text-sm">
-                          {t("dashboard.pathway2_title")}
-                        </h4>
-                      </div>
-                      <span className="text-xs font-bold text-teal-700 shrink-0">
-                        40% Progress
-                      </span>
-                    </div>
-                    <div className="w-full bg-slate-100 rounded-full h-2 mt-3 overflow-hidden">
-                      <div className="bg-teal-700 h-2 rounded-full" style={{ width: "40%" }} />
-                    </div>
-                  </div>
-                </>
-              )}
-            </CardBody>
-          </Card>
-        </div>
-
-        {/* Right 1 Col: Pending Assessments Card */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div>
-                <CardTitle className="text-sm">{t("dashboard.pending_assessments_title")}</CardTitle>
-                <CardDescription>{t("dashboard.pending_assessments_subtitle")}</CardDescription>
-              </div>
-            </CardHeader>
-            <CardBody className="space-y-3">
-              {/* Test 1 */}
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase text-red-800 bg-red-100 px-1.5 py-0.5 rounded">
-                    High Priority
-                  </span>
-                  <span className="text-xs font-medium text-slate-500">
-                    5 MCQs • 10 mins
+                {/* Circular SVG Progress Ring (68%) */}
+                <div className="relative w-12 h-12 flex items-center justify-center shrink-0">
+                  <svg className="w-12 h-12 -rotate-90" viewBox="0 0 44 44">
+                    <circle
+                      cx="22"
+                      cy="22"
+                      r="18"
+                      className="stroke-slate-100"
+                      strokeWidth="3.5"
+                      fill="none"
+                    />
+                    <circle
+                      cx="22"
+                      cy="22"
+                      r="18"
+                      className="stroke-emerald-500 transition-all duration-1000"
+                      strokeWidth="3.5"
+                      strokeDasharray="113.1"
+                      strokeDashoffset="36.2"
+                      strokeLinecap="round"
+                      fill="none"
+                    />
+                  </svg>
+                  <span className="absolute text-[11px] font-black text-slate-800">
+                    68%
                   </span>
                 </div>
-                <h5 className="text-xs font-bold text-slate-900 mt-1.5 leading-snug">
-                  Sampling Design & Non-Sampling Error Diagnostic
-                </h5>
-                <Link to="/assessment" className="inline-block mt-2">
-                  <Button variant="danger" size="sm">
-                    {t("dashboard.start_test")}
-                  </Button>
-                </Link>
               </div>
 
-              {/* Test 2 */}
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase text-slate-700 bg-slate-200 px-1.5 py-0.5 rounded">
-                    Recommended
-                  </span>
-                  <span className="text-xs font-medium text-slate-500">
-                    3 MCQs • 5 mins
-                  </span>
-                </div>
-                <h5 className="text-xs font-bold text-slate-900 mt-1.5 leading-snug">
-                  National Accounts & GDP Compilation Concepts
-                </h5>
-                <Link to="/assessment" className="inline-block mt-2">
-                  <Button variant="outline" size="sm">
-                    {t("dashboard.review_syllabus")}
-                  </Button>
-                </Link>
+              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 font-bold px-2 py-0.5 rounded-md border border-emerald-200/60 text-[11px]">
+                  <TrendingUp className="w-3 h-3 text-emerald-600" />
+                  +0.4 this quarter
+                </span>
+                <span className="text-slate-400 font-medium">
+                  Target: 4.0 Standard
+                </span>
               </div>
-            </CardBody>
-          </Card>
-
-          {/* Institutional Compliance Card */}
-          <div className="p-4 rounded-xl bg-blue-900 text-white space-y-2">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-amber-400 shrink-0" />
-              <h4 className="text-xs font-bold">{t("dashboard.apar_title")}</h4>
             </div>
-            <p className="text-xs text-slate-300 leading-relaxed">
-              {t("dashboard.apar_desc")}
-            </p>
+
+            {/* KPI 2: Active Pathways (Violet Accent) */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex flex-col justify-between hover:shadow-sm transition-all hover:-translate-y-0.5">
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-slate-500">
+                    Active Pathways
+                  </span>
+                  <div className="mt-2 text-3xl font-black text-slate-900 tracking-tight flex items-baseline">
+                    {recommendations.length > 0 ? recommendations.length : 1} <span className="text-sm font-normal text-slate-500 ml-1.5">Enrolled</span>
+                  </div>
+                </div>
+                <div className="w-11 h-11 rounded-2xl bg-violet-50 text-violet-600 border border-violet-100 flex items-center justify-center shrink-0">
+                  <GraduationCap className="w-5 h-5" />
+                </div>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-2 text-xs">
+                <span className="w-2 h-2 rounded-full bg-violet-600 shrink-0" />
+                <span className="font-semibold text-slate-700">Sampling Specialist</span>
+                <span className="font-mono text-violet-700 font-bold text-[11px]">On Track</span>
+              </div>
+            </div>
+
+            {/* KPI 3: Cadre Progression (Indigo/Blue Accent) */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex flex-col justify-between hover:shadow-sm transition-all hover:-translate-y-0.5">
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-slate-500">
+                    Cadre Progression
+                  </span>
+                  <div className="mt-2 text-2xl font-black text-slate-900 tracking-tight">
+                    Level {level} Officer
+                  </div>
+                </div>
+                <span className="bg-indigo-100 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-lg">
+                  Rank #14
+                </span>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-slate-100 space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-slate-600">{xp} / 1,000 XP</span>
+                  <span className="text-indigo-600 font-bold text-[11px]">Tier L5 Next</span>
+                </div>
+                <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                  <div className="bg-indigo-600 h-2 rounded-full w-[72%] transition-all duration-500" />
+                </div>
+              </div>
+            </div>
+
+            {/* KPI 4: Benchmark Percentile (Amber Accent) */}
+            <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex flex-col justify-between hover:shadow-sm transition-all hover:-translate-y-0.5">
+              <div className="flex items-start justify-between">
+                <div>
+                  <span className="text-xs font-semibold text-slate-500">
+                    Benchmark Percentile
+                  </span>
+                  <div className="mt-2 text-3xl font-extrabold text-amber-600 tracking-tight">
+                    Top 12%
+                  </div>
+                </div>
+                <div className="w-11 h-11 rounded-2xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center shrink-0">
+                  <BarChart3 className="w-5 h-5" />
+                </div>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-slate-100 flex items-center gap-1.5 text-xs text-slate-600 font-medium">
+                <ShieldCheck className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <span className="truncate">Outperforming FOD cadre baseline</span>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      </>
-    )}
+
+          {/* Main Body: 2-Column Responsive Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Left Column (65% width: lg:col-span-8) */}
+            <div className="lg:col-span-8 space-y-6">
+              {/* Card 1: Personalized Training Pathway */}
+              <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                      <svg viewBox="0 0 24 24" className="w-5 h-5 stroke-current fill-none stroke-2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M18 6H6a3 3 0 0 0-3 3v6a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3V9a3 3 0 0 0-3-3Z" />
+                        <path d="M9 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
+                        <path d="M15 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-sm sm:text-base font-bold text-slate-900">
+                        Personalized Training Pathway
+                      </h2>
+                      <p className="text-xs text-slate-500">
+                        Aligned with National Statistical Training Framework
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="bg-indigo-50 text-indigo-700 text-xs font-bold px-2.5 py-1 rounded-full border border-indigo-200/60">
+                      iGOT Karmayogi Linked
+                    </span>
+                    <span className="bg-slate-100 text-slate-700 text-xs font-semibold px-2.5 py-1 rounded-full border border-slate-200">
+                      Milestone: 15 Mar
+                    </span>
+                  </div>
+                </div>
+
+                {/* Sub-card Container */}
+                <div className="bg-indigo-50/40 border border-indigo-100/80 rounded-2xl p-5 sm:p-6 mt-4 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="bg-indigo-600 text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+                        MODULE 4 OF 6
+                      </span>
+                      <span className="text-xs font-medium text-slate-600">
+                        Core Methodological Competency
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 bg-white px-2.5 py-1 rounded-lg border border-slate-200 text-xs font-bold text-slate-700">
+                      <Clock className="w-3.5 h-3.5 text-amber-500" />
+                      <span>⏱ 1h 45m remaining</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                      Sampling Design & Survey Multipliers for NSS Rounds
+                    </h3>
+                    <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                      Advanced Stratified Multi-Stage Sampling, Frame Normalization, and Post-Stratification Estimation
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-slate-600 font-medium">Overall Module Completion</span>
+                      <span className="font-bold text-indigo-600">68%</span>
+                    </div>
+                    <div className="w-full bg-slate-200/80 rounded-full h-2.5 overflow-hidden">
+                      <div className="bg-indigo-600 h-2.5 rounded-full w-[68%] transition-all duration-500" />
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-xs font-medium text-slate-500 mr-2 block sm:inline mb-1">
+                      Competencies Covered:
+                    </span>
+                    <div className="inline-flex flex-wrap gap-1.5">
+                      <span className="bg-white border border-slate-200 text-slate-700 text-xs font-mono px-2.5 py-1 rounded-md shadow-2xs">
+                        Inverse Probability Weighting
+                      </span>
+                      <span className="bg-white border border-slate-200 text-slate-700 text-xs font-mono px-2.5 py-1 rounded-md shadow-2xs">
+                        Non-Sampling Error Audit
+                      </span>
+                      <span className="bg-white border border-slate-200 text-slate-700 text-xs font-mono px-2.5 py-1 rounded-md shadow-2xs">
+                        R-Script Multipliers
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <Link to="/igot-learning">
+                      <button
+                        type="button"
+                        className="bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold text-xs px-5 py-2.5 rounded-xl flex items-center gap-2 shadow-sm shadow-indigo-600/20 hover:-translate-y-0.5 transition-all cursor-pointer"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-current" />
+                        <span>Resume Learning →</span>
+                      </button>
+                    </Link>
+
+                    <Link
+                      to="/learning"
+                      className="text-xs font-bold text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors"
+                    >
+                      <span>View Full Syllabus</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2: Competency Diagnostic Breakdown */}
+              <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-5 sm:p-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                    <BarChart3 className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm sm:text-base font-bold text-slate-900">
+                      Competency Diagnostic Breakdown
+                    </h2>
+                    <p className="text-xs text-slate-500">
+                      Cadre-level assessments benchmarked against MoSPI Directorate Standards
+                    </p>
+                  </div>
+                </div>
+
+                {/* Target Benchmark Guide Indicator */}
+                <div className="mt-3">
+                  <span className="bg-blue-50 text-blue-700 text-xs font-semibold px-2.5 py-1 rounded-md border border-blue-200/60 inline-flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600" />
+                    Target Benchmark: Level 4.0
+                  </span>
+                </div>
+
+                {/* Diagnostic Skills Rows */}
+                <div className="mt-5 space-y-4">
+                  {/* Skill 1 */}
+                  <div className="space-y-1.5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-800">
+                          Survey Sampling & Estimation
+                        </span>
+                        <span className="bg-emerald-50 text-emerald-700 border border-emerald-200 text-[11px] font-semibold px-2 py-0.5 rounded-full">
+                          Exceeds Target
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold text-slate-900">4.2 / 5.0</span>
+                        <Link to="/competency" className="text-xs font-semibold text-blue-600 hover:underline">
+                          Details
+                        </Link>
+                      </div>
+                    </div>
+                    {/* Progress Bar with Benchmark Marker */}
+                    <div className="w-full bg-slate-100 rounded-full h-2 relative overflow-hidden">
+                      <div className="bg-emerald-500 h-2 rounded-full w-[84%]" />
+                      <div
+                        className="absolute top-0 bottom-0 left-[80%] w-[2px] bg-slate-400 z-10"
+                        title="Target Benchmark: 4.0"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Skill 2 */}
+                  <div className="space-y-1.5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-800">
+                          Price Statistics & CPI Indexing
+                        </span>
+                        <span className="bg-sky-50 text-sky-700 border border-sky-200 text-[11px] font-semibold px-2 py-0.5 rounded-full">
+                          Moderate Gap
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold text-slate-900">3.1 / 5.0</span>
+                        <Link to="/competency" className="text-xs font-semibold text-blue-600 hover:underline">
+                          View Gap
+                        </Link>
+                      </div>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-2 relative overflow-hidden">
+                      <div className="bg-blue-600 h-2 rounded-full w-[62%]" />
+                      <div
+                        className="absolute top-0 bottom-0 left-[80%] w-[2px] bg-slate-400 z-10"
+                        title="Target Benchmark: 4.0"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Skill 3 */}
+                  <div className="space-y-1.5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-800">
+                          Periodic Labour Force Survey (PLFS) Diagnostics
+                        </span>
+                        <span className="bg-slate-100 text-slate-700 border border-slate-200 text-[11px] font-semibold px-2 py-0.5 rounded-full">
+                          In Progress
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold text-slate-900">3.5 / 5.0</span>
+                        <Link to="/assessment" className="text-xs font-semibold text-blue-600 hover:underline">
+                          Practice
+                        </Link>
+                      </div>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-2 relative overflow-hidden">
+                      <div className="bg-blue-600 h-2 rounded-full w-[70%]" />
+                      <div
+                        className="absolute top-0 bottom-0 left-[80%] w-[2px] bg-slate-400 z-10"
+                        title="Target Benchmark: 4.0"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Skill 4 */}
+                  <div className="space-y-1.5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-slate-800">
+                          AI-Assisted Field Data Validation
+                        </span>
+                        <span className="bg-purple-50 text-purple-700 border border-purple-200 text-[11px] font-semibold px-2 py-0.5 rounded-full">
+                          Recommended for Training
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold text-slate-900">2.8 / 5.0</span>
+                        <Link to="/igot-learning" className="text-xs font-semibold text-blue-600 hover:underline">
+                          Start Module
+                        </Link>
+                      </div>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-2 relative overflow-hidden">
+                      <div className="bg-purple-600 h-2 rounded-full w-[56%]" />
+                      <div
+                        className="absolute top-0 bottom-0 left-[80%] w-[2px] bg-slate-400 z-10"
+                        title="Target Benchmark: 4.0"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column (35% width: lg:col-span-4) */}
+            <div className="lg:col-span-4 space-y-6">
+              {/* Card 1: Active Assessment Card */}
+              <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-5">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <FileCheck className="w-4 h-4 text-slate-700" />
+                    <h2 className="font-bold text-slate-900 text-sm">
+                      Active Assessment
+                    </h2>
+                  </div>
+                  <span className="bg-rose-50 text-rose-600 border border-rose-200 text-xs font-semibold px-2.5 py-0.5 rounded-full inline-flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+                    Action Required
+                  </span>
+                </div>
+
+                {/* Inner Assessment Box */}
+                <div className="bg-blue-50/40 border border-blue-100/60 rounded-xl p-4 mt-3 space-y-3">
+                  <h3 className="font-bold text-slate-900 text-sm">
+                    Quarterly Field Competency Check
+                  </h3>
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Covers Household Schedule 10.1 canvassing nuances and imputation handling.
+                  </p>
+
+                  <div className="space-y-2 text-xs text-slate-600 pt-1">
+                    <div className="flex items-center gap-2">
+                      <HelpCircle className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span>5 Multi-choice questions</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                      <span>10 minutes allocated</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-rose-600 font-semibold">
+                      <Clock className="w-3.5 h-3.5 shrink-0" />
+                      <span>Deadline: Tomorrow, 5:00 PM IST</span>
+                    </div>
+                    <div className="flex items-center justify-between pt-1 border-t border-blue-100/60">
+                      <span className="font-bold text-emerald-700 inline-flex items-center gap-1">
+                        <PlusCircle className="w-3.5 h-3.5 text-emerald-600" />
+                        +150 Cadre XP
+                      </span>
+                      <span className="text-[11px] text-slate-500">
+                        Auto-certified
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Primary Action Button */}
+                <Link to="/assessment" className="block mt-3">
+                  <button
+                    type="button"
+                    className="w-full bg-slate-900 hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer"
+                  >
+                    <span>Start Assessment</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </Link>
+
+                {/* Queued Assessment Item Preview */}
+                <div className="border-t border-slate-100 pt-3 mt-3 flex items-center justify-between text-xs">
+                  <div>
+                    <h4 className="font-bold text-slate-900">
+                      ASI Annual Survey Review
+                    </h4>
+                    <p className="text-[11px] text-slate-400">
+                      Scheduled: 20 Mar 2025
+                    </p>
+                  </div>
+                  <span className="bg-slate-100 text-slate-600 text-[10px] font-bold px-2 py-0.5 rounded border border-slate-200">
+                    Queued
+                  </span>
+                </div>
+              </div>
+
+              {/* Card 2: DakshaAI Copilot Widget */}
+              <div className="bg-white rounded-xl border border-slate-200/80 shadow-xs p-5 relative overflow-hidden">
+                {/* Accent Top Gradient Line */}
+                <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-purple-500 to-rose-400 absolute top-0 left-0" />
+
+                <div className="flex items-center justify-between pb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center">
+                      <Sparkles className="w-4 h-4" />
+                    </div>
+                    <h2 className="font-bold text-slate-900 text-sm">
+                      DakshaAI Copilot
+                    </h2>
+                  </div>
+                  <span className="bg-slate-100 text-slate-600 text-[10px] font-semibold px-2 py-0.5 rounded border border-slate-200 font-mono">
+                    MoSPI LLM v2
+                  </span>
+                </div>
+
+                <p className="text-xs text-slate-500 mt-1 leading-relaxed">
+                  Instant guidance on official manuals, statistical standards, and stratified methodology.
+                </p>
+
+                {/* Starter Prompts */}
+                <div className="mt-3 space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => handlePromptChipClick("Summarize NSS 78th Round Manual")}
+                    className="w-full text-left p-2.5 rounded-lg bg-slate-50 hover:bg-slate-100/90 border border-slate-200/70 text-xs font-medium text-slate-700 flex items-center justify-between transition-colors group cursor-pointer"
+                  >
+                    <span className="truncate">"Summarize NSS 78th Round Manual"</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 shrink-0" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handlePromptChipClick("Explain Multiplier Estimation for stratified survey designs")}
+                    className="w-full text-left p-2.5 rounded-lg bg-slate-50 hover:bg-slate-100/90 border border-slate-200/70 text-xs font-medium text-slate-700 flex items-center justify-between transition-colors group cursor-pointer"
+                  >
+                    <span className="truncate">"Explain Multiplier Estimation for..."</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 shrink-0" />
+                  </button>
+                </div>
+
+                {/* Query Input Field */}
+                <form onSubmit={handleCopilotSubmit} className="relative mt-3.5">
+                  <input
+                    type="text"
+                    value={copilotQuery}
+                    onChange={(e) => setCopilotQuery(e.target.value)}
+                    placeholder="Ask DakshaAI statistical query..."
+                    className="w-full pl-3.5 pr-10 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:bg-white transition-colors"
+                  />
+                  <button
+                    type="submit"
+                    className="absolute right-1.5 top-1.5 w-7 h-7 bg-blue-600 hover:bg-blue-700 text-white rounded-md flex items-center justify-center transition-colors shadow-2xs cursor-pointer"
+                    aria-label="Submit query to DakshaAI"
+                  >
+                    <ArrowUp className="w-3.5 h-3.5" />
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
+
 
 // Portal Notices View with Full i18n Translation
 const NoticesView = () => {

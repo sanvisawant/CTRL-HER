@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   api,
   type LearningAssistantResponse,
 } from "../../services/api";
 import { Card, CardHeader, CardTitle, CardDescription, CardBody } from "../../components/common/Card";
-import { Button } from "../../components/common/Button";
 import { DakshaLogo } from "../../components/common/DakshaLogo";
 import {
   Bot,
@@ -30,12 +30,13 @@ interface ChatMessage {
 
 export const AIAssistantView: React.FC = () => {
   const { t } = useTranslation();
+  const location = useLocation();
 
   const SAMPLE_PROMPTS = [
-    "Explain Stratified Random Sampling and multiplier estimation in NSSO surveys.",
-    "What is Non-Sampling Error and how can field investigators minimize it?",
-    "How is the Consumer Price Index (CPI) calculated and rebased in MoSPI?",
-    "What are the data validation checks required in the Periodic Labour Force Survey (PLFS)?",
+    { text: "Explain Stratified Random Sampling and multiplier estimation in NSSO surveys.", color: "border-indigo-200 bg-indigo-50/40 text-indigo-900 hover:bg-indigo-50 hover:border-indigo-400" },
+    { text: "What is Non-Sampling Error and how can field investigators minimize it?", color: "border-emerald-200 bg-emerald-50/40 text-emerald-900 hover:bg-emerald-50 hover:border-emerald-400" },
+    { text: "How is the Consumer Price Index (CPI) calculated and rebased in MoSPI?", color: "border-amber-200 bg-amber-50/40 text-amber-900 hover:bg-amber-50 hover:border-amber-400" },
+    { text: "What are the data validation checks required in the Periodic Labour Force Survey (PLFS)?", color: "border-violet-200 bg-violet-50/40 text-violet-900 hover:bg-violet-50 hover:border-violet-400" },
   ];
 
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -52,10 +53,20 @@ export const AIAssistantView: React.FC = () => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const queryTriggered = useRef(false);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
+
+  // If redirected with a query state (e.g. from LearningView "Ask Copilot")
+  useEffect(() => {
+    const passedQuery = (location.state as any)?.query;
+    if (passedQuery && !queryTriggered.current) {
+      queryTriggered.current = true;
+      sendMessage(passedQuery);
+    }
+  }, [location.state]);
 
   const sendMessage = async (questionText: string) => {
     const q = questionText.trim();
@@ -104,24 +115,38 @@ export const AIAssistantView: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4 animate-fade-in">
-      {/* Header Banner (Compact & Dignified) */}
-      <div className="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 rounded-xl p-4 sm:p-5 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 border border-blue-800/40">
-        <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-blue-800/50 border border-blue-400/30 text-blue-200 text-[11px] font-semibold">
-            <Bot className="w-3.5 h-3.5 text-blue-300" />
-            <span>{t("ai_assistant.badge", "P3 Grounded Assistant & RAG Engine")}</span>
+    <div className="space-y-6 animate-fade-in pb-10">
+      {/* Light Spacious LMS Hero */}
+      <div className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-2">
+          {/* Breadcrumbs */}
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
+            <Link to="/dashboard" className="hover:text-indigo-600 transition-colors">
+              Dashboard
+            </Link>
+            <span>/</span>
+            <span className="text-violet-600 flex items-center gap-1">
+              <Bot className="w-3.5 h-3.5" />
+              AI Assistant
+            </span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight">
-            {t("ai_assistant.title", "DakshaAI — MoSPI Knowledge Copilot")}
-          </h1>
-          <p className="text-slate-300 text-xs max-w-2xl leading-relaxed">
-            {t("ai_assistant.subtitle", "Every answer is strictly grounded in official survey manuals, sampling guides, and circulars with verifiable source citations.")}
-          </p>
+
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+              {t("ai_assistant.title", "DakshaAI — MoSPI Knowledge Copilot")}
+            </h1>
+            <p className="text-slate-500 text-xs sm:text-sm max-w-2xl leading-relaxed mt-1">
+              {t(
+                "ai_assistant.subtitle",
+                "Every answer is strictly grounded in official survey manuals, sampling guides, and circulars with verifiable source citations."
+              )}
+            </p>
+          </div>
         </div>
-        <div className="inline-flex items-center gap-2 bg-blue-950/70 border border-blue-700/50 px-3 py-1.5 rounded-lg text-xs text-blue-200 shrink-0">
-          <ShieldCheck className="w-4 h-4 text-emerald-400" />
-          <span className="font-semibold text-emerald-300">Grounded Guard Active</span>
+
+        <div className="inline-flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3.5 py-2 rounded-xl text-xs text-emerald-800 shrink-0 self-start md:self-auto shadow-2xs">
+          <ShieldCheck className="w-4 h-4 text-emerald-600" />
+          <span className="font-bold">Grounded Guard Active</span>
         </div>
       </div>
 
@@ -165,22 +190,22 @@ export const AIAssistantView: React.FC = () => {
                     className={`flex flex-col ${isUser ? "items-end" : "items-start"}`}
                   >
                     <div
-                      className={`max-w-[88%] rounded-2xl p-3.5 text-xs leading-relaxed transition-all ${
+                      className={`max-w-[88%] rounded-2xl p-4 text-xs leading-relaxed transition-all ${
                         isUser
-                          ? "bg-blue-900 text-white rounded-br-xs shadow-xs"
-                          : "bg-white border border-slate-200 text-slate-800 rounded-tl-xs shadow-xs"
+                          ? "bg-indigo-600 text-white rounded-br-xs shadow-xs"
+                          : "bg-white border border-slate-200/80 text-slate-800 rounded-tl-xs shadow-xs"
                       }`}
                     >
                       {/* Assistant Header inside bubble */}
                       {!isUser && (
-                        <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-100">
+                        <div className="flex items-center justify-between pb-2.5 mb-2.5 border-b border-slate-100">
                           <div className="flex items-center gap-2">
-                            <DakshaLogo size={16} />
-                            <span className="font-extrabold text-[11px] text-blue-950">DakshaAI</span>
+                            <DakshaLogo size={18} />
+                            <span className="font-extrabold text-xs text-indigo-950">DakshaAI Copilot</span>
                           </div>
                           {m.data?.confidence && (
                             <span
-                              className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
                                 m.data.confidence === "HIGH"
                                   ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
                                   : m.data.confidence === "MEDIUM"
@@ -197,7 +222,7 @@ export const AIAssistantView: React.FC = () => {
                       {/* Message Content */}
                       {m.isError ? (
                         <div className="space-y-2">
-                          <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-lg flex items-start gap-2 text-rose-900">
+                          <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-xl flex items-start gap-2 text-rose-900">
                             <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
                             <div className="space-y-1">
                               <p className="font-semibold text-xs text-rose-900">Knowledge Copilot Unavailable</p>
@@ -209,7 +234,7 @@ export const AIAssistantView: React.FC = () => {
                               type="button"
                               onClick={() => sendMessage(m.retryQuery!)}
                               disabled={loading}
-                              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-rose-100 text-rose-800 hover:bg-rose-200 transition-colors cursor-pointer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold bg-rose-100 text-rose-800 hover:bg-rose-200 transition-colors cursor-pointer"
                             >
                               <RotateCcw className="w-3 h-3" />
                               Retry Question
@@ -218,9 +243,9 @@ export const AIAssistantView: React.FC = () => {
                         </div>
                       ) : isInsufficientContext ? (
                         <div className="space-y-2">
-                          <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2 text-amber-900">
+                          <div className="p-2.5 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-2 text-amber-900">
                             <AlertCircle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-                            <p className="text-xs">
+                            <p className="text-xs font-medium">
                               {m.text}
                             </p>
                           </div>
@@ -235,21 +260,21 @@ export const AIAssistantView: React.FC = () => {
                       {/* Grounded Provenance Citations */}
                       {m.data?.sources && m.data.sources.length > 0 && (
                         <div className="mt-3 pt-2.5 border-t border-slate-100 space-y-1.5">
-                          <span className="font-bold text-[10px] uppercase tracking-wider text-slate-500 block">
+                          <span className="font-bold text-[10px] uppercase tracking-wider text-slate-400 block">
                             Document Provenance & Verified Citations:
                           </span>
                           <div className="grid grid-cols-1 gap-1.5">
                             {m.data.sources.map((src, idx) => (
                               <div
                                 key={idx}
-                                className="p-2 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between gap-2 text-[11px] text-slate-700 hover:bg-blue-50/50 hover:border-blue-200 transition-colors"
+                                className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-2 text-[11px] text-slate-700 hover:bg-indigo-50/50 hover:border-indigo-200 transition-colors"
                               >
                                 <div className="flex items-center gap-2 truncate">
-                                  <FileText className="w-3.5 h-3.5 text-blue-900 shrink-0" />
+                                  <FileText className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                                   <span className="font-semibold truncate">{src.document}</span>
                                 </div>
                                 {src.location && (
-                                  <span className="text-[10px] font-mono text-slate-400 bg-white px-1.5 py-0.5 rounded border border-slate-200 shrink-0">
+                                  <span className="text-[10px] font-mono text-slate-500 bg-white px-2 py-0.5 rounded-md border border-slate-200 shrink-0">
                                     {src.location}
                                   </span>
                                 )}
@@ -268,17 +293,17 @@ export const AIAssistantView: React.FC = () => {
 
               {/* Multi-stage thinking animation */}
               {loading && (
-                <div className="flex items-center gap-3 bg-white border border-slate-200 p-3 rounded-2xl rounded-tl-xs shadow-xs w-fit animate-fade-in">
-                  <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
-                    <Sparkles className="w-4 h-4 text-blue-900 animate-spin" />
+                <div className="flex items-center gap-3 bg-white border border-slate-200/80 p-3.5 rounded-2xl rounded-tl-xs shadow-xs w-fit animate-fade-in">
+                  <div className="w-8 h-8 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center">
+                    <Sparkles className="w-4 h-4 animate-spin" />
                   </div>
                   <div className="space-y-0.5">
                     <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                       <span>Analyzing query against MoSPI vector index</span>
                       <span className="inline-flex gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-900 animate-pulse" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-900 animate-pulse delay-150" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-900 animate-pulse delay-300" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-violet-600 animate-pulse" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse delay-150" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse delay-300" />
                       </span>
                     </p>
                     <p className="text-[10px] text-slate-500">
@@ -291,25 +316,27 @@ export const AIAssistantView: React.FC = () => {
             </CardBody>
 
             {/* Input Bar */}
-            <div className="p-3 bg-white border-t border-slate-100">
+            <div className="p-3.5 bg-white border-t border-slate-100 rounded-b-2xl">
               <form onSubmit={handleSubmit} className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  placeholder={t("ai_assistant.input_placeholder", "Ask a question about MoSPI sampling manuals, PLFS methodology, CPI rebasing, or survey guidelines...")}
-                  disabled={loading}
-                  className="flex-1 px-3.5 py-2 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-900 focus:bg-white transition-all text-slate-900"
-                />
-                <Button
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder={t("ai_assistant.input_placeholder", "Ask a question about MoSPI sampling manuals, PLFS methodology, CPI rebasing, or survey guidelines...")}
+                    disabled={loading}
+                    className="w-full pl-3.5 pr-9 py-2.5 text-xs bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all text-slate-900 placeholder:text-slate-400"
+                  />
+                  <Sparkles className="w-4 h-4 text-violet-400 absolute right-3 top-3 pointer-events-none" />
+                </div>
+                <button
                   type="submit"
-                  variant="primary"
-                  size="sm"
                   disabled={loading || !input.trim()}
-                  rightIcon={<Send className="w-3.5 h-3.5" />}
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 active:scale-95 text-white text-xs font-bold shadow-md shadow-indigo-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer"
                 >
-                  {t("ai_assistant.send_btn", "Send Query")}
-                </Button>
+                  <span>{t("ai_assistant.send_btn", "Send")}</span>
+                  <Send className="w-3.5 h-3.5" />
+                </button>
               </form>
             </div>
           </Card>
@@ -317,34 +344,36 @@ export const AIAssistantView: React.FC = () => {
 
         {/* Right 1 Col: Quick Prompts & Knowledge Guidelines */}
         <div className="space-y-3.5">
-          <Card className="shadow-xs">
-            <CardHeader className="py-2.5 px-3.5 border-b border-slate-100">
+          <Card className="shadow-xs rounded-2xl border-slate-200/80">
+            <CardHeader className="py-3 px-4 border-b border-slate-100">
               <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 {t("ai_assistant.suggested_prompts", "Common Officer Queries:")}
               </CardTitle>
             </CardHeader>
-            <CardBody className="p-3 space-y-2">
+            <CardBody className="p-3.5 space-y-2.5">
               {SAMPLE_PROMPTS.map((prompt, i) => (
                 <button
                   key={i}
                   type="button"
-                  onClick={() => sendMessage(prompt)}
+                  onClick={() => sendMessage(prompt.text)}
                   disabled={loading}
-                  className="w-full text-left p-2.5 rounded-lg border border-slate-200 text-[11px] text-slate-700 hover:border-blue-900 hover:bg-blue-50/50 transition-all leading-snug flex items-start gap-2 cursor-pointer"
+                  className={`w-full text-left p-3 rounded-xl border text-[11px] font-medium leading-snug flex items-start gap-2.5 transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-xs cursor-pointer ${prompt.color}`}
                 >
-                  <HelpCircle className="w-3.5 h-3.5 text-blue-900 shrink-0 mt-0.5" />
-                  <span>{prompt}</span>
+                  <HelpCircle className="w-3.5 h-3.5 shrink-0 mt-0.5 opacity-80" />
+                  <span>{prompt.text}</span>
                 </button>
               ))}
             </CardBody>
           </Card>
 
-          <div className="p-3.5 bg-blue-950 border border-blue-800 rounded-xl text-white space-y-2 text-xs shadow-xs">
+          <div className="p-4 bg-gradient-to-br from-indigo-50/80 to-violet-50/60 border border-indigo-100 rounded-2xl text-slate-800 space-y-2 text-xs shadow-xs">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-              <h4 className="font-bold text-xs">Official Boundary Standard</h4>
+              <div className="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+              </div>
+              <h4 className="font-bold text-xs text-slate-900">Official Boundary Standard</h4>
             </div>
-            <p className="text-slate-300 leading-relaxed text-[11px]">
+            <p className="text-slate-600 leading-relaxed text-[11px]">
               DakshaAI adheres strictly to verified MoSPI training documents. Answers are derived verbatim or via dense semantic synthesis without creative hallucination.
             </p>
           </div>

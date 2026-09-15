@@ -6,7 +6,6 @@ import {
   type DocumentItem,
   type SearchResultItem,
 } from "../../services/api";
-import { Card, CardHeader, CardTitle, CardDescription, CardBody } from "../../components/common/Card";
 import { Button } from "../../components/common/Button";
 import {
   BookOpen,
@@ -20,9 +19,7 @@ import {
   UploadCloud,
   CheckCircle2,
   AlertCircle,
-  X,
   FileUp,
-  Layers,
 } from "lucide-react";
 import { ErrorState } from "../../components/common/ErrorState";
 import { EmptyState } from "../../components/common/EmptyState";
@@ -40,7 +37,6 @@ export const LearningView: React.FC = () => {
   const [searchResults, setSearchResults] = useState<SearchResultItem[] | null>(null);
 
   // Upload State
-  const [showUploadModal, setShowUploadModal] = useState<boolean>(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadProgressStep, setUploadProgressStep] = useState<string | null>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -176,193 +172,241 @@ export const LearningView: React.FC = () => {
     }
   };
 
+  const getFileTypeBadge = (fileType?: string) => {
+    const type = (fileType || "PDF").toUpperCase();
+    if (type.includes("PDF")) {
+      return "bg-rose-50 text-rose-700 border-rose-200";
+    }
+    if (type.includes("DOC")) {
+      return "bg-blue-50 text-blue-700 border-blue-200";
+    }
+    if (type.includes("PPT")) {
+      return "bg-amber-50 text-amber-700 border-amber-200";
+    }
+    return "bg-indigo-50 text-indigo-700 border-indigo-200";
+  };
+
   return (
-    <div className="space-y-4 animate-fade-in">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-teal-950 to-slate-900 rounded-xl p-4 sm:p-5 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 border border-teal-800/40">
+    <div className="space-y-6 animate-fade-in">
+      {/* Light, Spacious LMS Hero Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-1">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-teal-800/50 border border-teal-400/30 text-teal-200 text-[11px] font-semibold">
-            <BookOpen className="w-3.5 h-3.5 text-teal-300" />
-            <span>{t("learning.badge", "P3 Grounded Learning Subsystem")}</span>
+          <div className="flex items-center gap-2 text-xs font-medium text-slate-500">
+            <Link to="/dashboard" className="hover:text-indigo-600 transition-colors">Dashboard</Link>
+            <span>/</span>
+            <span className="text-slate-800 font-semibold">Knowledge Repository</span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight">
-            {t("learning.title", "MoSPI Knowledge Repository & Official Guidelines")}
-          </h1>
-          <p className="text-slate-300 text-xs max-w-2xl leading-relaxed">
-            {t("learning.subtitle", "Official survey concepts, definitions, NSS manual references, and index vector embeddings for verified in-service learning.")}
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+              Knowledge Repository & Guidelines
+            </h1>
+            <span className="bg-teal-50 text-teal-700 text-xs font-semibold px-2.5 py-0.5 rounded-full border border-teal-200/60 inline-flex items-center gap-1.5 shadow-2xs">
+              <BookOpen className="w-3.5 h-3.5 text-teal-600" />
+              FAISS Vector Indexed
+            </span>
+          </div>
+          <p className="text-xs text-slate-500 font-medium max-w-2xl">
+            Official survey concepts, definitions, NSS manual references, and vector embeddings for verified in-service learning.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
-          <Button
-            variant="outlineInvert"
-            size="sm"
-            onClick={() => setShowUploadModal(!showUploadModal)}
-            leftIcon={<UploadCloud className="w-3.5 h-3.5" />}
-          >
-            {showUploadModal ? t("learning.hide_upload", "Close Upload") : t("learning.upload_btn", "Upload Document")}
-          </Button>
+
+        <div className="flex items-center gap-2.5 shrink-0">
           <Link to="/ai-assistant">
-            <Button variant="secondary" size="sm" leftIcon={<Bot className="w-3.5 h-3.5" />}>
-              {t("learning.ask_ai_btn", "Open AI Assistant")}
-            </Button>
+            <button
+              type="button"
+              className="bg-white hover:bg-slate-50 text-slate-800 font-semibold text-xs px-3.5 py-2 rounded-xl border border-slate-200/90 shadow-2xs flex items-center gap-2 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer"
+            >
+              <Bot className="w-3.5 h-3.5 text-violet-600" />
+              <span>Ask DakshaAI</span>
+            </button>
           </Link>
           <Link to="/assessment">
-            <Button variant="saffron" size="sm" leftIcon={<Target className="w-3.5 h-3.5" />}>
-              {t("learning.practice_quiz_btn", "Practice Quiz")}
-            </Button>
+            <button
+              type="button"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-4 py-2 rounded-xl shadow-xs flex items-center gap-2 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer"
+            >
+              <Target className="w-3.5 h-3.5 text-indigo-200" />
+              <span>Practice Quiz</span>
+            </button>
           </Link>
         </div>
       </div>
 
-      {/* Upload Document Panel */}
-      {showUploadModal && (
-        <Card variant="accent" className="border-teal-500/40 bg-teal-50/20">
-          <CardHeader>
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-2">
-                <FileUp className="w-5 h-5 text-teal-700" />
-                <div>
-                  <CardTitle className="text-sm">{t("learning.upload_card_title", "Upload Official MoSPI Document / Manual")}</CardTitle>
-                  <CardDescription>
-                    {t("learning.upload_card_desc", "Supported formats: PDF, PPTX, DOCX (Max 50MB). Uploaded documents are automatically chunked, embedded, and indexed into FAISS.")}
-                  </CardDescription>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowUploadModal(false)}
-                className="p-1 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100"
-              >
-                <X className="w-4 h-4" />
-              </button>
+      {/* High-Impact Document Upload Zone */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 space-y-4 transition-all">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
+              <FileUp className="w-5 h-5" />
             </div>
-          </CardHeader>
-          <CardBody className="space-y-4">
-            {uploadError && (
-              <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-xs text-red-800 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
-                <span>{uploadError}</span>
-              </div>
-            )}
-            {uploadSuccess && (
-              <div className="p-3 rounded-lg bg-green-50 border border-green-200 text-xs text-green-800 flex items-center gap-2">
-                <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
-                <span>{uploadSuccess}</span>
-              </div>
-            )}
-
-            <div className="flex flex-col sm:flex-row items-center gap-3">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf,.pptx,.docx"
-                onChange={handleFileChange}
-                disabled={isUploading}
-                className="block w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100 cursor-pointer border border-slate-200 rounded-lg p-1 bg-white"
-              />
-              <Button
-                variant="primary"
-                size="md"
-                onClick={handleUploadPipeline}
-                disabled={!selectedFile || isUploading}
-                isLoading={isUploading}
-                leftIcon={<UploadCloud className="w-4 h-4" />}
-                className="w-full sm:w-auto shrink-0"
-              >
-                {isUploading ? t("learning.processing_btn", "Processing...") : t("learning.start_upload_btn", "Process & Index Document")}
-              </Button>
+            <div>
+              <h2 className="text-sm sm:text-base font-bold text-slate-900">
+                Upload MoSPI Circular or Survey Manual
+              </h2>
+              <p className="text-xs text-slate-500">
+                Instantly process, chunk, and index official documents into FAISS vector database for AI-grounded learning.
+              </p>
             </div>
+          </div>
+        </div>
 
-            {uploadProgressStep && (
-              <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 flex items-center gap-2.5 text-xs text-blue-900 animate-pulse">
-                <RefreshCw className="w-4 h-4 animate-spin text-blue-700 shrink-0" />
-                <span>{uploadProgressStep}</span>
-              </div>
-            )}
+        {uploadError && (
+          <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-800 flex items-center gap-2.5">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            <span>{uploadError}</span>
+          </div>
+        )}
+        {uploadSuccess && (
+          <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center gap-2.5">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <span>{uploadSuccess}</span>
+          </div>
+        )}
 
-            {selectedFile && !isUploading && (
-              <div className="text-xs text-slate-600 flex items-center gap-2">
-                <span className="font-semibold text-slate-800">{selectedFile.name}</span>
-                <span>({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)</span>
-              </div>
-            )}
-          </CardBody>
-        </Card>
-      )}
+        {/* Large Drag-and-Drop Area */}
+        <div
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => {
+            e.preventDefault();
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+              validateAndSetFile(e.dataTransfer.files[0]);
+            }
+          }}
+          onClick={() => fileInputRef.current?.click()}
+          className="border-2 border-dashed border-indigo-200 hover:border-indigo-500 bg-indigo-50/30 hover:bg-indigo-50/60 rounded-2xl p-8 sm:p-10 text-center transition-all duration-200 cursor-pointer flex flex-col items-center justify-center gap-3 group"
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.pptx,.docx"
+            onChange={handleFileChange}
+            disabled={isUploading}
+            className="hidden"
+          />
+
+          <div className="w-14 h-14 rounded-2xl bg-white shadow-sm border border-indigo-100 flex items-center justify-center text-indigo-600 group-hover:scale-105 group-hover:bg-indigo-600 group-hover:text-white transition-all duration-200">
+            <UploadCloud className="w-7 h-7" />
+          </div>
+
+          <div className="space-y-1">
+            <p className="text-sm font-bold text-slate-800 group-hover:text-indigo-700 transition-colors">
+              {selectedFile ? selectedFile.name : "Drag and drop your document here, or click to browse"}
+            </p>
+            <p className="text-xs text-slate-500">
+              Supports <span className="font-semibold text-rose-600">PDF</span>, <span className="font-semibold text-blue-600">DOCX</span>, or <span className="font-semibold text-amber-600">PPTX</span> up to 50MB
+            </p>
+          </div>
+
+          {selectedFile && !isUploading && (
+            <div className="mt-2 inline-flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-indigo-200 text-xs font-semibold text-indigo-900 shadow-2xs">
+              <span>Selected: {selectedFile.name}</span>
+              <span className="text-slate-400">({(selectedFile.size / (1024 * 1024)).toFixed(2)} MB)</span>
+            </div>
+          )}
+        </div>
+
+        {/* Upload Action Row */}
+        {selectedFile && (
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedFile(null);
+                if (fileInputRef.current) fileInputRef.current.value = "";
+              }}
+              disabled={isUploading}
+              className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+            >
+              Clear
+            </button>
+            <Button
+              variant="primary"
+              size="md"
+              onClick={handleUploadPipeline}
+              disabled={isUploading}
+              isLoading={isUploading}
+              leftIcon={<UploadCloud className="w-4 h-4" />}
+              className="rounded-xl shadow-md"
+            >
+              {isUploading ? "Processing & Indexing..." : "Process & Index into FAISS"}
+            </Button>
+          </div>
+        )}
+
+        {uploadProgressStep && (
+          <div className="p-3.5 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center gap-3 text-xs text-indigo-900 animate-pulse">
+            <RefreshCw className="w-4 h-4 animate-spin text-indigo-600 shrink-0" />
+            <span className="font-medium">{uploadProgressStep}</span>
+          </div>
+        )}
+      </div>
 
       {/* Semantic Search Bar */}
-      <Card>
-        <CardBody className="p-4 space-y-3">
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row items-center gap-3">
-            <div className="relative flex-1 w-full">
-              <Search className="w-4 h-4 absolute left-3 top-3 text-slate-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t("learning.search_placeholder", "Search statistical concepts (e.g., 'sampling', 'Consumer Price Index methodology')...")}
-                className="w-full pl-9 pr-4 py-2 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:bg-white transition-all"
-              />
-            </div>
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <Button
-                type="submit"
-                variant="primary"
-                size="md"
-                disabled={searching}
-                leftIcon={<Sparkles className="w-4 h-4" />}
-                className="w-full sm:w-auto shrink-0"
-              >
-                {searching ? t("learning.searching_btn", "Searching FAISS...") : t("learning.search_btn", "Vector Search")}
-              </Button>
-              {searchResults !== null && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="md"
-                  onClick={clearSearch}
-                  className="shrink-0"
-                >
-                  {t("learning.clear_btn", "Clear")}
-                </Button>
-              )}
-            </div>
-          </form>
-
-          {/* Quick search suggestion tags */}
-          <div className="flex flex-wrap items-center gap-1.5 text-[11px] text-slate-500">
-            <span className="font-medium">{t("learning.suggestions_label", "Try searching:")}</span>
-            {["sampling", "Consumer Price Index methodology", "Stratified sampling", "PLFS indicators", "GDP compilation"].map((kw) => (
-              <button
-                key={kw}
-                type="button"
-                onClick={() => {
-                  setSearchQuery(kw);
-                  handleSearch(undefined, kw);
-                }}
-                className="px-2 py-0.5 rounded-full bg-slate-100 hover:bg-teal-50 hover:text-teal-800 text-slate-700 transition-colors cursor-pointer border border-slate-200"
-              >
-                {kw}
-              </button>
-            ))}
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 space-y-3.5">
+        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="relative flex-1 w-full">
+            <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search statistical concepts (e.g., 'sampling', 'Consumer Price Index methodology')..."
+              className="w-full pl-10 pr-4 py-2.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:bg-white transition-all"
+            />
           </div>
-        </CardBody>
-      </Card>
+          <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+            <button
+              type="submit"
+              disabled={searching}
+              className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-xs px-4 py-2.5 rounded-xl shadow-2xs flex items-center justify-center gap-2 transition-all duration-200 hover:-translate-y-0.5 cursor-pointer disabled:opacity-50"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
+              <span>{searching ? "Searching..." : "Vector Search"}</span>
+            </button>
+            {searchResults !== null && (
+              <button
+                type="button"
+                onClick={clearSearch}
+                className="px-3.5 py-2.5 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl border border-slate-200 transition-colors cursor-pointer shrink-0"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </form>
+
+        {/* Quick Suggestion Chips */}
+        <div className="flex flex-wrap items-center gap-1.5 text-xs text-slate-500">
+          <span className="font-medium text-slate-400 mr-1">Popular topics:</span>
+          {["Sampling Design", "CPI Indexing", "Non-Sampling Error", "PLFS Indicators", "GDP Estimation"].map((kw) => (
+            <button
+              key={kw}
+              type="button"
+              onClick={() => {
+                setSearchQuery(kw);
+                handleSearch(undefined, kw);
+              }}
+              className="px-2.5 py-1 rounded-lg bg-slate-50 hover:bg-indigo-50 hover:text-indigo-700 text-slate-600 font-medium text-xs transition-colors cursor-pointer border border-slate-200/80"
+            >
+              {kw}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Search Results Display */}
       {searchResults !== null && (
-        <Card>
-          <CardHeader>
-            <div>
-              <CardTitle className="text-sm">
-                {t("learning.search_results_title", "Semantic Search Results for:")} &ldquo;{searchQuery}&rdquo;
-              </CardTitle>
-              <CardDescription>
-                {t("learning.search_results_sub", `Found ${searchResults.length} relevant vector passages across indexed official documentation.`)}
-              </CardDescription>
-            </div>
-          </CardHeader>
-          <CardBody className="space-y-3">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-4">
+          <div>
+            <h3 className="text-sm font-bold text-slate-900">
+              Vector Search Results for &ldquo;{searchQuery}&rdquo;
+            </h3>
+            <p className="text-xs text-slate-500">
+              Found {searchResults.length} relevant vector passages across indexed official documentation.
+            </p>
+          </div>
+
+          <div className="space-y-3">
             {searchResults.length === 0 ? (
               <EmptyState
                 icon={<Search className="w-6 h-6 text-slate-400" />}
@@ -378,117 +422,137 @@ export const LearningView: React.FC = () => {
               searchResults.map((res, i) => (
                 <div
                   key={res.chunk_id || i}
-                  className="p-4 rounded-xl border border-teal-100 bg-teal-50/40 hover:bg-teal-50/70 transition-colors"
+                  className="p-4 rounded-xl border border-indigo-100 bg-indigo-50/30 hover:bg-indigo-50/60 transition-colors"
                 >
-                  <div className="flex items-center justify-between text-xs text-teal-800 font-semibold mb-1.5">
+                  <div className="flex items-center justify-between text-xs text-indigo-900 font-semibold mb-2">
                     <span className="flex items-center gap-1.5">
-                      <FileText className="w-3.5 h-3.5" /> {t("learning.source_label", "Source:")} {res.source || "Official MoSPI Manual"}
+                      <FileText className="w-3.5 h-3.5 text-indigo-600" />
+                      <span>{res.source || "Official MoSPI Manual"}</span>
                     </span>
-                    <span className="bg-teal-100 text-teal-900 px-2 py-0.5 rounded text-[10px]">
-                      {t("learning.relevance_label", "Relevance:")} {(res.score * 100).toFixed(1)}%
+                    <span className="bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full text-[10px] font-bold">
+                      {(res.score * 100).toFixed(1)}% Match
                     </span>
                   </div>
                   <p className="text-xs text-slate-700 leading-relaxed italic">
                     &ldquo;{res.text}&rdquo;
                   </p>
                   {res.location && (
-                    <span className="text-[10px] text-slate-500 mt-2 block">
-                      {t("learning.location_label", "Location:")} {res.location}
+                    <span className="text-[10px] text-slate-400 mt-2 block font-mono">
+                      Location: {res.location}
                     </span>
                   )}
                 </div>
               ))
             )}
-          </CardBody>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Error Notice */}
       {error && !loading && (
         <ErrorState
           compact={documents.length > 0}
-          title={t("learning.repo_notice_title", "Repository Service Notice")}
+          title="Repository Notice"
           message={error}
           onRetry={loadDocuments}
         />
       )}
 
-      {/* Official Indexed Documents List */}
-      <Card>
-        <CardHeader>
+      {/* Official Ingested Publications & Manuals Grid */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 sm:p-6 space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div>
-            <CardTitle className="text-sm">{t("learning.publications_title", "Official Ingested Publications & Manuals")}</CardTitle>
-            <CardDescription>
-              {t("learning.publications_sub", "Material embedded in the local FAISS vector index ready for RAG grounding and diagnostic question generation.")}
-            </CardDescription>
+            <h2 className="text-sm sm:text-base font-bold text-slate-900">
+              Official Ingested Publications & Manuals
+            </h2>
+            <p className="text-xs text-slate-500">
+              Material embedded in the local FAISS vector index ready for RAG grounding and diagnostic question generation.
+            </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
+          <button
+            type="button"
             onClick={loadDocuments}
-            leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />}
+            className="p-2 rounded-xl text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200/80 transition-colors cursor-pointer flex items-center gap-1.5 text-xs font-semibold"
           >
-            {t("learning.refresh_btn", "Refresh")}
-          </Button>
-        </CardHeader>
-        <CardBody>
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {[1, 2, 3, 4].map((n) => (
-                <CardSkeleton key={n} lines={3} />
-              ))}
-            </div>
-          ) : documents.length === 0 ? (
-            <EmptyState
-              icon={<FolderArchive className="w-6 h-6 text-slate-400" />}
-              title={t("learning.no_docs_title", "No Ingested Documents")}
-              description={t("learning.no_docs_desc", "No official MoSPI manuals or guidelines are currently registered in P3 storage. Use 'Upload Document' to add learning materials.")}
-              actionText={t("learning.refresh_repo_action", "Refresh Repository")}
-              onAction={loadDocuments}
-            />
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {documents.map((doc) => (
-                <div
-                  key={doc.document_id}
-                  className="p-4 border border-slate-200 rounded-xl bg-white hover:border-blue-900/30 transition-all flex flex-col justify-between"
-                >
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="px-2 py-0.5 text-[10px] font-bold uppercase rounded bg-teal-50 text-teal-800 border border-teal-200">
-                        {doc.file_type || "PDF"}
-                      </span>
-                      <span className="text-[11px] text-slate-400">
-                        {doc.file_size_formatted || "—"}
-                      </span>
-                    </div>
-                    <h4 className="text-sm font-bold text-slate-900 leading-snug">
-                      {doc.filename}
-                    </h4>
-                    {doc.description && (
-                      <p className="text-xs text-slate-600 line-clamp-2">
-                        {doc.description}
-                      </p>
-                    )}
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin text-indigo-600" : ""}`} />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[1, 2, 3, 4].map((n) => (
+              <CardSkeleton key={n} lines={3} />
+            ))}
+          </div>
+        ) : documents.length === 0 ? (
+          <EmptyState
+            icon={<FolderArchive className="w-6 h-6 text-slate-400" />}
+            title="No Ingested Documents"
+            description="No official MoSPI manuals or guidelines are currently registered in P3 storage. Use the dropzone above to add learning materials."
+            actionText="Refresh Repository"
+            onAction={loadDocuments}
+          />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {documents.map((doc) => (
+              <div
+                key={doc.document_id}
+                className="p-5 border border-slate-200/90 rounded-2xl bg-white hover:border-indigo-300 hover:shadow-md transition-all duration-200 flex flex-col justify-between space-y-4 group"
+              >
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className={`px-2.5 py-0.5 text-[10px] font-bold uppercase rounded-md border ${getFileTypeBadge(doc.file_type)}`}>
+                      {doc.file_type || "PDF"}
+                    </span>
+                    <span className="text-[11px] text-slate-400 font-mono">
+                      {doc.file_size_formatted || "—"}
+                    </span>
                   </div>
 
-                  <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                    <span className="flex items-center gap-1 text-[11px]">
-                      <Layers className="w-3 h-3 text-slate-400" />
-                      {doc.chunks || doc.text_blocks || 0} chunks indexed
-                    </span>
+                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors leading-snug">
+                    {doc.filename}
+                  </h3>
+
+                  {doc.description && (
+                    <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
+                      {doc.description}
+                    </p>
+                  )}
+                </div>
+
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
                     <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
                       <CheckCircle2 className="w-3 h-3" /> FAISS Indexed
                     </span>
+                    <span className="text-[11px] text-slate-400 hidden sm:inline">
+                      {doc.chunks || doc.text_blocks || 0} chunks
+                    </span>
                   </div>
+
+                  {/* Prominent Ask Copilot Quick Button */}
+                  <Link
+                    to="/ai-assistant"
+                    state={{ query: `Explain the key concepts and sampling methodology from "${doc.filename}"` }}
+                  >
+                    <button
+                      type="button"
+                      className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl border border-indigo-200/60 flex items-center gap-1.5 transition-all duration-150 hover:-translate-y-0.5 cursor-pointer shadow-2xs"
+                    >
+                      <Sparkles className="w-3 h-3 text-indigo-600" />
+                      <span>Ask Copilot</span>
+                    </button>
+                  </Link>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardBody>
-      </Card>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
 export default LearningView;
+

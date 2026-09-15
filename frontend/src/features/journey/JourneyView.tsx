@@ -263,51 +263,62 @@ export const JourneyView: React.FC = () => {
       {/* ──────────────────────────────────────────────────────────────────────
           1. JOURNEY HERO & LANDING HEADER
       ────────────────────────────────────────────────────────────────────── */}
-      <section aria-labelledby="journey-heading" className="daksha-glass-navy rounded-2xl p-6 sm:p-8 text-white relative overflow-hidden">
-        {/* Subtle decorative security grid background */}
-        <div className="absolute inset-0 gov-guilloche-pattern opacity-15 pointer-events-none" />
-
-        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-3xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-400/30 text-blue-200 text-xs font-semibold">
-              <Compass className="w-3.5 h-3.5 text-amber-400" />
-              <span>Personalized Officer Pathway • MoSPI Cadre</span>
+      <section aria-labelledby="journey-heading" className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/80 shadow-xs relative">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-2.5 max-w-3xl">
+            {/* Breadcrumbs */}
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
+              <Link to="/dashboard" className="hover:text-indigo-600 transition-colors">
+                Dashboard
+              </Link>
+              <span>/</span>
+              <span className="text-amber-600 flex items-center gap-1">
+                <Compass className="w-3.5 h-3.5" />
+                Learning Pathway & Journey
+              </span>
             </div>
 
-            <h1 id="journey-heading" className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white">
-              Your DAKSHA Journey
-            </h1>
+            <div>
+              <h1 id="journey-heading" className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight text-slate-900">
+                Your DAKSHA Journey
+              </h1>
+              <p className="text-slate-500 text-sm sm:text-base leading-relaxed mt-1">
+                Discover your strengths, experience realistic work challenges, learn where you need it, and measure your progress.
+              </p>
+            </div>
 
-            <p className="text-slate-200 text-sm sm:text-base leading-relaxed">
-              Discover your strengths, experience realistic work challenges, learn where you need it, and measure your progress.
-            </p>
-
-            <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-slate-300">
-              <span className="flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>Officer: <strong>{officerName}</strong></span>
-              </span>
-              <span>•</span>
-              <span>{officerDesignation}</span>
-              <span>•</span>
-              <span className="font-mono text-slate-300">Cadre ID: {cadreId}</span>
+            {/* Officer Meta Strip */}
+            <div className="flex flex-wrap items-center gap-2.5 pt-1 text-xs">
+              <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200 text-slate-700">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span className="text-slate-400">Officer:</span>
+                <span className="font-bold text-slate-800">{officerName}</span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200 text-slate-700">
+                <span className="font-medium text-slate-700">{officerDesignation}</span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-200 text-slate-500 font-mono">
+                <span>Cadre ID: {cadreId}</span>
+              </div>
             </div>
           </div>
 
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
-            <Button
-              variant="saffron"
-              size="lg"
+            <button
+              type="button"
               onClick={() => navigate("/assessment")}
-              rightIcon={<ArrowRight className="w-4 h-4" />}
-              className="shadow-md hover:shadow-lg transition-all"
+              className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm shadow-sm shadow-indigo-600/20 hover:-translate-y-0.5 transition-all cursor-pointer"
             >
-              Start Baseline Assessment
-            </Button>
+              <span>Start Baseline Assessment 🚀</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
             <Link to="/competency">
-              <Button variant="outlineInvert" size="lg" className="w-full sm:w-auto">
+              <button
+                type="button"
+                className="inline-flex items-center justify-center px-4 py-3 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-bold text-sm border border-slate-200 shadow-2xs transition-all w-full sm:w-auto cursor-pointer"
+              >
                 View Full Profile
-              </Button>
+              </button>
             </Link>
           </div>
         </div>

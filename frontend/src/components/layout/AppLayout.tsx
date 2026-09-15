@@ -1,47 +1,50 @@
-import { useState } from "react";
-import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
+import { Link, NavLink, Outlet, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   LayoutDashboard,
-  Award,
-  BookOpen,
-  GraduationCap,
-  FileCheck,
-  Bot,
   Compass,
+  Target,
+  GraduationCap,
+  BookOpen,
+  FileCheck,
+  Sparkles,
+  Trophy,
   BarChart3,
   Bell,
   Search,
   Globe,
   LogOut,
   HelpCircle,
-  Sparkles,
   Menu,
   X,
   Radio,
   Users,
-  Milestone,
+  SlidersHorizontal,
+  Landmark,
+  ChevronDown,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-import { DakshaLogo } from "../common/DakshaLogo";
 
 interface NavItem {
   label: string;
   icon: any;
   path: string;
   badge?: string;
+  colorClass: string;
+  activeBg: string;
 }
 
 export const AppLayout = () => {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const navigate = useNavigate();
-  const { user, getInitials, switchPersona } = useAuth();
+  const location = useLocation();
+  const { user, getInitials, switchPersona, logoutUser } = useAuth();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [textSize, setTextSize] = useState<"normal" | "large" | "largest">("normal");
-
-  const textSizeClass =
-    textSize === "largest" ? "text-base" : textSize === "large" ? "text-sm" : "text-xs";
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [globalSearch, setGlobalSearch] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
@@ -49,296 +52,369 @@ export const AppLayout = () => {
 
   const userRole = user?.role || "learner";
 
-  // Role-aware navigation definitions per specification
+  // Keyboard shortcut for Cmd+K / Ctrl+K
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  // Modern LMS / EdTech Navigation structure with rich intentional accents
   const getNavItems = (): NavItem[] => {
     const items: NavItem[] = [
-      { label: t("nav.dashboard", "Dashboard"), icon: LayoutDashboard, path: "/dashboard" },
-      { label: t("nav.journey", "My Journey"), icon: Milestone, path: "/journey" },
+      { label: "Dashboard", icon: LayoutDashboard, path: "/dashboard", colorClass: "text-indigo-600 bg-indigo-50", activeBg: "bg-indigo-50 text-indigo-700" },
+      { label: "My Journey", icon: Compass, path: "/journey", colorClass: "text-amber-500 bg-amber-50", activeBg: "bg-amber-50 text-amber-800" },
+      { label: "Competencies", icon: Target, path: "/competency", colorClass: "text-emerald-600 bg-emerald-50", activeBg: "bg-emerald-50 text-emerald-800" },
+      { label: "iGOT Pathways", icon: GraduationCap, path: "/igot-learning", colorClass: "text-sky-600 bg-sky-50", activeBg: "bg-sky-50 text-sky-800" },
+      { label: "Knowledge Repository", icon: BookOpen, path: "/learning", colorClass: "text-teal-600 bg-teal-50", activeBg: "bg-teal-50 text-teal-800" },
+      { label: "Quizzes & Assessments", icon: FileCheck, path: "/assessment", colorClass: "text-rose-600 bg-rose-50", activeBg: "bg-rose-50 text-rose-800" },
+      { label: "AI Copilot", icon: Sparkles, path: "/ai-assistant", badge: "AI", colorClass: "text-violet-600 bg-violet-50", activeBg: "bg-violet-50 text-violet-800" },
+      { label: "Competency Quest", icon: Trophy, path: "/quest", colorClass: "text-orange-600 bg-orange-50", activeBg: "bg-orange-50 text-orange-800" },
     ];
 
     if (userRole === "admin") {
-      items.push({ label: t("nav.analytics", "Cadre Analytics"), icon: BarChart3, path: "/analytics" });
-    }
-
-    items.push(
-      { label: t("nav.competency", "My Competency"), icon: Award, path: "/competency" },
-      { label: t("nav.igot_pathways", "iGOT Pathways"), icon: GraduationCap, path: "/igot-learning" },
-      { label: t("nav.learning", "Learning Repository"), icon: BookOpen, path: "/learning" },
-      { label: t("nav.assessments", "Assessments & Quizzes"), icon: FileCheck, path: "/assessment" },
-      { label: t("nav.ai_assistant", "AI Learning Assistant"), icon: Bot, path: "/ai-assistant", badge: "AI" }
-    );
-
-    if (userRole === "learner") {
-      items.push({ label: t("nav.quest", "Competency Quest"), icon: Compass, path: "/quest" });
+      items.push({ label: "Cadre Analytics", icon: BarChart3, path: "/analytics", colorClass: "text-blue-600 bg-blue-50", activeBg: "bg-blue-50 text-blue-800" });
+      items.push({ label: "User Management", icon: Users, path: "/admin/users", colorClass: "text-purple-600 bg-purple-50", activeBg: "bg-purple-50 text-purple-800" });
     } else if (userRole === "trainer") {
-      items.push({ label: t("nav.question_bank", "Question Bank"), icon: FileCheck, path: "/trainer/questions" });
-    } else if (userRole === "admin") {
-      items.push({ label: t("nav.user_management", "User Management"), icon: Users, path: "/admin/users" });
+      items.push({ label: "Question Bank", icon: FileCheck, path: "/trainer/questions", colorClass: "text-rose-600 bg-rose-50", activeBg: "bg-rose-50 text-rose-800" });
     }
 
-    items.push({ label: t("nav.notices", "Portal Notices"), icon: Radio, path: "/notices" });
+    items.push({ label: "Portal Notices", icon: Radio, path: "/notices", colorClass: "text-slate-600 bg-slate-100", activeBg: "bg-slate-100 text-slate-900" });
     return items;
   };
 
   const navItems = getNavItems();
 
-
-  // Compute officer name in current language if match or fallback to user's registered name
   const officerName =
-    user?.fullName && (user.fullName.toLowerCase().includes("sanvi") || user.fullName.toLowerCase().includes("siya") || user.fullName.toLowerCase().includes("keiyona"))
-      ? (i18n.language === "hi" ? "सान्वी सावंत" : i18n.language === "mr" ? "सान्वी सावंत" : user.fullName)
+    user?.fullName &&
+    (user.fullName.toLowerCase().includes("sanvi") ||
+      user.fullName.toLowerCase().includes("siya") ||
+      user.fullName.toLowerCase().includes("keiyona"))
+      ? i18n.language === "hi"
+        ? "सान्वी सावंत"
+        : i18n.language === "mr"
+        ? "सान्वी सावंत"
+        : user.fullName
       : user?.fullName || "Sanvi Sawant";
 
-  const officerDesignation = user?.designation || t("officer.designation");
+  const handleGlobalSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (globalSearch.trim()) {
+      navigate(`/learning?q=${encodeURIComponent(globalSearch.trim())}`);
+    }
+  };
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-slate-100">
-      {/* Indian National Tricolor Portal Top Bar */}
-      <div className="gov-tricolor-bar" />
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 flex font-sans antialiased">
+      {/* Mobile menu backdrop */}
+      {mobileMenuOpen && (
+        <div
+          onClick={() => setMobileMenuOpen(false)}
+          className="fixed inset-0 bg-slate-900/50 z-40 lg:hidden backdrop-blur-xs transition-opacity"
+        />
+      )}
 
-      {/* Top Bar: Institutional Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
-        <div className="px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-4">
-          {/* Brand & Crest */}
-          <div className="flex items-center gap-3">
+      {/* Left Sidebar Navigation */}
+      <aside
+        className={`fixed lg:sticky lg:top-0 inset-y-0 left-0 z-50 w-64 h-screen bg-white border-r border-slate-200/80 flex flex-col justify-between transition-transform duration-300 ease-in-out shrink-0 ${
+          mobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full lg:translate-x-0"
+        }`}
+      >
+        {/* Top: Brand Header */}
+        <div className="p-4 flex items-center justify-between border-b border-slate-100">
+          <Link to="/dashboard" className="flex items-center gap-2.5 group">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-600 text-white flex items-center justify-center font-black shadow-md shadow-indigo-100">
+              <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current" aria-hidden="true">
+                <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                <rect x="3" y="14" width="7" height="7" rx="1.5" opacity="0.6" />
+              </svg>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="font-extrabold text-base text-slate-900 tracking-tight group-hover:text-indigo-600 transition-colors">
+                DAKSHA
+              </span>
+              <span className="bg-gradient-to-r from-violet-100 to-indigo-100 text-indigo-700 text-[10px] font-bold px-2 py-0.5 rounded-full tracking-wide border border-indigo-200/60">
+                MOSPI AI
+              </span>
+            </div>
+          </Link>
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(false)}
+            className="lg:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+            aria-label="Close menu"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Middle: Navigation Links */}
+        <div className="flex-1 overflow-y-auto py-3 px-2 space-y-1">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) =>
+                  `flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 ${
+                    isActive
+                      ? `${item.activeBg} font-bold shadow-2xs translate-x-0.5`
+                      : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-medium"
+                  }`
+                }
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${item.colorClass}`}>
+                    <Icon className="w-3.5 h-3.5 shrink-0" />
+                  </div>
+                  <span>{item.label}</span>
+                </div>
+                {item.badge && (
+                  <span className="px-1.5 py-0.5 text-[9px] font-bold rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 text-white shadow-2xs">
+                    {item.badge}
+                  </span>
+                )}
+              </NavLink>
+            );
+          })}
+        </div>
+
+        {/* Bottom Pinned Footer: Officer Profile Card & Help */}
+        <div className="p-3 border-t border-slate-100 bg-white space-y-2 relative">
+          {/* Settings / Persona Switcher Popover */}
+          {settingsOpen && (
+            <div className="absolute bottom-full left-3 right-3 mb-2 bg-white rounded-xl shadow-xl border border-slate-200 p-3 z-30 space-y-2.5 text-xs animate-fade-in">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <span className="font-bold text-slate-800">Switch Role / Cadre</span>
+                <button
+                  type="button"
+                  onClick={() => setSettingsOpen(false)}
+                  className="text-slate-400 hover:text-slate-600"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+              <div className="space-y-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    switchPersona("learner");
+                    setSettingsOpen(false);
+                  }}
+                  className={`w-full text-left px-2 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    userRole === "learner"
+                      ? "bg-blue-50 text-blue-700 font-bold"
+                      : "hover:bg-slate-100 text-slate-700"
+                  }`}
+                >
+                  Officer (Learner) • Sanvi Sawant
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    switchPersona("trainer");
+                    setSettingsOpen(false);
+                  }}
+                  className={`w-full text-left px-2 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    userRole === "trainer"
+                      ? "bg-blue-50 text-blue-700 font-bold"
+                      : "hover:bg-slate-100 text-slate-700"
+                  }`}
+                >
+                  Master Trainer • Dr. Alok Sharma
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    switchPersona("admin");
+                    setSettingsOpen(false);
+                  }}
+                  className={`w-full text-left px-2 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    userRole === "admin"
+                      ? "bg-blue-50 text-blue-700 font-bold"
+                      : "hover:bg-slate-100 text-slate-700"
+                  }`}
+                >
+                  Cadre Administrator • Rajesh Kumar
+                </button>
+              </div>
+              <div className="pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => {
+                    logoutUser();
+                    navigate("/login");
+                  }}
+                  className="w-full flex items-center gap-2 px-2 py-1.5 text-red-600 hover:bg-red-50 rounded-lg font-semibold cursor-pointer"
+                >
+                  <LogOut className="w-3.5 h-3.5" />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Officer Card */}
+          <div className="bg-slate-50 border border-slate-200/80 rounded-xl p-2.5 flex items-center justify-between">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-slate-200 shrink-0 border border-slate-300 flex items-center justify-center font-bold text-xs text-blue-900">
+                <img
+                  src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=128&q=80"
+                  alt={officerName}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    // Fallback to text initials if image fails
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+                <span className="select-none">{getInitials()}</span>
+              </div>
+              <div className="truncate text-left leading-tight">
+                <p className="text-xs font-bold text-slate-900 truncate">{officerName}</p>
+                <p className="text-[10px] text-slate-500 truncate">ISS • Level 4</p>
+              </div>
+            </div>
+
             <button
               type="button"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 focus:outline-none"
-              aria-label="Toggle Navigation Menu"
+              onClick={() => setSettingsOpen(!settingsOpen)}
+              className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 rounded-lg transition-colors cursor-pointer"
+              title="Settings & Persona Switcher"
+              aria-label="Settings"
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              <SlidersHorizontal className="w-4 h-4" />
             </button>
-
-            <div className="flex items-center gap-3">
-              {/* National Emblem SVG */}
-              <div className="w-9 h-9 rounded bg-slate-900 p-1 flex items-center justify-center text-amber-400 shrink-0">
-                <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current" aria-hidden="true">
-                  <path d="M12 2L15 8H9L12 2Z" />
-                  <path d="M5 9C5 9 6 12 7 13C8 14 10 14 10 14L8 16L9 18L12 17L15 18L16 16L14 14C14 14 16 14 17 13C18 12 19 9 19 9H5Z" />
-                  <path d="M8 19H16V21C16 21.5 15.5 22 15 22H9C8.5 22 8 21.5 8 21V19Z" />
-                </svg>
-              </div>
-
-              {/* DAKSHA Brand Logo & Monogram */}
-              <Link to="/dashboard" className="flex items-center gap-2.5 group">
-                <DakshaLogo size={32} />
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-extrabold text-lg text-blue-950 tracking-tight group-hover:text-blue-700 transition-colors">
-                      {t("brand")}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-slate-500 hidden md:block leading-none">
-                    {t("ministry")} • {t("gov_india")}
-                  </p>
-                </div>
-              </Link>
-            </div>
           </div>
 
-          {/* Search, Accessibility, Multilingual, Notifications & Profile */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Search */}
-            <div className="relative hidden md:block w-48 lg:w-64">
+          {/* Sidebar Footer Sub-row: Support and Version */}
+          <div className="flex items-center justify-between px-1 text-[11px] text-slate-400">
+            <button
+              type="button"
+              onClick={() =>
+                alert("MoSPI Cadre Helpdesk: 1800-11-MoSPI (Toll Free) | helpdesk-daksha@nic.in")
+              }
+              className="flex items-center gap-1.5 hover:text-slate-700 transition-colors cursor-pointer"
+            >
+              <HelpCircle className="w-3.5 h-3.5" />
+              <span>Support</span>
+            </button>
+            <span className="font-mono text-[10px] text-slate-400">v2.4-gov</span>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content Area + Top Navigation */}
+      <div className="flex-1 flex flex-col min-w-0 h-screen overflow-y-auto bg-slate-50">
+        {/* Top Navigation Bar */}
+        <header className="bg-white border-b border-slate-200/80 sticky top-0 z-30 px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-4 shadow-2xs">
+          {/* Mobile hamburger */}
+          <div className="flex items-center gap-3 lg:hidden">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="p-1.5 rounded-lg text-slate-600 hover:bg-slate-100 focus:outline-none"
+              aria-label="Open Navigation Menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <span className="font-bold text-slate-900 text-sm">DAKSHA</span>
+          </div>
+
+          {/* Center: Rounded Global Search Bar with ⌘K */}
+          <form
+            onSubmit={handleGlobalSearchSubmit}
+            className="flex-1 max-w-xl mx-auto hidden sm:block"
+          >
+            <div className="relative">
               <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
               <input
+                ref={searchInputRef}
                 type="text"
-                placeholder={t("common.search_placeholder")}
-                className="w-full pl-9 pr-3.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-900 focus:bg-white transition-colors"
+                value={globalSearch}
+                onChange={(e) => setGlobalSearch(e.target.value)}
+                placeholder="Search competencies, manuals, or training modules..."
+                className="w-full pl-9 pr-12 py-1.5 text-xs bg-slate-100/70 hover:bg-slate-100 focus:bg-white border border-slate-200/80 rounded-lg text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
               />
+              <span className="absolute right-2.5 top-1.5 px-1.5 py-0.5 text-[10px] font-mono text-slate-400 bg-white border border-slate-200/90 rounded shadow-2xs pointer-events-none">
+                ⌘K
+              </span>
+            </div>
+          </form>
+
+          {/* Right: Institutional Badge, Language Selector, Bell, Officer Avatar */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Institutional Badge ("MoSPI • GoI") */}
+            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 border border-slate-200/80 rounded-lg text-xs font-semibold text-slate-700 shadow-2xs">
+              <Landmark className="w-3.5 h-3.5 text-slate-500" />
+              <span>MoSPI • GoI</span>
             </div>
 
-
-            {/* Text Size Accessibility Controls */}
-            <div className="hidden sm:flex items-center rounded-lg border border-slate-200 bg-slate-50 p-0.5">
-              <button
-                type="button"
-                onClick={() => setTextSize("normal")}
-                className={`px-2 py-0.5 text-xs font-bold rounded ${
-                  textSize === "normal"
-                    ? "bg-blue-900 text-white"
-                    : "text-slate-700 hover:bg-slate-200"
-                }`}
-                title={t("common.text_normal", "Default text size")}
-              >
-                A-
-              </button>
-              <button
-                type="button"
-                onClick={() => setTextSize("large")}
-                className={`px-2 py-0.5 text-xs font-bold rounded ${
-                  textSize === "large"
-                    ? "bg-blue-900 text-white"
-                    : "text-slate-700 hover:bg-slate-200"
-                }`}
-                title={t("common.text_large", "Large text size")}
-              >
-                A
-              </button>
-              <button
-                type="button"
-                onClick={() => setTextSize("largest")}
-                className={`px-2 py-0.5 text-xs font-bold rounded ${
-                  textSize === "largest"
-                    ? "bg-blue-900 text-white"
-                    : "text-slate-700 hover:bg-slate-200"
-                }`}
-                title={t("common.text_largest", "Largest text size")}
-              >
-                A+
-              </button>
-            </div>
-
-
-
-            {/* Dynamic i18n Language Dropdown */}
-            <div className="flex items-center gap-1 border border-slate-200 rounded-lg px-2 py-1 bg-slate-50">
+            {/* Language Selector Dropdown */}
+            <div className="flex items-center gap-1 border border-slate-200/80 rounded-lg px-2 py-1 bg-slate-50 text-xs text-slate-700 font-medium hover:bg-slate-100 transition-colors">
               <Globe className="w-3.5 h-3.5 text-slate-500" />
               <select
                 onChange={(e) => changeLanguage(e.target.value)}
                 value={i18n.language ? i18n.language.slice(0, 2) : "en"}
-                className="bg-transparent text-xs font-medium text-slate-700 focus:outline-none cursor-pointer"
-                aria-label={t("common.language")}
+                className="bg-transparent text-xs font-medium text-slate-700 focus:outline-none cursor-pointer pr-1"
+                aria-label="Language selection"
               >
-                <option value="en">English</option>
-                <option value="hi">हिन्दी</option>
-                <option value="mr">मराठी</option>
+                <option value="en">English (IN)</option>
+                <option value="hi">हिन्दी (IN)</option>
+                <option value="mr">मराठी (IN)</option>
               </select>
+              <ChevronDown className="w-3 h-3 text-slate-400 pointer-events-none -ml-1" />
             </div>
 
-            {/* Notification Center */}
+            {/* Notification Center with Dot */}
             <button
               type="button"
               onClick={() => alert("Notification: Annual MoSPI Competency Evaluation round is now active.")}
-              className="p-2 text-slate-600 hover:text-blue-900 hover:bg-slate-100 rounded-lg relative cursor-pointer"
+              className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg relative cursor-pointer transition-colors"
               aria-label="Notifications"
             >
               <Bell className="w-4 h-4" />
-              <span className="w-2 h-2 bg-amber-600 rounded-full absolute top-1.5 right-1.5" />
+              <span className="w-2 h-2 bg-blue-600 rounded-full absolute top-1.5 right-1.5 ring-2 ring-white" />
             </button>
 
-            {/* Controlled Persona & Role Switcher for Evaluation */}
-            <div className="hidden sm:flex items-center gap-2 pl-2 border-l border-slate-200">
-              <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1">
-                <span className="text-[10px] font-bold text-slate-500 uppercase">Role:</span>
-                <select
-                  value={user.role}
-                  onChange={(e) => switchPersona(e.target.value as "learner" | "trainer" | "admin")}
-                  className="bg-transparent text-xs font-bold text-slate-800 focus:outline-none cursor-pointer"
-                  title="Switch authenticated demo persona"
-                >
-                  <option value="learner">Officer (Learner)</option>
-                  <option value="trainer">Master Trainer</option>
-                  <option value="admin">Administrator</option>
-                </select>
-              </div>
-
-              <div className="w-8 h-8 rounded-full bg-blue-900 text-white flex items-center justify-center text-xs font-bold shrink-0">
-                {getInitials()}
-              </div>
-              <div className="text-left leading-tight hidden xl:block">
-                <p className="text-xs font-bold text-slate-900">{officerName}</p>
-                <p className="text-[10px] text-teal-700 font-semibold">{officerDesignation}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Main Body Layout with Sidebar */}
-      <div className={`flex flex-1 min-h-0 overflow-hidden ${textSizeClass}`}>
-        {/* Left Sidebar Navigation */}
-        <aside
-          className={`fixed lg:sticky lg:top-0 inset-y-0 left-0 z-30 w-64 h-full bg-white border-r border-slate-200 flex flex-col justify-between p-4 transition-transform duration-300 ease-in-out overflow-y-auto shrink-0 ${
-            mobileMenuOpen
-              ? "translate-x-0 top-16 shadow-2xl"
-              : "-translate-x-full lg:translate-x-0"
-          }`}
-        >
-          <div className="space-y-4">
-            {/* Navigation Links */}
-            <nav className="space-y-1.5" aria-label="Portal Navigation">
-              {navItems.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <NavLink
-                    key={item.path}
-                    to={item.path}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={({ isActive }) =>
-                      `flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all duration-150 ${
-                        isActive
-                          ? "bg-blue-900 text-white shadow-xs font-bold"
-                          : "text-slate-700 hover:bg-slate-100/90 hover:text-blue-950"
-                      }`
-                    }
-                  >
-                    <div className="flex items-center gap-3">
-                      <Icon className="w-4 h-4 shrink-0" />
-                      <span>{item.label}</span>
-                    </div>
-                    {item.badge && (
-                      <span className="px-1.5 py-0.5 text-[9px] font-bold rounded bg-amber-500 text-white flex items-center gap-0.5">
-                        <Sparkles className="w-2.5 h-2.5" />
-                        {item.badge}
-                      </span>
-                    )}
-                  </NavLink>
-                );
-              })}
-            </nav>
-          </div>
-
-          {/* Sidebar Footer & Logout */}
-          <div className="pt-4 border-t border-slate-200 space-y-2">
+            {/* Officer Avatar Header Profile */}
             <button
               type="button"
-              onClick={() => {
-                alert("MoSPI Cadre Helpdesk: 1800-11-MoSPI (Toll Free) | helpdesk-daksha@nic.in");
-              }}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 transition-colors cursor-pointer"
+              onClick={() => setSettingsOpen(!settingsOpen)}
+              className="w-8 h-8 rounded-full overflow-hidden bg-slate-200 border border-slate-300 flex items-center justify-center font-bold text-xs text-blue-900 cursor-pointer shadow-2xs"
+              title={`${officerName} - Click to configure`}
             >
-              <HelpCircle className="w-4 h-4 text-slate-400" />
-              <span>{t("nav.helpdesk")}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => navigate("/login")}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold text-red-700 hover:bg-red-50 transition-colors cursor-pointer"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>{t("nav.logout")}</span>
+              <img
+                src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=128&q=80"
+                alt={officerName}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
+              />
+              <span className="select-none">{getInitials()}</span>
             </button>
           </div>
-        </aside>
+        </header>
 
-        {/* Mobile menu backdrop */}
-        {mobileMenuOpen && (
-          <div
-            onClick={() => setMobileMenuOpen(false)}
-            className="fixed inset-0 bg-slate-900/40 z-20 lg:hidden backdrop-blur-xs"
-          />
-        )}
-
-        {/* Main Content Area */}
-        <main className="flex-1 p-4 sm:p-5 lg:p-6 overflow-y-auto max-w-7xl mx-auto w-full animate-fade-in min-h-0">
+        {/* Page Content View */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-[1600px] w-full mx-auto">
           <Outlet />
         </main>
       </div>
-
-      {/* Institutional Global Footer */}
-      <footer className="bg-slate-900 text-slate-400 text-xs py-4 px-6 border-t border-slate-800">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left">
-          <p className="text-slate-300 font-medium">{t("common.copyright")}</p>
-          <div className="flex items-center gap-4 text-slate-300 text-xs">
-            <a href="#terms" className="hover:text-white hover:underline">{t("common.terms_of_service")}</a>
-            <span>•</span>
-            <a href="#privacy" className="hover:text-white hover:underline">{t("common.privacy_policy")}</a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 };
+

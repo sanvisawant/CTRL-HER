@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/AuthContext";
 import {
@@ -7,11 +8,9 @@ import {
   type QuestSubmissionResponse,
 } from "../../services/api";
 import { Card, CardHeader, CardTitle, CardDescription, CardBody } from "../../components/common/Card";
-import { Button } from "../../components/common/Button";
 import { ErrorState } from "../../components/common/ErrorState";
 import { MetricSkeleton, CardSkeleton } from "../../components/common/SkeletonLoader";
 import {
-  Compass,
   Trophy,
   Flame,
   Sparkles,
@@ -79,7 +78,7 @@ export const QuestView: React.FC = () => {
       setError("Challenge submission could not be evaluated at this time. Please retry.");
       setSubmitResult(null);
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
@@ -90,30 +89,40 @@ export const QuestView: React.FC = () => {
   const xpPct = xpNext > 0 ? Math.min(100, (xp / xpNext) * 100) : 0;
 
   return (
-    <div className="space-y-4 animate-fade-in">
-      {/* Header Banner (Compact & Dignified) */}
-      <div className="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 rounded-xl p-4 sm:p-5 text-white shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3 border border-blue-800/40">
-        <div className="space-y-1">
-          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full bg-blue-800/50 border border-blue-400/30 text-blue-200 text-[11px] font-semibold">
-            <Compass className="w-3.5 h-3.5 text-blue-300" />
-            <span>{t("quest.badge", "P4 Competency Quest & Gamified Mastery")}</span>
+    <div className="space-y-6 animate-fade-in pb-12">
+      {/* Light Spacious LMS Hero */}
+      <div className="bg-white rounded-2xl p-6 sm:p-7 border border-slate-200/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-2">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-400">
+            <Link to="/dashboard" className="hover:text-indigo-600 transition-colors">
+              Dashboard
+            </Link>
+            <span>/</span>
+            <span className="text-orange-600 flex items-center gap-1">
+              <Flame className="w-3.5 h-3.5" />
+              Competency Quest & Missions
+            </span>
           </div>
-          <h1 className="text-xl sm:text-2xl font-black tracking-tight">
-            {t("quest.title", "Statistical Gamification & Daily Micro-Missions")}
-          </h1>
-          <p className="text-slate-300 text-xs max-w-2xl leading-relaxed">
-            {t("quest.subtitle", "Reinforce core survey methodology and data auditing habits through real-world micro-challenges and earn official cadre milestones.")}
-          </p>
+
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+              {t("quest.title", "Statistical Gamification & Daily Micro-Missions")}
+            </h1>
+            <p className="text-slate-500 text-xs sm:text-sm max-w-2xl leading-relaxed mt-1">
+              {t("quest.subtitle", "Reinforce core survey methodology and data auditing habits through real-world micro-challenges and earn official cadre milestones.")}
+            </p>
+          </div>
         </div>
-        <Button
-          variant="outlineInvert"
-          size="sm"
+
+        <button
+          type="button"
           onClick={loadQuestData}
-          leftIcon={<RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />}
-          className="shrink-0"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold shadow-2xs transition-all shrink-0 cursor-pointer"
         >
-          {t("quest.sync_xp", "Sync XP")}
-        </Button>
+          <RefreshCw className={`w-3.5 h-3.5 text-slate-500 ${loading ? "animate-spin" : ""}`} />
+          <span>{t("quest.sync_xp", "Sync XP")}</span>
+        </button>
       </div>
 
       {loading && !questData ? (
@@ -144,97 +153,94 @@ export const QuestView: React.FC = () => {
           )}
 
           {/* Gamification Status Bar (Level, XP, Streak) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-        {/* Level Card */}
-        <Card variant="accent" className="hover:shadow-md transition-shadow">
-          <CardBody className="p-4 flex items-center justify-between">
-            <div>
-              <p className="text-[11px] font-semibold text-slate-500 uppercase">{t("quest.rank_level", "Officer Rank Level")}</p>
-              <h3 className="text-2xl font-black text-slate-900 mt-0.5">
-                Level {level}
-              </h3>
-              <p className="text-xs text-blue-900 font-semibold mt-1 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-teal-600" /> Senior Analyst (ISS)
-              </p>
-            </div>
-            <div className="p-3 bg-blue-100 text-blue-900 rounded-xl">
-              <Trophy className="w-6 h-6" />
-            </div>
-          </CardBody>
-        </Card>
-
-        {/* XP Progress Card */}
-        <Card variant="default">
-          <CardBody className="p-5">
-            <div className="flex items-center justify-between">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            {/* Level Card */}
+            <div className="p-5 rounded-2xl bg-indigo-50/60 border border-indigo-100 shadow-xs flex items-center justify-between">
               <div>
-                <p className="text-xs font-medium text-slate-500 uppercase">{t("quest.experience_xp", "Cadre Experience (XP)")}</p>
-                <h3 className="text-2xl font-bold text-slate-900 mt-1">
-                  {xp} <span className="text-slate-400 text-sm font-normal">/ {xpNext} XP</span>
+                <p className="text-[11px] font-bold text-indigo-700 uppercase tracking-wider">{t("quest.rank_level", "Officer Rank Level")}</p>
+                <h3 className="text-2xl font-black text-slate-900 mt-1">
+                  Level {level}
                 </h3>
+                <p className="text-xs text-indigo-900 font-semibold mt-1 flex items-center gap-1">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" /> Senior Analyst (ISS)
+                </p>
               </div>
-              <div className="p-3.5 bg-amber-100 text-amber-700 rounded-2xl">
-                <Sparkles className="w-6 h-6" />
+              <div className="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
+                <Trophy className="w-6 h-6" />
               </div>
             </div>
-            <div className="w-full bg-slate-100 rounded-full h-2 mt-3 overflow-hidden">
-              <div className="bg-amber-500 h-2 rounded-full transition-all duration-500" style={{ width: `${xpPct}%` }} />
-            </div>
-          </CardBody>
-        </Card>
 
-        {/* Streak Card */}
-        <Card variant="default">
-          <CardBody className="p-5 flex items-center justify-between">
-            <div>
-              <p className="text-xs font-medium text-slate-500 uppercase">{t("quest.streak", "Consecutive Days Streak")}</p>
-              <h3 className="text-2xl font-bold text-slate-900 mt-1">
-                {streak} Days 🔥
-              </h3>
-              <p className="text-xs text-orange-600 font-semibold mt-1">
-                Bonus +25% XP multiplier active
-              </p>
+            {/* XP Progress Card */}
+            <div className="p-5 rounded-2xl bg-amber-50/60 border border-amber-100 shadow-xs flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-[11px] font-bold text-amber-700 uppercase tracking-wider">{t("quest.experience_xp", "Cadre Experience (XP)")}</p>
+                  <h3 className="text-2xl font-black text-slate-900 mt-1">
+                    {xp} <span className="text-slate-400 text-sm font-normal">/ {xpNext} XP</span>
+                  </h3>
+                </div>
+                <div className="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+              </div>
+              <div className="w-full bg-amber-100/80 rounded-full h-2.5 mt-3 overflow-hidden">
+                <div className="bg-amber-500 h-2.5 rounded-full transition-all duration-500" style={{ width: `${xpPct}%` }} />
+              </div>
             </div>
-            <div className="p-3.5 bg-orange-100 text-orange-600 rounded-2xl">
-              <Flame className="w-6 h-6" />
+
+            {/* Streak Card — Vibrant Flame Gradient */}
+            <div className="p-5 rounded-2xl bg-gradient-to-br from-orange-500 via-rose-500 to-amber-500 text-white shadow-md shadow-orange-500/20 flex items-center justify-between relative overflow-hidden">
+              <div className="relative z-10">
+                <p className="text-[11px] font-bold text-orange-100 uppercase tracking-wider">{t("quest.streak", "Daily Learning Streak")}</p>
+                <h3 className="text-3xl font-black text-white mt-0.5 tracking-tight flex items-center gap-2">
+                  <span>{streak} Days</span>
+                  <span className="text-xl">🔥</span>
+                </h3>
+                <div className="inline-flex items-center gap-1.5 mt-1.5 px-2.5 py-0.5 rounded-full bg-white/20 text-white text-[11px] font-bold">
+                  <span>+25% XP Multiplier Active</span>
+                </div>
+              </div>
+              <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center text-white relative z-10 shrink-0">
+                <Flame className="w-8 h-8 text-amber-200 animate-pulse" />
+              </div>
             </div>
-          </CardBody>
-        </Card>
-      </div>
+          </div>
 
       {/* Main Grid: Daily Micro-Challenge + Missions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left 2 Cols: Today's 2-Minute Micro-Challenge */}
         <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-amber-100 text-amber-900 uppercase">
-                    {t("quest.daily_challenge_title", "Daily Micro-Challenge")}
-                  </span>
-                  <span className="text-xs text-slate-500">2-Minute Scenario</span>
+          <Card className="rounded-2xl border-slate-200/80 shadow-xs">
+            <CardHeader className="p-5 sm:p-6 border-b border-slate-100">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="px-2.5 py-0.5 text-[10px] font-extrabold rounded-md bg-amber-100 text-amber-900 uppercase tracking-wider">
+                      {t("quest.daily_challenge_title", "Daily Micro-Challenge")}
+                    </span>
+                    <span className="text-xs text-slate-400 font-medium">⏱ 2-Minute Scenario</span>
+                  </div>
+                  <CardTitle className="text-base font-bold text-slate-900">Data Detective: Outlier Anomaly in NSSO Urban Frame</CardTitle>
+                  <CardDescription className="text-xs text-slate-500 mt-0.5">
+                    Review the sample enumerator records below and identify the critical survey data quality flaw.
+                  </CardDescription>
                 </div>
-                <CardTitle className="text-sm mt-1">Data Detective: Outlier Anomaly in NSSO Urban Frame</CardTitle>
-                <CardDescription>
-                  Review the sample enumerator records below and identify the critical survey data quality flaw.
-                </CardDescription>
+                <span className="text-xs font-bold text-amber-700 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200 flex items-center gap-1.5 shrink-0 self-start sm:self-auto shadow-2xs">
+                  <Zap className="w-3.5 h-3.5 text-amber-600" /> +50 XP
+                </span>
               </div>
-              <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 flex items-center gap-1">
-                <Zap className="w-3 h-3 text-amber-600" /> +50 XP
-              </span>
             </CardHeader>
-            <CardBody className="space-y-4">
+            <CardBody className="p-5 sm:p-6 space-y-4">
               {/* Scenario Context Box */}
-              <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 font-mono text-xs text-slate-800 space-y-1">
+              <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 font-mono text-xs text-slate-800 space-y-1.5">
                 <p className="text-slate-500 text-[11px] font-sans font-semibold">Enumerator Record #FOD-8921:</p>
-                <p className="p-2 bg-white rounded border border-slate-200 text-xs">
-                  Household ID: HH-4029 | Sector: Urban | Monthly Consumption (MPCE): <span className="text-red-600 font-bold">9999999</span> | Household Size: 4
+                <p className="p-2.5 bg-white rounded-lg border border-slate-200 text-xs">
+                  Household ID: HH-4029 | Sector: Urban | Monthly Consumption (MPCE): <span className="text-rose-600 font-bold">9999999</span> | Household Size: 4
                 </p>
               </div>
 
               {/* Multiple Choice Options */}
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {[
                   {
                     id: "A",
@@ -260,20 +266,20 @@ export const QuestView: React.FC = () => {
                       type="button"
                       onClick={() => setSelectedAnswer(opt.id)}
                       disabled={submitting || !!submitResult}
-                      className={`w-full p-3 rounded-lg border text-left text-xs transition-all flex items-start gap-2.5 ${
+                      className={`w-full p-3.5 rounded-xl border text-left text-xs transition-all flex items-start gap-3 cursor-pointer ${
                         isSelected
-                          ? "bg-blue-900 text-white border-blue-900 font-semibold shadow-xs"
-                          : "bg-white text-slate-800 border-slate-200 hover:border-blue-900/40 hover:bg-slate-50"
+                          ? "bg-indigo-600 text-white border-indigo-600 font-semibold shadow-xs"
+                          : "bg-white text-slate-800 border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/20"
                       }`}
                     >
                       <span
-                        className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
-                          isSelected ? "bg-white text-blue-900" : "bg-slate-100 text-slate-700"
+                        className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-colors ${
+                          isSelected ? "bg-white text-indigo-700" : "bg-slate-100 text-slate-700"
                         }`}
                       >
                         {opt.id}
                       </span>
-                      <span className="leading-snug">{opt.text}</span>
+                      <span className="leading-snug pt-0.5">{opt.text}</span>
                     </button>
                   );
                 })}
@@ -282,16 +288,15 @@ export const QuestView: React.FC = () => {
               {/* Action / Submit Result */}
               {!submitResult ? (
                 <div className="pt-2 flex justify-end">
-                  <Button
-                    variant="primary"
-                    size="md"
+                  <button
+                    type="button"
                     onClick={handleSubmitDaily}
                     disabled={!selectedAnswer || submitting}
-                    isLoading={submitting}
-                    rightIcon={<Target className="w-4 h-4" />}
+                    className="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-bold shadow-sm shadow-indigo-600/20 transition-all cursor-pointer hover:-translate-y-0.5"
                   >
-                    {submitting ? t("quest.evaluating", "Evaluating Challenge...") : t("quest.submit_challenge", "Submit Challenge")}
-                  </Button>
+                    <span>{submitting ? t("quest.evaluating", "Evaluating Challenge...") : t("quest.submit_challenge", "Submit Challenge 🚀")}</span>
+                    <Target className="w-4 h-4" />
+                  </button>
                 </div>
               ) : (
                 <div className="p-4 rounded-xl bg-green-50 border border-green-200 space-y-2 text-xs">
@@ -314,58 +319,58 @@ export const QuestView: React.FC = () => {
 
         {/* Right 1 Col: Cadre Peer Leaderboard */}
         <div className="space-y-6">
-          <Card>
-            <CardHeader>
+          <Card className="rounded-2xl border-slate-200/80 shadow-xs">
+            <CardHeader className="p-5 border-b border-slate-100">
               <div>
-                <CardTitle className="text-sm">{t("quest.leaderboard_title", "Cadre Peer Leaderboard")}</CardTitle>
-                <CardDescription>{t("quest.leaderboard_desc", "Top performing statistical officers across ministry divisions")}</CardDescription>
+                <CardTitle className="text-base font-bold text-slate-900">{t("quest.leaderboard_title", "Cadre Peer Leaderboard")}</CardTitle>
+                <CardDescription className="text-xs text-slate-500 mt-0.5">{t("quest.leaderboard_desc", "Top performing statistical officers across ministry divisions")}</CardDescription>
               </div>
             </CardHeader>
-            <CardBody className="p-4 pt-0 space-y-3">
-              <div className="p-3 border border-slate-200 rounded-lg bg-slate-50 space-y-1.5">
+            <CardBody className="p-5 space-y-3">
+              <div className="p-4 border border-indigo-100 rounded-xl bg-indigo-50/30 space-y-2 transition-all hover:bg-indigo-50/50">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-slate-900">Sampling Design Master</span>
-                  <span className="text-amber-700 font-bold text-[11px]">+120 XP</span>
+                  <span className="text-amber-800 bg-amber-100 font-extrabold text-[11px] px-2 py-0.5 rounded-full">+120 XP</span>
                 </div>
-                <p className="text-[11px] text-slate-500">Complete 3 NSS sampling diagnostic quizzes with &gt; 80% score.</p>
-                <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden mt-2">
-                  <div className="bg-blue-900 h-1.5 rounded-full" style={{ width: "66%" }} />
+                <p className="text-[11px] text-slate-600">Complete 3 NSS sampling diagnostic quizzes with &gt; 80% score.</p>
+                <div className="w-full bg-slate-200/80 h-2 rounded-full overflow-hidden mt-2">
+                  <div className="bg-indigo-600 h-2 rounded-full transition-all" style={{ width: "66%" }} />
                 </div>
-                <span className="text-[10px] text-slate-400 block pt-0.5">Progress: 2 of 3 Completed</span>
+                <span className="text-[10px] text-slate-400 block pt-0.5 font-medium">Progress: 2 of 3 Completed</span>
               </div>
 
-              <div className="p-3 border border-slate-200 rounded-lg bg-slate-50 space-y-1.5">
+              <div className="p-4 border border-emerald-100 rounded-xl bg-emerald-50/30 space-y-2 transition-all hover:bg-emerald-50/50">
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-bold text-slate-900">Digital Twin Milestone</span>
-                  <span className="text-amber-700 font-bold text-[11px]">+200 XP</span>
+                  <span className="text-emerald-800 bg-emerald-100 font-extrabold text-[11px] px-2 py-0.5 rounded-full">+200 XP</span>
                 </div>
-                <p className="text-[11px] text-slate-500">Eliminate high-priority competency gaps in Technical Domain.</p>
-                <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden mt-2">
-                  <div className="bg-teal-700 h-1.5 rounded-full" style={{ width: "40%" }} />
+                <p className="text-[11px] text-slate-600">Eliminate high-priority competency gaps in Technical Domain.</p>
+                <div className="w-full bg-slate-200/80 h-2 rounded-full overflow-hidden mt-2">
+                  <div className="bg-emerald-600 h-2 rounded-full transition-all" style={{ width: "40%" }} />
                 </div>
-                <span className="text-[10px] text-slate-400 block pt-0.5">Progress: 2 of 5 Competencies</span>
+                <span className="text-[10px] text-slate-400 block pt-0.5 font-medium">Progress: 2 of 5 Competencies</span>
               </div>
             </CardBody>
           </Card>
 
           {/* Unlocked Badges */}
-          <Card>
-            <CardHeader className="py-3 px-4">
+          <Card className="rounded-2xl border-slate-200/80 shadow-xs">
+            <CardHeader className="p-4 border-b border-slate-100">
               <CardTitle className="text-xs font-bold uppercase tracking-wider text-slate-500">
                 Cadre Honor Badges
               </CardTitle>
             </CardHeader>
-            <CardBody className="p-4 pt-0">
-              <div className="grid grid-cols-2 gap-2.5">
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl text-center space-y-1">
-                  <Award className="w-6 h-6 text-blue-900 mx-auto" />
+            <CardBody className="p-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-4 bg-indigo-50/60 border border-indigo-100 rounded-2xl text-center space-y-1.5 transition-all hover:-translate-y-0.5">
+                  <Award className="w-7 h-7 text-indigo-600 mx-auto" />
                   <p className="text-xs font-bold text-slate-900">Survey Sentinel</p>
-                  <p className="text-[10px] text-slate-500">100% Quality Audits</p>
+                  <p className="text-[10px] text-slate-500 font-medium">100% Quality Audits</p>
                 </div>
-                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-center space-y-1">
-                  <Trophy className="w-6 h-6 text-amber-600 mx-auto" />
+                <div className="p-4 bg-amber-50/60 border border-amber-100 rounded-2xl text-center space-y-1.5 transition-all hover:-translate-y-0.5">
+                  <Trophy className="w-7 h-7 text-amber-600 mx-auto" />
                   <p className="text-xs font-bold text-slate-900">Outlier Hunter</p>
-                  <p className="text-[10px] text-slate-500">Daily Streak Master</p>
+                  <p className="text-[10px] text-slate-500 font-medium">Daily Streak Master</p>
                 </div>
               </div>
             </CardBody>
