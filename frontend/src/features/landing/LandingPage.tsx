@@ -15,13 +15,167 @@ import {
   Calendar,
   Layers,
   Lock,
+  Check,
+  Globe,
 } from "lucide-react";
 import { DakshaLogo } from "../../components/common/DakshaLogo";
+
+export type LanguageCode = "en" | "hi" | "mr";
+
+interface Translations {
+  portalSubtitle: string;
+  navAbout: string;
+  navFramework: string;
+  navLifecycle: string;
+  navCirculars: string;
+  navHelpdesk: string;
+  officerLogin: string;
+  tagline: string;
+  heroTitle: string;
+  heroSub: string;
+  ctaAccess: string;
+  ctaGuide: string;
+  govHeader: string;
+  missionKarmayogiTag: string;
+  cadreIndexTitle: string;
+  activeCycle: string;
+  aggregateReadiness: string;
+  verifiedStandard: string;
+  fracSync: string;
+  pillarsTag: string;
+  pillarsTitle: string;
+  pillarsSub: string;
+  lifecycleTag: string;
+  lifecycleTitle: string;
+  lifecycleSub: string;
+  circularsTag: string;
+  circularsTitle: string;
+  viewAllCirculars: string;
+  ctaBannerTag: string;
+  ctaBannerTitle: string;
+  ctaBannerSub: string;
+}
+
+const TRANSLATIONS: Record<LanguageCode, Translations> = {
+  en: {
+    portalSubtitle: "National Statistical Capacity Portal",
+    navAbout: "About",
+    navFramework: "Competency Framework",
+    navLifecycle: "Learning Lifecycle",
+    navCirculars: "Circulars",
+    navHelpdesk: "Helpdesk",
+    officerLogin: "Officer Login",
+    tagline: "Under the Auspices of Mission Karmayogi (NPCSCB)",
+    heroTitle: "Strengthening India's Statistical Foundation Through Continuous Learning",
+    heroSub:
+      "A unified competency platform empowering ISS & SSS cadre officers with evidence-based diagnostics, verified survey methodologies, and targeted in-service capacity building.",
+    ctaAccess: "Access Officer Portal",
+    ctaGuide: "View Competency Guidelines",
+    govHeader: "Government of India | Ministry of Statistics & Programme Implementation",
+    missionKarmayogiTag: "Mission Karmayogi Initiative",
+    cadreIndexTitle: "National Cadre Capacity Index",
+    activeCycle: "Active Evaluation Cycle",
+    aggregateReadiness: "Aggregate National Readiness",
+    verifiedStandard: "Verified standard",
+    fracSync: "Synchronized with Mission Karmayogi Framework (FRAC)",
+    pillarsTag: "Governance Architecture",
+    pillarsTitle: "Four Pillars of Statistical Excellence",
+    pillarsSub:
+      "Designed specifically to meet the statutory, technical, and operational training mandates of India's official statistical cadre.",
+    lifecycleTag: "Operational Roadmap",
+    lifecycleTitle: "Cadre Learning & Diagnostic Lifecycle",
+    lifecycleSub:
+      "A structured 3-stage progression ensuring every statistical officer achieves verified competency across core national metrics.",
+    circularsTag: "Official Gazette & Notices",
+    circularsTitle: "Recent Circulars & Cadre Notifications",
+    viewAllCirculars: "View All Official Circulars in Portal",
+    ctaBannerTag: "Authorized MoSPI Officers & Cadre Personnel",
+    ctaBannerTitle: "Ready to Calibrate Your Statistical Competencies?",
+    ctaBannerSub:
+      "Log in with your official cadre credentials (@gov.in / @nic.in) to access diagnostic assessments, accredited learning modules, and the in-service AI copilot.",
+  },
+  hi: {
+    portalSubtitle: "राष्ट्रीय सांख्यिकी क्षमता पोर्टल",
+    navAbout: "परिचय",
+    navFramework: "सक्षमता रूपरेखा",
+    navLifecycle: "प्रशिक्षण जीवनचक्र",
+    navCirculars: "परिपत्रक",
+    navHelpdesk: "सहायता केंद्र",
+    officerLogin: "अधिकारी लॉगिन",
+    tagline: "मिशन कर्मयोगी के तत्वावधान में (NPCSCB)",
+    heroTitle: "निरंतर अध्ययन से भारत की सांख्यिकीय नींव का सुदृढ़ीकरण",
+    heroSub:
+      "भारतीय सांख्यिकी सेवा (ISS) एवं अधीनस्थ सांख्यिकी सेवा (SSS) के अधिकारियों को साक्ष्य-आधारित निदान और प्रमाणित सर्वेक्षण पद्धतियों से सशक्त बनाने वाला मंच।",
+    ctaAccess: "अधिकारी पोर्टल प्रवेश",
+    ctaGuide: "सक्षमता मार्गदर्शिका पहा",
+    govHeader: "भारत सरकार | सांख्यिकी और कार्यक्रम कार्यान्वयन मंत्रालय",
+    missionKarmayogiTag: "मिशन कर्मयोगी पहल",
+    cadreIndexTitle: "राष्ट्रीय संवर्ग सक्षमता सूचकांक",
+    activeCycle: "सक्रिय मूल्यांकन चक्र",
+    aggregateReadiness: "कुल राष्ट्रीय सक्षमता तत्परता",
+    verifiedStandard: "प्रमाणित मानक",
+    fracSync: "मिशन कर्मयोगी फ्रेमवर्क (FRAC) के साथ समन्वित",
+    pillarsTag: "शासन संरचना",
+    pillarsTitle: "सांख्यिकीय उत्कृष्टता के चार स्तंभ",
+    pillarsSub:
+      "भारत के आधिकारिक सांख्यिकी संवर्ग के वैधानिक, तकनीकी एवं व्यावहारिक प्रशिक्षण अधिदेशों के अनुरूप तैयार किया गया।",
+    lifecycleTag: "कार्यकारी रूपरेखा",
+    lifecycleTitle: "संवर्ग अध्ययन एवं निदान जीवनचक्र",
+    lifecycleSub:
+      "एक संरचित 3-चरणीय प्रगति जो सुनिश्चित करती है कि प्रत्येक सांख्यिकी अधिकारी मुख्य राष्ट्रीय संकेतकों पर सत्यापित सक्षमता प्राप्त करे।",
+    circularsTag: "आधिकारिक राजपत्र एवं सूचनाएं",
+    circularsTitle: "हालिया परिपत्रक एवं संवर्ग सूचनाएं",
+    viewAllCirculars: "पोर्टल में सभी परिपत्रक देखें",
+    ctaBannerTag: "अधिकृत MoSPI अधिकारी एवं संवर्ग कार्मिक",
+    ctaBannerTitle: "क्या आप अपनी सांख्यिकीय सक्षमता का परीक्षण करने हेतु तैयार हैं?",
+    ctaBannerSub:
+      "निदान मूल्यांकन, मान्यता प्राप्त प्रशिक्षण मॉड्यूल और इन-सर्विस AI सहायक का उपयोग करने हेतु अपने आधिकारिक क्रेडेंशियल्स (@gov.in / @nic.in) से लॉगिन करें।",
+  },
+  mr: {
+    portalSubtitle: "राष्ट्रीय सांख्यिकी क्षमता पोर्टल",
+    navAbout: "परिचय",
+    navFramework: "सक्षमता आराखडा",
+    navLifecycle: "प्रशिक्षण जीवनचक्र",
+    navCirculars: "परिपत्रके",
+    navHelpdesk: "मदत कक्ष",
+    officerLogin: "अधिकारी लॉगिन",
+    tagline: "मिशन कर्मयोगी अंतर्गत (NPCSCB)",
+    heroTitle: "निरंतर अध्ययनातून भारताच्या सांख्यिकी पायाचे सक्षमीकरण",
+    heroSub:
+      "भारतीय सांख्यिकी सेवा (ISS) आणि दुय्यम सांख्यिकी सेवा (SSS) अधिकाऱ्यांना पुराव्यावर आधारित मूल्यमापन व प्रमाणित सर्वेक्षण पद्धतींद्वारे सक्षम करणारे व्यासपीठ.",
+    ctaAccess: "अधिकारी पोर्टल प्रवेश",
+    ctaGuide: "सक्षमता मार्गदर्शक तत्त्वे पहा",
+    govHeader: "भारत सरकार | सांख्यिकी आणि कार्यक्रम अंमलबजावणी मंत्रालय",
+    missionKarmayogiTag: "मिशन कर्मयोगी उपक्रम",
+    cadreIndexTitle: "राष्ट्रीय संवर्ग सक्षमता निर्देशांक",
+    activeCycle: "सक्रिय मूल्यांकन फेरी",
+    aggregateReadiness: "एकूण राष्ट्रीय सक्षमता सज्जता",
+    verifiedStandard: "प्रमाणित निकष",
+    fracSync: "मिशन कर्मयोगी फ्रेमवर्क (FRAC) शी संलग्न",
+    pillarsTag: "प्रशासन रचना",
+    pillarsTitle: "सांख्यिकी उत्कृष्टतेचे चार आधारस्तंभ",
+    pillarsSub:
+      "भारताच्या अधिकृत सांख्यिकी संवर्गाच्या वैधानिक, तांत्रिक आणि क्षेत्रीय प्रशिक्षण गरजा पूर्ण करण्यासाठी विशेष रचना.",
+    lifecycleTag: "कार्यप्रणाली आराखडा",
+    lifecycleTitle: "संवर्ग प्रशिक्षण व मूल्यमापन जीवनचक्र",
+    lifecycleSub:
+      "प्रत्येक सांख्यिकी अधिकाऱ्याची प्रमाणित सक्षमता सुनिश्चित करणारी संरचित ३-टप्प्यांची कार्यप्रणाली.",
+    circularsTag: "अधिकृत राजपत्र व अधिसूचना",
+    circularsTitle: "नवीन परिपत्रके आणि संवर्ग सूचना",
+    viewAllCirculars: "पोर्टलवरील सर्व परिपत्रके पहा",
+    ctaBannerTag: "अधिकृत MoSPI अधिकारी व संवर्ग कर्मचारी",
+    ctaBannerTitle: "आपल्या सांख्यिकी सक्षमतांचे मूल्यमापन करण्यास तयार आहात?",
+    ctaBannerSub:
+      "मूल्यमापन चाचण्या, मान्यताप्राप्त प्रशिक्षण मॉड्यूल्स आणि AI मार्गदर्शकासाठी आपल्या अधिकृत क्रेडेंशियल्ससह (@gov.in / @nic.in) लॉगिन करा.",
+  },
+};
 
 export const LandingPage: React.FC = () => {
   const navigate = useNavigate();
   const [fontSizeScale, setFontSizeScale] = useState<"normal" | "large" | "larger">("normal");
-  const [lang, setLang] = useState<"en" | "hi">("en");
+  const [currentLang, setCurrentLang] = useState<LanguageCode>("en");
+
+  const t = TRANSLATIONS[currentLang];
 
   const fontScaleClass =
     fontSizeScale === "large" ? "text-[105%]" : fontSizeScale === "larger" ? "text-[110%]" : "text-[100%]";
@@ -48,15 +202,15 @@ export const LandingPage: React.FC = () => {
               </svg>
             </div>
             <span className="font-semibold text-slate-100 tracking-wide text-[11px] sm:text-xs">
-              {lang === "hi" ? "भारत सरकार | सांख्यिकी और कार्यक्रम कार्यान्वयन मंत्रालय" : "Government of India | Ministry of Statistics & Programme Implementation"}
+              {t.govHeader}
             </span>
             <span className="hidden md:inline-block text-slate-500">|</span>
             <span className="hidden md:inline-block text-slate-400 text-[11px]">
-              {lang === "hi" ? "मिशन कर्मयोगी पहल" : "Mission Karmayogi Initiative"}
+              {t.missionKarmayogiTag}
             </span>
           </div>
 
-          {/* Right Utility: Accessibility & Language */}
+          {/* Right Utility: Accessibility & Trilingual Toggle */}
           <div className="flex items-center gap-4 text-[11px] ml-auto">
             {/* Font scaling controls */}
             <div className="flex items-center gap-1 bg-slate-800/80 rounded px-2 py-0.5 border border-slate-700">
@@ -64,7 +218,9 @@ export const LandingPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setFontSizeScale("normal")}
-                className={`px-1 rounded hover:text-white transition-colors ${fontSizeScale === "normal" ? "text-amber-400 font-bold" : "text-slate-400"}`}
+                className={`px-1 rounded hover:text-white transition-colors cursor-pointer ${
+                  fontSizeScale === "normal" ? "text-amber-400 font-bold" : "text-slate-400"
+                }`}
                 title="Default Font Size"
               >
                 A
@@ -72,7 +228,9 @@ export const LandingPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setFontSizeScale("large")}
-                className={`px-1 rounded hover:text-white transition-colors ${fontSizeScale === "large" ? "text-amber-400 font-bold" : "text-slate-400"}`}
+                className={`px-1 rounded hover:text-white transition-colors cursor-pointer ${
+                  fontSizeScale === "large" ? "text-amber-400 font-bold" : "text-slate-400"
+                }`}
                 title="Larger Font Size"
               >
                 A+
@@ -80,21 +238,52 @@ export const LandingPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setFontSizeScale("larger")}
-                className={`px-1 rounded hover:text-white transition-colors ${fontSizeScale === "larger" ? "text-amber-400 font-bold" : "text-slate-400"}`}
+                className={`px-1 rounded hover:text-white transition-colors cursor-pointer ${
+                  fontSizeScale === "larger" ? "text-amber-400 font-bold" : "text-slate-400"
+                }`}
                 title="Maximum Font Size"
               >
                 A++
               </button>
             </div>
 
-            {/* Language Toggle */}
-            <button
-              type="button"
-              onClick={() => setLang(lang === "en" ? "hi" : "en")}
-              className="px-2 py-0.5 rounded bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-300 font-medium transition-colors cursor-pointer"
-            >
-              {lang === "en" ? "हिन्दी" : "English"}
-            </button>
+            {/* Trilingual Toggle Pill: [English | हिन्दी | मराठी] */}
+            <div className="flex items-center bg-slate-800 border border-slate-700 rounded-lg p-0.5 shadow-2xs">
+              <Globe className="w-3.5 h-3.5 text-slate-400 ml-1.5 mr-1 shrink-0" />
+              <button
+                type="button"
+                onClick={() => setCurrentLang("en")}
+                className={`px-2 py-0.5 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
+                  currentLang === "en"
+                    ? "bg-blue-600 text-white shadow-xs"
+                    : "text-slate-300 hover:text-white hover:bg-slate-700/60"
+                }`}
+              >
+                English
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrentLang("hi")}
+                className={`px-2 py-0.5 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
+                  currentLang === "hi"
+                    ? "bg-blue-600 text-white shadow-xs"
+                    : "text-slate-300 hover:text-white hover:bg-slate-700/60"
+                }`}
+              >
+                हिन्दी
+              </button>
+              <button
+                type="button"
+                onClick={() => setCurrentLang("mr")}
+                className={`px-2 py-0.5 rounded-md text-[11px] font-semibold transition-all cursor-pointer ${
+                  currentLang === "mr"
+                    ? "bg-blue-600 text-white shadow-xs"
+                    : "text-slate-300 hover:text-white hover:bg-slate-700/60"
+                }`}
+              >
+                मराठी
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -117,7 +306,7 @@ export const LandingPage: React.FC = () => {
                 </span>
               </div>
               <p className="text-[11px] font-semibold text-slate-500 tracking-tight">
-                National Statistical Capacity Portal
+                {t.portalSubtitle}
               </p>
             </div>
           </Link>
@@ -125,19 +314,19 @@ export const LandingPage: React.FC = () => {
           {/* Nav Links (Desktop) */}
           <nav className="hidden lg:flex items-center gap-7 text-sm font-semibold text-slate-600">
             <a href="#about" className="hover:text-blue-900 transition-colors">
-              About
+              {t.navAbout}
             </a>
             <a href="#pillars" className="hover:text-blue-900 transition-colors">
-              Competency Framework
+              {t.navFramework}
             </a>
             <a href="#lifecycle" className="hover:text-blue-900 transition-colors">
-              Learning Lifecycle
+              {t.navLifecycle}
             </a>
             <a href="#circulars" className="hover:text-blue-900 transition-colors">
-              Circulars
+              {t.navCirculars}
             </a>
             <a href="#helpdesk" className="hover:text-blue-900 transition-colors">
-              Helpdesk
+              {t.navHelpdesk}
             </a>
           </nav>
 
@@ -149,7 +338,7 @@ export const LandingPage: React.FC = () => {
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-900 via-indigo-900 to-blue-800 hover:from-blue-950 hover:to-indigo-900 text-white font-bold text-sm shadow-md shadow-blue-900/20 hover:shadow-lg transition-all active:scale-[0.99] cursor-pointer"
             >
               <Lock className="w-4 h-4 text-amber-300" />
-              <span>Officer Login</span>
+              <span>{t.officerLogin}</span>
               <ArrowRight className="w-4 h-4 text-blue-200" />
             </button>
           </div>
@@ -170,21 +359,17 @@ export const LandingPage: React.FC = () => {
               {/* Mission Karmayogi Tagline Badge */}
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-50 border border-amber-200/80 text-amber-900 text-xs font-bold shadow-2xs">
                 <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                <span>Under the Auspices of Mission Karmayogi (NPCSCB)</span>
+                <span>{t.tagline}</span>
               </div>
 
               {/* Title */}
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 font-serif leading-[1.15] tracking-tight">
-                Strengthening India's <br />
-                <span className="bg-gradient-to-r from-blue-900 via-indigo-800 to-blue-700 bg-clip-text text-transparent">
-                  Statistical Foundation
-                </span>{" "}
-                Through Continuous Learning
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-950 font-serif leading-[1.18] tracking-tight">
+                {t.heroTitle}
               </h1>
 
               {/* Subtitle */}
               <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl font-normal">
-                A unified competency platform empowering Indian Statistical Service (ISS) & Subordinate Statistical Service (SSS) cadre officers with evidence-based diagnostics, verified survey methodologies, and targeted in-service capacity building.
+                {t.heroSub}
               </p>
 
               {/* Action Buttons */}
@@ -194,7 +379,7 @@ export const LandingPage: React.FC = () => {
                   onClick={() => navigate("/login")}
                   className="px-6 py-3.5 rounded-xl bg-blue-900 hover:bg-blue-950 text-white font-bold text-base shadow-lg shadow-blue-900/25 flex items-center gap-2.5 transition-all active:scale-[0.99] cursor-pointer"
                 >
-                  <span>Access Officer Portal</span>
+                  <span>{t.ctaAccess}</span>
                   <ArrowRight className="w-4 h-4" />
                 </button>
                 <a
@@ -202,7 +387,7 @@ export const LandingPage: React.FC = () => {
                   className="px-6 py-3.5 rounded-xl bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 font-bold text-base shadow-xs flex items-center gap-2 transition-all cursor-pointer"
                 >
                   <BookOpen className="w-4 h-4 text-slate-500" />
-                  <span>View Competency Guidelines</span>
+                  <span>{t.ctaGuide}</span>
                 </a>
               </div>
 
@@ -210,7 +395,7 @@ export const LandingPage: React.FC = () => {
               <div className="pt-6 border-t border-slate-200/80 flex flex-wrap items-center gap-6 text-xs text-slate-500 font-medium">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Aligned to 33 MoSPI Cadre Roles</span>
+                  <span>33 MoSPI Cadre Roles</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -223,82 +408,121 @@ export const LandingPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Right Hero Graphic: Elevated Officer Competency Preview Card */}
+            {/* Right Hero Graphic: National Cadre Capacity & Readiness Index Card */}
             <div className="lg:col-span-5 relative">
-              <div className="relative mx-auto max-w-md bg-white rounded-2xl shadow-xl shadow-slate-200/80 border border-slate-200 p-6 space-y-5">
-                {/* Card Header: Official Status */}
+              <div className="relative mx-auto max-w-md bg-white rounded-2xl border border-slate-200/80 shadow-xl shadow-slate-200/50 p-6 space-y-5">
+                {/* Top Badge: Institutional Header with Ashoka Emblem and Active Pulse */}
                 <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-900 text-white flex items-center justify-center font-bold text-sm shadow-xs">
-                      SS
+                    <div className="w-10 h-10 rounded-xl bg-blue-900 text-amber-400 p-2 flex items-center justify-center shadow-xs shrink-0">
+                      <svg viewBox="0 0 24 24" className="w-6 h-6 fill-current" aria-hidden="true">
+                        <path d="M12 2L15 8H9L12 2Z" />
+                        <path d="M5 9C5 9 6 12 7 13C8 14 10 14 10 14L8 16L9 18L12 17L15 18L16 16L14 14C14 14 16 14 17 13C18 12 19 9 19 9H5Z" />
+                        <path d="M8 19H16V21C16 21.5 15.5 22 15 22H9C8.5 22 8 21.5 8 21V19Z" />
+                      </svg>
                     </div>
                     <div>
-                      <p className="text-sm font-bold text-slate-900">Sanvi Sawant</p>
-                      <p className="text-xs text-slate-500">Senior Statistical Officer (ISS)</p>
+                      <h3 className="text-sm font-bold text-slate-950 leading-tight">
+                        {t.cadreIndexTitle}
+                      </h3>
+                      <p className="text-[11px] font-medium text-slate-500">
+                        MoSPI Cadre Administration
+                      </p>
                     </div>
                   </div>
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    Active Cadre Level 4
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>{t.activeCycle}</span>
                   </span>
                 </div>
 
-                {/* Competency Index Meter */}
-                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-2">
+                {/* Benchmark Bar: Large Gradient Progress Bar (88.4%) */}
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-2.5">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-bold text-slate-700 uppercase tracking-wider text-[11px]">
-                      Verified Competency Index
+                      {t.aggregateReadiness}
                     </span>
-                    <span className="font-extrabold text-blue-900 text-sm">88.4 / 100</span>
+                    <span className="font-extrabold text-blue-900 text-base">88.4%</span>
                   </div>
-                  <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
-                    <div className="bg-gradient-to-r from-blue-700 to-indigo-600 h-full rounded-full w-[88%]" />
+                  <div className="w-full bg-slate-200 h-3 rounded-full overflow-hidden p-0.5">
+                    <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-500 h-full rounded-full w-[88.4%]" />
                   </div>
-                  <div className="flex items-center justify-between text-[11px] text-slate-500 pt-1">
-                    <span>National Benchmark: 74.0</span>
-                    <span className="text-emerald-600 font-bold">+14.4% Above Benchmark</span>
+                  <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+                    <span>Target Threshold: 75.0%</span>
+                    <span className="text-emerald-700 font-bold">+13.4% Exceeding Target</span>
                   </div>
                 </div>
 
-                {/* Core Domain Breakdown */}
-                <div className="space-y-2.5">
-                  <p className="text-xs font-bold text-slate-600 uppercase tracking-wider">
-                    Assessed Operational Strengths
+                {/* Cadre Calibration Metrics Grid */}
+                <div className="grid grid-cols-2 gap-3 pt-1">
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">ISS Cadre</span>
+                      <span className="text-[10px] font-bold text-blue-700 bg-blue-50 px-1.5 py-0.5 rounded">Level 4</span>
+                    </div>
+                    <p className="text-base font-extrabold text-slate-900 mt-1">91.8%</p>
+                    <p className="text-[10px] text-slate-500">1,240 Active Officers</p>
+                  </div>
+                  <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">SSS Cadre</span>
+                      <span className="text-[10px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded">Level 3</span>
+                    </div>
+                    <p className="text-base font-extrabold text-slate-900 mt-1">82.4%</p>
+                    <p className="text-[10px] text-slate-500">3,890 Active Officers</p>
+                  </div>
+                </div>
+
+                {/* Pillar Highlights: 3 rows with soft emerald checkmarks */}
+                <div className="space-y-2 pt-1">
+                  <p className="text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+                    Core Operational Domains
                   </p>
                   
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-700 font-medium">NSS Survey Sampling Design</span>
-                      <span className="font-bold text-slate-900">92%</span>
+                  {/* Row 1: NSS Canvassing */}
+                  <div className="p-2.5 rounded-lg bg-slate-50/80 border border-slate-100 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-md bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      </span>
+                      <span className="font-semibold text-slate-800">NSS Survey Canvassing</span>
                     </div>
-                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                      <div className="bg-blue-600 h-full rounded-full w-[92%]" />
-                    </div>
+                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      {t.verifiedStandard}
+                    </span>
+                  </div>
 
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-700 font-medium">Field Scrutiny & Data Quality</span>
-                      <span className="font-bold text-slate-900">89%</span>
+                  {/* Row 2: CPI Rebasing */}
+                  <div className="p-2.5 rounded-lg bg-slate-50/80 border border-slate-100 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-md bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      </span>
+                      <span className="font-semibold text-slate-800">CPI Rebasing & Price Scrutiny</span>
                     </div>
-                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                      <div className="bg-indigo-600 h-full rounded-full w-[89%]" />
-                    </div>
+                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      {t.verifiedStandard}
+                    </span>
+                  </div>
 
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-700 font-medium">National Accounts & Macro Indices</span>
-                      <span className="font-bold text-slate-900">84%</span>
+                  {/* Row 3: PLFS Field Scrutiny */}
+                  <div className="p-2.5 rounded-lg bg-slate-50/80 border border-slate-100 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-5 rounded-md bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      </span>
+                      <span className="font-semibold text-slate-800">PLFS Field Scrutiny Protocol</span>
                     </div>
-                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                      <div className="bg-emerald-600 h-full rounded-full w-[84%]" />
-                    </div>
+                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                      {t.verifiedStandard}
+                    </span>
                   </div>
                 </div>
 
-                {/* Accredited Milestone Pill */}
-                <div className="p-3 bg-blue-50/70 border border-blue-100 rounded-xl flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <Award className="w-4 h-4 text-blue-700 shrink-0" />
-                    <span className="font-semibold text-blue-950">PLFS Sampling Calibration (2026)</span>
-                  </div>
-                  <span className="text-blue-700 font-bold">Certified</span>
+                {/* Footer Chip: Synchronized with Mission Karmayogi Framework (FRAC) */}
+                <div className="p-2.5 bg-blue-50/80 border border-blue-200/70 rounded-xl flex items-center justify-center gap-2 text-[11px] text-blue-950 font-semibold text-center">
+                  <Award className="w-3.5 h-3.5 text-blue-700 shrink-0" />
+                  <span>{t.fracSync}</span>
                 </div>
               </div>
 
@@ -315,13 +539,13 @@ export const LandingPage: React.FC = () => {
           {/* Section Header */}
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
             <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-blue-50 text-blue-900 border border-blue-200 uppercase tracking-wider">
-              Governance Architecture
+              {t.pillarsTag}
             </span>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-950 font-serif">
-              Four Pillars of Statistical Excellence
+              {t.pillarsTitle}
             </h2>
             <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-              Designed specifically to meet the statutory, technical, and operational training mandates of India's official statistical cadre.
+              {t.pillarsSub}
             </p>
           </div>
 
@@ -411,13 +635,13 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-8">
           <div className="text-center max-w-3xl mx-auto space-y-3 mb-16">
             <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-indigo-50 text-indigo-900 border border-indigo-200 uppercase tracking-wider">
-              Operational Roadmap
+              {t.lifecycleTag}
             </span>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-slate-950 font-serif">
-              Cadre Learning & Diagnostic Lifecycle
+              {t.lifecycleTitle}
             </h2>
             <p className="text-sm sm:text-base text-slate-600 leading-relaxed">
-              A structured 3-stage progression ensuring every statistical officer achieves verified competency across core national metrics.
+              {t.lifecycleSub}
             </p>
           </div>
 
@@ -504,10 +728,10 @@ export const LandingPage: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-12 gap-4">
             <div>
               <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-100 text-slate-800 border border-slate-300 uppercase tracking-wider">
-                Official Gazette & Notices
+                {t.circularsTag}
               </span>
               <h2 className="text-2xl sm:text-3xl font-black text-slate-950 font-serif mt-2">
-                Recent Circulars & Cadre Notifications
+                {t.circularsTitle}
               </h2>
             </div>
             <button
@@ -515,7 +739,7 @@ export const LandingPage: React.FC = () => {
               onClick={() => navigate("/login")}
               className="text-xs sm:text-sm font-bold text-blue-900 hover:text-blue-950 flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
             >
-              <span>View All Official Circulars in Portal</span>
+              <span>{t.viewAllCirculars}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -618,13 +842,13 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-5xl mx-auto px-4 sm:px-8 text-center space-y-6 relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-xs font-bold text-amber-300">
             <Building2 className="w-3.5 h-3.5" />
-            <span>Authorized MoSPI Officers & Cadre Personnel</span>
+            <span>{t.ctaBannerTag}</span>
           </div>
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black font-serif tracking-tight">
-            Ready to Calibrate Your Statistical Competencies?
+            {t.ctaBannerTitle}
           </h2>
           <p className="text-sm sm:text-base text-slate-300 max-w-2xl mx-auto leading-relaxed">
-            Log in with your official cadre credentials (`@gov.in` / `@nic.in`) to access diagnostic assessments, accredited learning modules, and the in-service AI copilot.
+            {t.ctaBannerSub}
           </p>
           <div className="pt-2">
             <button
@@ -632,7 +856,7 @@ export const LandingPage: React.FC = () => {
               onClick={() => navigate("/login")}
               className="px-8 py-3.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-base shadow-lg shadow-blue-600/30 inline-flex items-center gap-2.5 transition-all cursor-pointer active:scale-[0.99]"
             >
-              <span>Access DAKSHA Portal</span>
+              <span>{t.ctaAccess}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
@@ -666,7 +890,7 @@ export const LandingPage: React.FC = () => {
               <ul className="space-y-2 text-xs text-slate-400">
                 <li>
                   <button type="button" onClick={() => navigate("/login")} className="hover:text-white transition-colors cursor-pointer">
-                    Officer Portal Login
+                    {t.officerLogin}
                   </button>
                 </li>
                 <li>
@@ -676,12 +900,12 @@ export const LandingPage: React.FC = () => {
                 </li>
                 <li>
                   <a href="#pillars" className="hover:text-white transition-colors">
-                    Competency Matrix
+                    {t.navFramework}
                   </a>
                 </li>
                 <li>
                   <a href="#circulars" className="hover:text-white transition-colors">
-                    Published Circulars
+                    {t.navCirculars}
                   </a>
                 </li>
               </ul>
@@ -729,7 +953,7 @@ export const LandingPage: React.FC = () => {
 
             {/* Support & Helpdesk */}
             <div className="space-y-3">
-              <p className="text-xs font-bold text-white uppercase tracking-wider">Helpdesk & Support</p>
+              <p className="text-xs font-bold text-white uppercase tracking-wider">{t.navHelpdesk}</p>
               <div className="space-y-1.5 text-xs text-slate-400">
                 <p>Email: <span className="text-slate-200">daksha-support@nic.in</span></p>
                 <p>Toll Free: <span className="text-slate-200">1800-11-2244</span> (9 AM - 6 PM)</p>
